@@ -1,0 +1,30 @@
+# ---- Angular / Node ----
+node_modules/
+dist/
+.angular/
+*.log
+npm-debug.log*
+
+# ---- Spring Boot / Java / Maven ----
+target/
+*.class
+*.jar
+*.war
+.mvn/
+!.mvn/wrapper/maven-wrapper.jar
+
+# ---- IDEs y editores ----
+.idea/
+.vscode/
+*.iml
+.settings/
+.classpath
+.project
+
+# ---- Sistema operativo ----
+.DS_Store
+Thumbs.db
+
+# ---- Variables de entorno / credenciales ----
+.env
+application-local.properties
