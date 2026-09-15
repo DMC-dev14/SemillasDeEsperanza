@@ -1,4 +1,4 @@
-package com.donaciones.Proyecto.controller;
+package com.donation.app.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,6 +58,7 @@ public class ViewController {
 
     @GetMapping("/crear-campania")
     public String crearCampania() {
-        return "crear-campania"; // Muestra el formulario para crear una campaña
+        return "crear-campania"; // Muestra el formulario para crear una campaña.
     }
+
 }
