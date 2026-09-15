@@ -5,7 +5,7 @@ Sistema web desarrollado con **Angular**, **Spring Boot** y **MySQL**.
 
 ## 📋 Descripción
 
-Semillas de Esperanza es una aplicación web que [agrega aquí una breve descripción del propósito del proyecto: por ejemplo, gestión de donaciones, apoyo a comunidades, programas sociales, etc.]
+Semillas de Esperanza es una aplicación web de donaciones enfocada en la ayuda social
 
 ## 🛠️ Tecnologías utilizadas
 
@@ -96,8 +96,8 @@ Las contribuciones son bienvenidas. Para contribuir:
 
 ## 📄 Licencia
 
-Este proyecto está bajo la licencia [MIT](LICENSE) (o la que corresponda).
+Este proyecto está bajo la licencia [MIT](LICENSE).
 
 ## 👥 Autores
 
-- Tu nombre - [tu-usuario](https://github.com/tu-usuario)
+- DMC-dev14 - [tu-usuario](https://github.com/tu-usuario)
