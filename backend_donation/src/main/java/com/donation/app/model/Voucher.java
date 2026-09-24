@@ -1,6 +1,8 @@
 package com.donation.app.model;
 
 import java.time.LocalDateTime;
+import lombok.*;
+
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -13,6 +15,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "voucher")
 public class Voucher {
@@ -37,64 +43,5 @@ public class Voucher {
     @JoinColumn(name = "transaction_id")
     private Transaction transaction;
 
-    public Voucher(Long id, String number, String filePath, LocalDateTime sendDate, String emailSend,
-            Transaction transaction) {
-        this.id = id;
-        this.number = number;
-        this.filePath = filePath;
-        this.sendDate = sendDate;
-        this.emailSend = emailSend;
-        this.transaction = transaction;
-    }
-
-    public Voucher() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
-    public LocalDateTime getSendDate() {
-        return sendDate;
-    }
-
-    public void setSendDate(LocalDateTime sendDate) {
-        this.sendDate = sendDate;
-    }
-
-    public String getEmailSend() {
-        return emailSend;
-    }
-
-    public void setEmailSend(String emailSend) {
-        this.emailSend = emailSend;
-    }
-
-    public Transaction getTransaction() {
-        return transaction;
-    }
-
-    public void setTransaction(Transaction transaction) {
-        this.transaction = transaction;
-    }
+    
 }

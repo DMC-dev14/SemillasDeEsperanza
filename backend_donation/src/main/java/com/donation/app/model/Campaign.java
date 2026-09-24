@@ -2,6 +2,7 @@ package com.donation.app.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.*;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -20,6 +21,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "campaign")
 public class Campaign {
@@ -67,128 +72,5 @@ public class Campaign {
     @Column(name = "update_date")
     private LocalDateTime updateDate;
 
-    public Campaign(Long id, String title, String description, String history, String imageUrl,
-            BigDecimal targetAmount, BigDecimal amountCollected, CampaignStatus status, LocalDateTime startDate,
-            LocalDateTime endDate, User creator, LocalDateTime createDate, LocalDateTime updateDate) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.history = history;
-        this.imageUrl = imageUrl;
-        this.targetAmount = targetAmount;
-        this.amountCollected = amountCollected;
-        this.status = status;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.creator = creator;
-        this.createDate = createDate;
-        this.updateDate = updateDate;
-    }
-
-    public Campaign() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getHistory() {
-        return history;
-    }
-
-    public void setHistory(String history) {
-        this.history = history;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public BigDecimal getTargetAmount() {
-        return targetAmount;
-    }
-
-    public void setTargetAmount(BigDecimal targetAmount) {
-        this.targetAmount = targetAmount;
-    }
-
-    public BigDecimal getAmountCollected() {
-        return amountCollected;
-    }
-
-    public void setAmountCollected(BigDecimal amountCollected) {
-        this.amountCollected = amountCollected;
-    }
-
-    public CampaignStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(CampaignStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDateTime startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDateTime getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDateTime endDate) {
-        this.endDate = endDate;
-    }
-
-    public User getCreator() {
-        return creator;
-    }
-
-    public void setCreator(User creator) {
-        this.creator = creator;
-    }
-
-    public LocalDateTime getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(LocalDateTime createDate) {
-        this.createDate = createDate;
-    }
-
-    public LocalDateTime getUpdateDate() {
-        return updateDate;
-    }
-
-    public void setUpdateDate(LocalDateTime updateDate) {
-        this.updateDate = updateDate;
-    }
+    
 }

@@ -1,6 +1,8 @@
 package com.donation.app.model;
 
 import java.time.LocalDateTime;
+import lombok.*;
+
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -14,6 +16,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -50,100 +56,5 @@ public class User {
     @JoinColumn(name = "rol_id")
     private Rol rol;
 
-    public User(Long id, String name, String email, String password, String resetToken,
-            LocalDateTime tokenExpiration, Boolean active, LocalDateTime createdAccount, String imageUrl, Rol rol) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.resetToken = resetToken;
-        this.tokenExpiration = tokenExpiration;
-        this.active = active;
-        this.createdAccount = createdAccount;
-        this.imageUrl = imageUrl;
-        this.rol = rol;
-    }
-
-    public User() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getResetToken() {
-        return resetToken;
-    }
-
-    public void setResetToken(String resetToken) {
-        this.resetToken = resetToken;
-    }
-
-    public LocalDateTime getTokenExpiration() {
-        return tokenExpiration;
-    }
-
-    public void setTokenExpiration(LocalDateTime tokenExpiration) {
-        this.tokenExpiration = tokenExpiration;
-    }
-
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-
-    public LocalDateTime getCreatedAccount() {
-        return createdAccount;
-    }
-
-    public void setCreatedAccount(LocalDateTime createdAccount) {
-        this.createdAccount = createdAccount;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public Rol getRol() {
-        return rol;
-    }
-
-    public void setRol(Rol rol) {
-        this.rol = rol;
-    }
+    
 }

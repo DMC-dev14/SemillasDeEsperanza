@@ -2,6 +2,8 @@ package com.donation.app.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.*;
+
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -19,6 +21,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "donation")
 public class Donation {
@@ -51,82 +58,5 @@ public class Donation {
     @JoinColumn(name = "campaign_id")
     private Campaign campaign;
 
-    public Donation(Long id, BigDecimal amount, String currency, String message, PaymentStatus status,
-            LocalDateTime donationDate, User donor, Campaign campaign) {
-        this.id = id;
-        this.amount = amount;
-        this.currency = currency;
-        this.message = message;
-        this.status = status;
-        this.donationDate = donationDate;
-        this.donor = donor;
-        this.campaign = campaign;
-    }
-
-    public Donation() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public PaymentStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(PaymentStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getDonationDate() {
-        return donationDate;
-    }
-
-    public void setDonationDate(LocalDateTime donationDate) {
-        this.donationDate = donationDate;
-    }
-
-    public User getDonor() {
-        return donor;
-    }
-
-    public void setDonor(User donor) {
-        this.donor = donor;
-    }
-
-    public Campaign getCampaign() {
-        return campaign;
-    }
-
-    public void setCampaign(Campaign campaign) {
-        this.campaign = campaign;
-    }
+    
 }

@@ -2,6 +2,8 @@ package com.donation.app.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.*;
+
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -20,6 +22,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "transactions")
 public class Transaction {
@@ -52,82 +58,5 @@ public class Transaction {
     @JoinColumn(name = "donation_id")
     private Donation donation;
 
-    public Transaction(Long id, String codeReferential, Method methodPay, BigDecimal amount, String currency,
-            PaymentStatus status, LocalDateTime transactionDate, Donation donation) {
-        this.id = id;
-        this.codeReferential = codeReferential;
-        this.methodPay = methodPay;
-        this.amount = amount;
-        this.currency = currency;
-        this.status = status;
-        this.transactionDate = transactionDate;
-        this.donation = donation;
-    }
-
-    public Transaction() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCodeReferential() {
-        return codeReferential;
-    }
-
-    public void setCodeReferential(String codeReferential) {
-        this.codeReferential = codeReferential;
-    }
-
-    public Method getMethodPay() {
-        return methodPay;
-    }
-
-    public void setMethodPay(Method methodPay) {
-        this.methodPay = methodPay;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public PaymentStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(PaymentStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getTransactionDate() {
-        return transactionDate;
-    }
-
-    public void setTransactionDate(LocalDateTime transactionDate) {
-        this.transactionDate = transactionDate;
-    }
-
-    public Donation getDonation() {
-        return donation;
-    }
-
-    public void setDonation(Donation donation) {
-        this.donation = donation;
-    }
+    
 }
