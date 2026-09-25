@@ -20,7 +20,7 @@ public class DataInitializer {
     private void asignarRolSiNoExiste(RolRepository rolRepository, String nombreRol) {
     if (rolRepository.findByName(nombreRol).isEmpty()) {
         Rol rol = new Rol();
-        rol.setNombre(nombreRol);
+        rol.setName(nombreRol);
         rolRepository.save(rol);
         System.out.println("Rol creado exitosamente: " + nombreRol);
     }
