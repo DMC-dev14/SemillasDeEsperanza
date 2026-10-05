@@ -5,33 +5,42 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.donation.app.dto.request.LoginRequest;
-import com.donation.app.dto.response.UserResponse;
+import com.donation.app.dto.response.AuthResponse;
 import com.donation.app.exception.BusinessException;
 import com.donation.app.model.User;
 import com.donation.app.repository.UserRepository;
+import com.donation.app.security.CustomUserDetailsService.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;
 
-@Service 
-@RequiredArgsConstructor 
+@Service
+@RequiredArgsConstructor
 public class AuthService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public UserResponse login(LoginRequest request){
-        String email=request.email().trim();
+    public AuthResponse login(LoginRequest request) {
+        String email = request.email().trim();
 
-        User user=userRepository.findByEmail(email)
-        .orElseThrow(() -> new BusinessException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas"));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas"));
 
-        if(!passwordEncoder.matches(request.password(), user.getPassword())){
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new BusinessException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas");
         }
 
-        if(!Boolean.TRUE.equals(user.getActive())){
+        if (!Boolean.TRUE.equals(user.getActive())) {
             throw new BusinessException(HttpStatus.FORBIDDEN, "Usuario inactivo");
         }
 
-        return UserService.mapToUserResponse(user);
+        JwtService.IssuedToken token = jwtService.issue(new CustomUserDetails(user));
+
+        return new AuthResponse(
+                token.value(),
+                UserService.mapToUserResponse(user),
+                token.expiresAt()
+        );
     }
 }

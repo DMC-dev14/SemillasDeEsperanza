@@ -2,8 +2,6 @@ package com.donation.app.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import lombok.*;
-
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -20,28 +18,36 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "donation")
 public class Donation {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "amount", precision = 10, scale = 2)
+    @Column(name = "amount", precision = 10, scale = 2, nullable = false)
     private BigDecimal amount;
 
+    @Builder.Default
     @Column(name = "currency", length = 3)
     private String currency = "PEN";
 
     @Column(name = "message", length = 255)
     private String message;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private PaymentStatus status = PaymentStatus.PENDING;
@@ -57,6 +63,4 @@ public class Donation {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campaign_id")
     private Campaign campaign;
-
-    
 }

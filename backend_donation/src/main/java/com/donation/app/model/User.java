@@ -1,8 +1,6 @@
 package com.donation.app.model;
 
 import java.time.LocalDateTime;
-import lombok.*;
-
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -15,14 +13,21 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,6 +47,7 @@ public class User {
     @Column(name = "token_expiration")
     private LocalDateTime tokenExpiration;
 
+    @Builder.Default
     @Column(name = "is_active")
     private Boolean active = true;
 
@@ -55,6 +61,4 @@ public class User {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rol_id")
     private Rol rol;
-
-    
 }

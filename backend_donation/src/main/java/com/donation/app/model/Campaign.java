@@ -2,7 +2,6 @@ package com.donation.app.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import lombok.*;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -20,14 +19,21 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "campaign")
 public class Campaign {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,9 +53,11 @@ public class Campaign {
     @Column(name = "target_amount", precision = 10, scale = 2)
     private BigDecimal targetAmount;
 
+    @Builder.Default
     @Column(name = "amount_collected", precision = 10, scale = 2)
     private BigDecimal amountCollected = BigDecimal.ZERO;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private CampaignStatus status = CampaignStatus.DRAFT;
@@ -71,6 +79,4 @@ public class Campaign {
     @UpdateTimestamp
     @Column(name = "update_date")
     private LocalDateTime updateDate;
-
-    
 }

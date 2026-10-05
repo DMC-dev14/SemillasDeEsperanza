@@ -10,5 +10,6 @@ import com.donation.app.model.User;
 public interface UserRepository extends JpaRepository<User, Long>{
     Optional<User> findByEmail(String email);
     Boolean existsByEmail(String email);
-    Optional<User> findByEmailAndResetTokenAndTokenExpirationAfter(String email, String resetToken, LocalDateTime  tokenExpiration);
+    long countByRol_NameAndActiveTrue(String rolName);
+    Optional<User> findByEmailAndResetTokenAndTokenExpirationAfter(String email, String resetToken, LocalDateTime tokenExpiration);
 }
