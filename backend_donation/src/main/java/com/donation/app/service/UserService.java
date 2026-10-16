@@ -103,7 +103,6 @@ public class UserService {
         if (request.imageUrl() != null) {
             user.setImageUrl(request.imageUrl().trim());
         }
-
         if (request.active() != null && !request.active().equals(user.getActive())) {
             if (Boolean.FALSE.equals(request.active())) {
                 verificarNoEsPropiaCuenta(id);
@@ -181,6 +180,7 @@ public class UserService {
             user.getActive(),
             user.getCreatedAccount(),
             user.getRol() != null ? user.getRol().getName() : null
+            
         );
     }
 }

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Semillas de Esperanza — Iniciar Sesión')}">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Semillas de Esperanza — Iniciar Sesión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" href="../static/css/styles.css"/>
+</head>
+<body>
+<!-- ══════════ VISTA: INICIAR SESIÓN (login.html) ══════════ -->
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-side">
+      <svg class="auth-side-art" width="120" height="120" viewBox="0 0 200 200" fill="none" stroke="white" stroke-width="1.5">
+        <circle cx="100" cy="80" r="30"/><path d="M100 110 Q80 130 70 160 M100 110 Q120 130 130 160"/><path d="M70 160 Q100 150 130 160"/><path d="M100 50 Q90 30 80 20 M100 50 Q110 30 120 20"/>
+      </svg>
+      <a class="auth-side-logo" th:href="@{/}" href="index.html">
+        <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/></svg></div>
+        <span>Semillas de Esperanza</span>
+      </a>
+      <p style="color:rgba(255,255,255,.88);font-size:.875rem;line-height:1.65">"Cada donación es una semilla que germina en el futuro de un niño."</p>
+      <small>— Valentina Ríos, Directora Ejecutiva</small>
+    </div>
+    <div class="auth-form">
+      <div class="auth-form-inner">
+        <h1 style="font-size:1.5rem;color:var(--bark);margin-bottom:.25rem">Iniciar sesión</h1>
+        <p class="text-sm text-clay mb-8">Accede a tu cuenta para ver tu historial de donaciones.</p>
+
+        <!-- Mensaje de error opcional desde Spring Security / Controlador -->
+        <p class="error-msg mb-3" th:if="${param.error}">⚠ Credenciales incorrectas. Intenta nuevamente.</p>
+
+        <form id="login-spring-form" th:action="@{/login}" method="post" onsubmit="handleLogin(event)">
+          <div class="mb-4">
+            <label class="label">Correo electrónico</label>
+            <input type="email" name="username" class="input" id="login-email" placeholder="maria@correo.com"/>
+            <p class="error-msg hidden" id="login-email-err">⚠ Correo inválido</p>
+          </div>
+          <div class="mb-4">
+            <label class="label">Contraseña</label>
+            <input type="password" name="password" class="input" id="login-pw" placeholder="••••••••"/>
+            <p class="error-msg hidden" id="login-pw-err">⚠ Contraseña muy corta</p>
+          </div>
+          <div class="flex justify-between items-center mb-6">
+            <label class="flex items-center gap-2 text-sm text-clay" style="cursor:pointer">
+              <input type="checkbox" name="remember-me" style="accent-color:var(--terra)"/> Recordarme
+            </label>
+            <a style="font-size:.875rem;color:var(--terra);font-weight:500;cursor:pointer">¿Olvidaste tu contraseña?</a>
+          </div>
+          <button type="submit" class="btn btn-primary w-full" style="font-size:1rem;padding:.875rem">Iniciar sesión</button>
+        </form>
+        <p class="text-center text-sm text-clay mt-6">¿Aún no tienes cuenta? <a style="color:var(--terra);font-weight:600;cursor:pointer" th:href="@{/registro}" href="registro.html">Regístrate aquí</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/app.js}" src="../static/js/app.js"></script>
+</body>
+</html>

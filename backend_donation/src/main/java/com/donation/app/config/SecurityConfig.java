@@ -40,6 +40,14 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/error").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(
+                        "/", "/index",
+                        "/login", "/registro",
+                        "/proyectos", "/proyectos/**",
+                        "/nosotros", "/contacto", "/donar",
+                        "/dashboard",
+                        "/css/**", "/js/**", "/images/**", "/favicon.ico"
+                ).permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
                 .anyRequest().authenticated())

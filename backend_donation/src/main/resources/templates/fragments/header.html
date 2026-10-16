@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header id="header" th:fragment="header(activePage)">
+  <div class="header-inner">
+    <a class="logo" th:href="@{/}" href="index.html">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/>
+        </svg>
+      </div>
+      <div class="logo-text">Semillas<span>de Esperanza</span></div>
+    </a>
+    <nav class="nav-links">
+      <a th:href="@{/}" href="index.html" th:classappend="${activePage == 'home'} ? 'active' : ''">Inicio</a>
+      <a th:href="@{/proyectos}" href="proyectos.html" th:classappend="${activePage == 'projects'} ? 'active' : ''">Proyectos</a>
+      <a th:href="@{/nosotros}" href="nosotros.html" th:classappend="${activePage == 'about'} ? 'active' : ''">Quiénes Somos</a>
+      <a th:href="@{/contacto}" href="contacto.html" th:classappend="${activePage == 'contact'} ? 'active' : ''">Contacto</a>
+    </nav>
+    <div class="header-right">
+      <a class="login-btn" th:href="@{/login}" href="login.html">Iniciar sesión</a>
+      <a class="btn btn-primary btn-sm" th:href="@{/donar}" href="donar.html">Donar ahora</a>
+      <div class="hamburger" onclick="toggleMenu()" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <a th:href="@{/}" href="index.html" onclick="closeMenu()">Inicio</a>
+    <a th:href="@{/proyectos}" href="proyectos.html" onclick="closeMenu()">Proyectos</a>
+    <a th:href="@{/nosotros}" href="nosotros.html" onclick="closeMenu()">Quiénes Somos</a>
+    <a th:href="@{/contacto}" href="contacto.html" onclick="closeMenu()">Contacto</a>
+    <a th:href="@{/login}" href="login.html" onclick="closeMenu()">Iniciar sesión</a>
+  </div>
+</header>
+</body>
+</html>

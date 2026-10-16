@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Semillas de Esperanza — Mi Cuenta')}">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Semillas de Esperanza — Mi Cuenta</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" href="../static/css/styles.css"/>
+</head>
+<body>
+<!-- ══════════ HEADER (Fragmento Thymeleaf + Natural Template Fallback) ══════════ -->
+<header id="header" th:replace="~{fragments/header :: header('dashboard')}">
+  <div class="header-inner">
+    <a class="logo" th:href="@{/}" href="index.html">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/>
+        </svg>
+      </div>
+      <div class="logo-text">Semillas<span>de Esperanza</span></div>
+    </a>
+    <nav class="nav-links">
+      <a th:href="@{/}" href="index.html" class="">Inicio</a>
+      <a th:href="@{/proyectos}" href="proyectos.html" class="">Proyectos</a>
+      <a th:href="@{/nosotros}" href="nosotros.html" class="">Quiénes Somos</a>
+      <a th:href="@{/contacto}" href="contacto.html" class="">Contacto</a>
+    </nav>
+    <div class="header-right">
+      <a class="login-btn" th:href="@{/login}" href="login.html">Iniciar sesión</a>
+      <a class="btn btn-primary btn-sm" th:href="@{/donar}" href="donar.html">Donar ahora</a>
+      <div class="hamburger" onclick="toggleMenu()" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <a th:href="@{/}" href="index.html" onclick="closeMenu()">Inicio</a>
+    <a th:href="@{/proyectos}" href="proyectos.html" onclick="closeMenu()">Proyectos</a>
+    <a th:href="@{/nosotros}" href="nosotros.html" onclick="closeMenu()">Quiénes Somos</a>
+    <a th:href="@{/contacto}" href="contacto.html" onclick="closeMenu()">Contacto</a>
+    <a th:href="@{/login}" href="login.html" onclick="closeMenu()">Iniciar sesión</a>
+  </div>
+</header>
+<!-- ══════════ VISTA: DASHBOARD DE USUARIO (dashboard.html) ══════════ -->
+<main>
+  <div class="dash-header">
+    <div class="container">
+      <p style="color:rgba(255,255,255,.8);font-size:.875rem;margin-bottom:.25rem">Bienvenida de vuelta,</p>
+      <h1 style="font-size:2rem;color:#fff" th:text="${usuario != null ? usuario.nombre + ' 👋' : 'María García 👋'}">María García 👋</h1>
+      <p style="color:rgba(255,255,255,.75);font-size:.875rem;margin-top:.25rem">Gracias por ser parte del cambio en Latinoamérica.</p>
+    </div>
+  </div>
+  <div class="container" style="padding-top:2rem;padding-bottom:4rem">
+    <!-- Stats -->
+    <div class="grid grid-3 gap-4 mb-6">
+      <div class="dash-stat"><span class="dash-stat-icon">💸</span><div><p class="dash-stat-val" th:text="${resumen != null ? 'S/' + resumen.totalDonado : 'S/450'}">S/450</p><p class="dash-stat-lbl">Total donado</p></div></div>
+      <div class="dash-stat"><span class="dash-stat-icon">🎁</span><div><p class="dash-stat-val" th:text="${resumen != null ? resumen.cantidadDonaciones : '5'}">5</p><p class="dash-stat-lbl">Donaciones</p></div></div>
+      <div class="dash-stat"><span class="dash-stat-icon">🌱</span><div><p class="dash-stat-val" th:text="${resumen != null ? resumen.proyectosApoyados : '3'}">3</p><p class="dash-stat-lbl">Proyectos apoyados</p></div></div>
+    </div>
+
+    <!-- Top donors + Live feed -->
+    <div class="grid gap-6 mb-6 dash-grid-top" style="grid-template-columns:1fr 2fr">
+      <div class="bg-white rounded-2xl border p-6">
+        <h2 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:.95rem;color:var(--bark);margin-bottom:1.25rem">🏆 Top donadores</h2>
+        <div id="top-donors-list" th:remove="all-but-first">
+          <div class="top-donor-row" th:each="d : ${topDonadores}">
+            <span style="width:1.5rem;text-align:center;font-size:.875rem" th:text="${d.badge != null && !d.badge.isEmpty() ? d.badge : '#' + d.rank}">🥇</span>
+            <div class="top-rank" th:text="${d.rank}">1</div>
+            <div style="flex:1"><p style="font-size:.875rem;font-weight:600;color:var(--bark)">Anónimo</p><p class="text-xs text-clay" th:text="${d.donations + ' donaciones'}">14 donaciones</p></div>
+            <span style="font-family:'Poppins',sans-serif;font-weight:700;color:var(--bark);font-size:.875rem" th:text="${'S/' + #numbers.formatInteger(d.total, 1, 'COMMA')}">S/2,800</span>
+          </div>
+          <div class="top-donor-row">
+            <span style="width:1.5rem;text-align:center;font-size:.875rem">🥈</span>
+            <div class="top-rank">2</div>
+            <div style="flex:1"><p style="font-size:.875rem;font-weight:600;color:var(--bark)">Anónimo</p><p class="text-xs text-clay">9 donaciones</p></div>
+            <span style="font-family:'Poppins',sans-serif;font-weight:700;color:var(--bark);font-size:.875rem">S/1,950</span>
+          </div>
+          <div class="top-donor-row">
+            <span style="width:1.5rem;text-align:center;font-size:.875rem">🥉</span>
+            <div class="top-rank">3</div>
+            <div style="flex:1"><p style="font-size:.875rem;font-weight:600;color:var(--bark)">Anónimo</p><p class="text-xs text-clay">7 donaciones</p></div>
+            <span style="font-family:'Poppins',sans-serif;font-weight:700;color:var(--bark);font-size:.875rem">S/1,400</span>
+          </div>
+          <div class="top-donor-row">
+            <span style="width:1.5rem;text-align:center;font-size:.875rem">#4</span>
+            <div class="top-rank">4</div>
+            <div style="flex:1"><p style="font-size:.875rem;font-weight:600;color:var(--bark)">Anónimo</p><p class="text-xs text-clay">5 donaciones</p></div>
+            <span style="font-family:'Poppins',sans-serif;font-weight:700;color:var(--bark);font-size:.875rem">S/950</span>
+          </div>
+          <div class="top-donor-row">
+            <span style="width:1.5rem;text-align:center;font-size:.875rem">#5</span>
+            <div class="top-rank">5</div>
+            <div style="flex:1"><p style="font-size:.875rem;font-weight:600;color:var(--bark)">Anónimo</p><p class="text-xs text-clay">4 donaciones</p></div>
+            <span style="font-family:'Poppins',sans-serif;font-weight:700;color:var(--bark);font-size:.875rem">S/750</span>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--sand);margin-top:1rem;padding-top:.875rem;text-align:center">
+          <p class="text-xs text-clay">Los nombres se muestran anónimos por privacidad.</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border p-6">
+        <div class="flex justify-between items-center mb-5">
+          <h2 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:.95rem;color:var(--bark)">Donaciones en tiempo real</h2>
+          <div class="flex items-center gap-2 text-xs font-medium" style="color:var(--sage)">
+            <div class="live-dot"></div> En vivo
+          </div>
+        </div>
+        <div id="live-feed">
+          <div class="feed-item" style="opacity:1">
+            <div class="feed-avatar">A</div>
+            <div style="flex:1;min-width:0"><p class="text-sm truncate" style="color:var(--bark)"><strong>Ana M.</strong> donó <strong class="feed-amount">S/100</strong></p><p class="text-xs text-clay truncate">a Aulas del Futuro</p></div>
+            <span class="text-xs text-clay" style="white-space:nowrap;flex-shrink:0">hace 2 min</span>
+          </div>
+          <div class="feed-item" style="opacity:0.85">
+            <div class="feed-avatar">A</div>
+            <div style="flex:1;min-width:0"><p class="text-sm truncate" style="color:var(--bark)"><strong>Anónimo</strong> donó <strong class="feed-amount">S/50</strong></p><p class="text-xs text-clay truncate">a Mesa Llena</p></div>
+            <span class="text-xs text-clay" style="white-space:nowrap;flex-shrink:0">hace 5 min</span>
+          </div>
+          <div class="feed-item" style="opacity:0.7">
+            <div class="feed-avatar">C</div>
+            <div style="flex:1;min-width:0"><p class="text-sm truncate" style="color:var(--bark)"><strong>Carlos R.</strong> donó <strong class="feed-amount">S/200</strong></p><p class="text-xs text-clay truncate">a Techo y Esperanza</p></div>
+            <span class="text-xs text-clay" style="white-space:nowrap;flex-shrink:0">hace 8 min</span>
+          </div>
+          <div class="feed-item" style="opacity:0.55">
+            <div class="feed-avatar">L</div>
+            <div style="flex:1;min-width:0"><p class="text-sm truncate" style="color:var(--bark)"><strong>Lucía F.</strong> donó <strong class="feed-amount">S/20</strong></p><p class="text-xs text-clay truncate">a Sonrisas Saludables</p></div>
+            <span class="text-xs text-clay" style="white-space:nowrap;flex-shrink:0">hace 12 min</span>
+          </div>
+          <div class="feed-item" style="opacity:0.4">
+            <div class="feed-avatar">A</div>
+            <div style="flex:1;min-width:0"><p class="text-sm truncate" style="color:var(--bark)"><strong>Anónimo</strong> donó <strong class="feed-amount">S/500</strong></p><p class="text-xs text-clay truncate">a Aulas del Futuro</p></div>
+            <span class="text-xs text-clay" style="white-space:nowrap;flex-shrink:0">hace 15 min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History + Profile -->
+    <div class="grid gap-6 dash-grid-bottom" style="grid-template-columns:2fr 1fr">
+      <div class="bg-white rounded-2xl border p-6">
+        <div class="flex justify-between items-center mb-5">
+          <h2 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:.95rem;color:var(--bark)">Historial de donaciones</h2>
+          <a th:href="@{/donaciones/exportar-pdf}" class="text-xs font-semibold" style="color:var(--terra);background:none;border:none;cursor:pointer">Descargar PDF</a>
+        </div>
+        <table class="history-table">
+          <thead><tr><th>Fecha</th><th>Monto</th><th>Proyecto</th><th>Estado</th><th></th></tr></thead>
+          <tbody th:remove="all-but-first">
+            <tr th:each="don : ${historialDonaciones}">
+              <td style="color:var(--clay)" th:text="${don.fecha}">12 Sep 2026</td>
+              <td style="font-weight:600" th:text="${'S/' + don.monto}">S/100</td>
+              <td th:text="${don.proyecto}">Aulas del Futuro</td>
+              <td><span class="badge badge-edu" th:text="${don.estado}">Completada</span></td>
+              <td><button type="button" style="color:var(--terra);font-size:.78rem;background:none;border:none;cursor:pointer">Recibo</button></td>
+            </tr>
+            <tr><td style="color:var(--clay)">15 Ago 2026</td><td style="font-weight:600">S/50</td><td>Mesa Llena</td><td><span class="badge badge-edu">Completada</span></td><td><button type="button" style="color:var(--terra);font-size:.78rem;background:none;border:none;cursor:pointer">Recibo</button></td></tr>
+            <tr><td style="color:var(--clay)">10 Jul 2026</td><td style="font-weight:600">S/200</td><td>Techo y Esperanza</td><td><span class="badge badge-edu">Completada</span></td><td><button type="button" style="color:var(--terra);font-size:.78rem;background:none;border:none;cursor:pointer">Recibo</button></td></tr>
+            <tr><td style="color:var(--clay)">05 Jun 2026</td><td style="font-weight:600">S/50</td><td>Mesa Llena</td><td><span class="badge badge-edu">Completada</span></td><td><button type="button" style="color:var(--terra);font-size:.78rem;background:none;border:none;cursor:pointer">Recibo</button></td></tr>
+            <tr><td style="color:var(--clay)">10 May 2026</td><td style="font-weight:600">S/50</td><td>Mesa Llena</td><td><span class="badge badge-edu">Completada</span></td><td><button type="button" style="color:var(--terra);font-size:.78rem;background:none;border:none;cursor:pointer">Recibo</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Profile -->
+      <div class="bg-white rounded-2xl border p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:.95rem;color:var(--bark)">Mi perfil</h2>
+          <button id="edit-profile-btn" class="text-xs font-semibold" style="color:var(--terra);background:none;border:none;cursor:pointer" onclick="toggleEditProfile()">Editar</button>
+        </div>
+        <div class="text-center mb-5">
+          <div style="width:4rem;height:4rem;border-radius:50%;background:var(--grad135);display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:700;font-size:1.5rem;color:#fff;margin:0 auto .5rem" th:text="${usuario != null ? #strings.substring(usuario.nombre,0,1) : 'M'}">M</div>
+          <p style="font-weight:600;font-size:.9rem;color:var(--bark)" th:text="${usuario != null ? usuario.nombre : 'María García'}">María García</p>
+          <p class="text-xs text-clay">Donante activo desde 2024</p>
+        </div>
+        <div id="profile-view">
+          <div style="margin-bottom:.875rem"><p class="text-xs text-clay mb-0.5">Nombre</p><p style="font-size:.875rem;font-weight:500;color:var(--bark)" th:text="${usuario != null ? usuario.nombre : 'María García'}">María García</p></div>
+          <div style="margin-bottom:.875rem"><p class="text-xs text-clay mb-0.5">Correo</p><p style="font-size:.875rem;font-weight:500;color:var(--bark)" th:text="${usuario != null ? usuario.correo : 'maria@correo.com'}">maria@correo.com</p></div>
+          <div style="margin-bottom:.875rem"><p class="text-xs text-clay mb-0.5">Teléfono</p><p style="font-size:.875rem;font-weight:500;color:var(--bark)" th:text="${usuario != null ? usuario.telefono : '+51 987 654 321'}">+51 987 654 321</p></div>
+          <div style="margin-bottom:.875rem"><p class="text-xs text-clay mb-0.5">País</p><p style="font-size:.875rem;font-weight:500;color:var(--bark)" th:text="${usuario != null ? usuario.pais : 'Perú'}">Perú</p></div>
+          <div><p class="text-xs text-clay mb-0.5">Ciudad</p><p style="font-size:.875rem;font-weight:500;color:var(--bark)" th:text="${usuario != null ? usuario.ciudad : 'Lima'}">Lima</p></div>
+        </div>
+        <form id="profile-edit" class="hidden" th:action="@{/perfil/actualizar}" method="post" onsubmit="event.preventDefault(); saveProfile();">
+          <div class="grid gap-3 mb-4">
+            <div><label class="label">Nombre</label><input type="text" name="nombre" class="input" th:value="${usuario != null ? usuario.nombre : 'María García'}" value="María García" style="padding:.6rem .875rem;font-size:.875rem"/></div>
+            <div><label class="label">Correo</label><input type="email" name="correo" class="input" th:value="${usuario != null ? usuario.correo : 'maria@correo.com'}" value="maria@correo.com" style="padding:.6rem .875rem;font-size:.875rem"/></div>
+            <div><label class="label">Teléfono</label><input type="tel" name="telefono" class="input" th:value="${usuario != null ? usuario.telefono : '+51 987 654 321'}" value="+51 987 654 321" style="padding:.6rem .875rem;font-size:.875rem"/></div>
+            <div><label class="label">País</label><input type="text" name="pais" class="input" th:value="${usuario != null ? usuario.pais : 'Perú'}" value="Perú" style="padding:.6rem .875rem;font-size:.875rem"/></div>
+            <div><label class="label">Ciudad</label><input type="text" name="ciudad" class="input" th:value="${usuario != null ? usuario.ciudad : 'Lima'}" value="Lima" style="padding:.6rem .875rem;font-size:.875rem"/></div>
+            <div><label class="label">Biografía</label><textarea name="biografia" class="input" rows="2" placeholder="Cuéntanos sobre ti..." style="padding:.6rem .875rem;font-size:.875rem"></textarea></div>
+          </div>
+        </form>
+        <!-- Change password -->
+        <div id="pw-change-section" class="hidden mt-4">
+          <div style="border-top:1px solid var(--sand);padding-top:1rem;margin-top:0">
+            <div class="grid gap-3">
+              <div><label class="label">Contraseña actual</label><input type="password" class="input" placeholder="••••••••" style="padding:.6rem .875rem;font-size:.875rem"/></div>
+              <div><label class="label">Nueva contraseña</label><input type="password" class="input" id="dash-new-pw" placeholder="Mínimo 8 caracteres" style="padding:.6rem .875rem;font-size:.875rem"/></div>
+              <div><label class="label">Confirmar</label><input type="password" class="input" placeholder="Repite la nueva" style="padding:.6rem .875rem;font-size:.875rem"/></div>
+            </div>
+            <div class="flex gap-2 mt-3">
+              <button type="button" class="btn btn-ghost btn-sm" style="flex:1" onclick="togglePwChange()">Cancelar</button>
+              <button type="button" class="btn btn-primary btn-sm" style="flex:1" onclick="savePwChange()">Guardar</button>
+            </div>
+          </div>
+        </div>
+        <div id="profile-actions" class="grid gap-2 mt-4">
+          <button type="button" id="change-pw-btn" class="btn btn-ghost w-full" style="font-size:.82rem;padding:.625rem" onclick="togglePwChange()">
+            🔑 Cambiar contraseña
+          </button>
+          <a class="btn btn-outline w-full" style="font-size:.82rem;padding:.625rem" th:href="@{/donar}" href="donar.html">Nueva donación</a>
+        </div>
+        <div id="save-profile-btn" class="hidden mt-4">
+          <button type="button" class="btn btn-primary w-full" onclick="saveProfile()">Guardar cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<!-- ══════════ FOOTER (Fragmento Thymeleaf + Natural Template Fallback) ══════════ -->
+<div th:replace="~{fragments/footer :: footer}">
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="logo" href="index.html" style="margin-bottom:.75rem">
+            <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/></svg></div>
+            <span style="font-family:'Poppins',sans-serif;font-weight:700;color:#fff;font-size:.9rem">Semillas de Esperanza</span>
+          </a>
+          <p>Conectamos donantes con proyectos que transforman la vida de niños y adolescentes en riesgo en Latinoamérica.</p>
+          <div class="footer-social">
+            <a title="Facebook">f</a><a title="Instagram">ig</a><a title="Twitter">tw</a><a title="YouTube">yt</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Navegación</h4>
+          <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="proyectos.html">Proyectos</a></li>
+            <li><a href="nosotros.html">Quiénes Somos</a></li>
+            <li><a href="donar.html">Donar</a></li>
+            <li><a href="contacto.html">Contacto</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contacto</h4>
+          <div class="footer-contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg><span>hola@semillasesperanza.org</span></div>
+          <div class="footer-contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg><span>+51 1 234 5678</span></div>
+          <div class="footer-contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span>Av. Larco 1301, Miraflores, Lima</span></div>
+        </div>
+        <div class="footer-col">
+          <h4>Newsletter</h4>
+          <p style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:.75rem">Recibe historias de impacto y novedades de nuestros proyectos.</p>
+          <div class="newsletter-form">
+            <input type="email" placeholder="tu@correo.com"/>
+            <button onclick="showToast('success','¡Suscripción confirmada! 🌱')">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,.1)">
+      <div class="container">
+        <div class="footer-bottom">
+          <p>© 2026 Semillas de Esperanza. Todos los derechos reservados.</p>
+          <div><a>Política de Privacidad</a><a>Términos y Condiciones</a></div>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <div id="toast-container"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script th:src="@{/js/app.js}" src="../static/js/app.js"></script>
+</div>
+</body>
+</html>
