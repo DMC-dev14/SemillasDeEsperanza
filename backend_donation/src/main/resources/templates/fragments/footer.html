@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="footer">
+
+  <!-- ══════════ 1. FOOTER DE ADMINISTRADOR (ROL: ADMINISTRADOR) ══════════ -->
+  <footer id="footer" th:if="${currentRole == 'ADMINISTRADOR'}">
+    <div class="container">
+      <div class="footer-grid" style="grid-template-columns:1.6fr 1fr 1fr;padding:2.5rem 0">
+        <div class="footer-brand">
+          <a class="logo" th:href="@{/admin}" style="margin-bottom:.75rem">
+            <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/></svg></div>
+            <span style="font-family:'Poppins',sans-serif;font-weight:700;color:#fff;font-size:.9rem">Semillas de Esperanza · Consola Admin</span>
+          </a>
+          <p>Panel de administración institucional para el control de campañas sociales, auditoría de donaciones y gestión de usuarios registrados.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Módulos de Gestión</h4>
+          <ul>
+            <li><a href="#resumen" onclick="if(typeof switchAdminTab==='function'){event.preventDefault();switchAdminTab('resumen');}">Resumen Ejecutivo</a></li>
+            <li><a href="#campanas" onclick="if(typeof switchAdminTab==='function'){event.preventDefault();switchAdminTab('campanas');}">Gestión de Campañas</a></li>
+            <li><a href="#donaciones" onclick="if(typeof switchAdminTab==='function'){event.preventDefault();switchAdminTab('donaciones');}">Control de Donaciones</a></li>
+            <li><a href="#usuarios" onclick="if(typeof switchAdminTab==='function'){event.preventDefault();switchAdminTab('usuarios');}">Administración de Usuarios</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Sesión Administrativa</h4>
+          <p style="font-size:.82rem;color:rgba(255,255,255,.65);margin-bottom:.5rem">
+            Conectado como: <strong style="color:#fff" th:text="${currentUser != null ? currentUser.name : 'Administrador'}">Administrador</strong>
+          </p>
+          <p style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:1rem" th:text="${currentUser != null ? currentUser.email : 'admin@semillas.org'}">admin@semillas.org</p>
+          <button type="button" class="btn btn-outline btn-sm" style="border-color:rgba(255,255,255,.35)!important;color:#fff!important" onclick="handleLogout()">Cerrar sesión segura</button>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,.1)">
+      <div class="container">
+        <div class="footer-bottom">
+          <p>© 2026 Semillas de Esperanza — Sistema de Administración Interna.</p>
+          <div><span style="font-size:.75rem;color:#7C9A3E">● Base de Datos Conectada (MySQL)</span></div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ══════════ 2. FOOTER DE CLIENTE (ROL: USUARIO) ══════════ -->
+  <footer id="footer" th:if="${currentRole == 'USUARIO'}">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="logo" th:href="@{/dashboard}" style="margin-bottom:.75rem">
+            <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/></svg></div>
+            <span style="font-family:'Poppins',sans-serif;font-weight:700;color:#fff;font-size:.9rem">Semillas de Esperanza</span>
+          </a>
+          <p>Gracias por ser parte de nuestra comunidad de donantes. Cada aporte tuyo transforma vidas con total transparencia.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Mi Cuenta</h4>
+          <ul>
+            <li><a th:href="@{/dashboard}">Mi Dashboard</a></li>
+            <li><a th:href="@{/donar}">Realizar Donación</a></li>
+            <li><a th:href="@{/dashboard#mis-donaciones}">Mis Donaciones</a></li>
+            <li><a th:href="@{/dashboard#mi-perfil}">Mi Perfil</a></li>
+            <li><a th:href="@{/proyectos}">Proyectos Activos</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Atención al Donante</h4>
+          <div class="footer-contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg><span>donantes@semillasesperanza.org</span></div>
+          <div class="footer-contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg><span>+51 1 234 5678</span></div>
+        </div>
+        <div class="footer-col">
+          <h4>Tu Sesión</h4>
+          <p style="font-size:.78rem;color:rgba(255,255,255,.65);margin-bottom:.75rem">
+            Donante activo: <strong style="color:#fff" th:text="${currentUser != null ? currentUser.name : 'Cliente'}">Cliente</strong>
+          </p>
+          <button type="button" class="btn btn-outline btn-sm" style="border-color:rgba(255,255,255,.35)!important;color:#fff!important" onclick="handleLogout()">Cerrar sesión</button>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,.1)">
+      <div class="container">
+        <div class="footer-bottom">
+          <p>© 2026 Semillas de Esperanza. Portal del Donante.</p>
+          <div><a>Certificados de Donación</a><a>Transparencia</a></div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ══════════ 3. FOOTER PÚBLICO / VISITANTE (SIN SESIÓN) ══════════ -->
+  <footer id="footer" th:if="${currentRole == null || currentRole == 'VISITANTE'}">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="logo" th:href="@{/}" href="/" style="margin-bottom:.75rem">
+            <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/></svg></div>
+            <span style="font-family:'Poppins',sans-serif;font-weight:700;color:#fff;font-size:.9rem">Semillas de Esperanza</span>
+          </a>
+          <p>Conectamos donantes con proyectos que transforman la vida de niños y adolescentes en riesgo en Latinoamérica.</p>
+          <div class="footer-social">
+            <a title="Facebook">f</a><a title="Instagram">ig</a><a title="Twitter">tw</a><a title="YouTube">yt</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Navegación</h4>
+          <ul>
+            <li><a th:href="@{/}" href="/">Inicio</a></li>
+            <li><a th:href="@{/proyectos}" href="/proyectos">Proyectos</a></li>
+            <li><a th:href="@{/nosotros}" href="/nosotros">Quiénes Somos</a></li>
+            <li><a th:href="@{/donar}" href="/donar">Donar</a></li>
+            <li><a th:href="@{/contacto}" href="/contacto">Contacto</a></li>
+            <li><a th:href="@{/login}" href="/login">Iniciar sesión</a></li>
+            <li><a th:href="@{/registro}" href="/registro">Registrarse</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contacto</h4>
+          <div class="footer-contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg><span>hola@semillasesperanza.org</span></div>
+          <div class="footer-contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg><span>+51 1 234 5678</span></div>
+          <div class="footer-contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span>Av. Larco 1301, Miraflores, Lima</span></div>
+        </div>
+        <div class="footer-col">
+          <h4>Newsletter</h4>
+          <p style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:.75rem">Recibe historias de impacto y novedades de nuestros proyectos.</p>
+          <form class="newsletter-form" th:action="@{/newsletter}" method="post" onsubmit="handleNewsletter(event)">
+            <input type="email" name="email" placeholder="tu@correo.com" required/>
+            <button type="submit">→</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,.1)">
+      <div class="container">
+        <div class="footer-bottom">
+          <p>© 2026 Semillas de Esperanza. Todos los derechos reservados.</p>
+          <div><a>Política de Privacidad</a><a>Términos y Condiciones</a></div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Contenedor global de notificaciones Toast -->
+  <div id="toast-container"></div>
+  <!-- Bootstrap 5.3.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Lógica JS principal -->
+  <script th:src="@{/js/app.js}" src="../../static/js/app.js"></script>
+</div>
+</body>
+</html>
