@@ -53,11 +53,12 @@
       <!-- Campos ocultos sincronizados con Thymeleaf / Spring Boot -->
       <input type="hidden" name="tipoDonacion" id="input-tipo-donacion" value="unica"/>
       <input type="hidden" name="monto" id="input-monto" value="50"/>
-      <input type="hidden" name="proyectoId" id="input-proyecto-id" th:value="${proyectoSeleccionado != null ? proyectoSeleccionado : 'mesa-llena'}" value="mesa-llena"/>
+      <input type="hidden" name="proyectoId" id="input-proyecto-id" th:value="${proyectoSeleccionado != null ? proyectoSeleccionado : 1}" value="1"/>
       <input type="hidden" name="metodoPago" id="input-metodo-pago" value="card"/>
 
       <div class="grid gap-8" id="donate-layout" style="grid-template-columns:1fr">
-        <div style="max-width:44rem" id="donate-form-col">
+        <div style="max-width:44rem;margin:0 auto;width:100%" id="donate-form-col">
+          <div id="donate-server-alert" class="auth-alert error hidden mb-4"></div>
           <!-- Type toggle -->
           <div class="bg-white rounded-2xl border p-6 mb-6">
             <h2 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1.05rem;color:var(--bark);margin-bottom:1rem">Tipo de donación</h2>
@@ -90,35 +91,10 @@
           <div class="bg-white rounded-2xl border p-6 mb-6">
             <h2 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1.05rem;color:var(--bark);margin-bottom:1rem">¿A qué proyecto?</h2>
             <div class="project-selector" id="project-selector" th:remove="all-but-first">
-              <div class="proj-opt" th:each="p : ${proyectos}" th:attr="data-project-id=${p.id}" data-project-id="aulas-futuro" th:classappend="${p.id == proyectoSeleccionado} ? 'selected' : ''" onclick="selectProject(this.getAttribute('data-project-id'), this)">
+              <div class="proj-opt" th:each="p : ${proyectos}" th:attr="data-project-id=${p.id}" data-project-id="1" th:classappend="${p.id == proyectoSeleccionado} ? 'selected' : ''" onclick="selectProject(this.getAttribute('data-project-id'), this)">
                 <img th:src="${p.image}" src="https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&amp;h=450&amp;fit=crop&amp;auto=format" th:alt="${p.title}" alt="Aulas del Futuro"/>
                 <div><p class="proj-opt-name" th:text="${p.title}">Aulas del Futuro</p><p class="proj-opt-cat" th:text="${p.category}">Educación</p></div>
-                <svg class="proj-check-icon hidden" style="margin-left:auto;flex-shrink:0;color:var(--terra)" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-              </div>
-              <div class="proj-opt" data-project-id="sonrisas" onclick="selectProject('sonrisas', this)">
-                <img src="https://images.unsplash.com/photo-1698795635788-7291ee73e670?w=800&amp;h=450&amp;fit=crop&amp;auto=format" alt="Sonrisas Saludables"/>
-                <div><p class="proj-opt-name">Sonrisas Saludables</p><p class="proj-opt-cat">Salud</p></div>
-                <svg class="proj-check-icon hidden" style="margin-left:auto;flex-shrink:0;color:var(--terra)" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-              </div>
-              <div class="proj-opt" data-project-id="techo" onclick="selectProject('techo', this)">
-                <img src="https://images.unsplash.com/photo-1698795635846-cd9049746761?w=800&amp;h=450&amp;fit=crop&amp;auto=format" alt="Techo y Esperanza"/>
-                <div><p class="proj-opt-name">Techo y Esperanza</p><p class="proj-opt-cat">Vivienda</p></div>
-                <svg class="proj-check-icon hidden" style="margin-left:auto;flex-shrink:0;color:var(--terra)" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-              </div>
-              <div class="proj-opt selected" data-project-id="mesa-llena" onclick="selectProject('mesa-llena', this)">
-                <img src="https://images.unsplash.com/photo-1698795635937-31264cdbf359?w=800&amp;h=450&amp;fit=crop&amp;auto=format" alt="Mesa Llena"/>
-                <div><p class="proj-opt-name">Mesa Llena</p><p class="proj-opt-cat">Alimentación</p></div>
-                <svg class="proj-check-icon" style="margin-left:auto;flex-shrink:0;color:var(--terra)" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-              </div>
-              <div class="proj-opt" data-project-id="talentos" onclick="selectProject('talentos', this)">
-                <img src="https://images.unsplash.com/photo-1700936206562-8c4cdb1d1926?w=800&amp;h=450&amp;fit=crop&amp;auto=format" alt="Talentos sin Límites"/>
-                <div><p class="proj-opt-name">Talentos sin Límites</p><p class="proj-opt-cat">Educación</p></div>
-                <svg class="proj-check-icon hidden" style="margin-left:auto;flex-shrink:0;color:var(--terra)" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-              </div>
-              <div class="proj-opt" data-project-id="agua" onclick="selectProject('agua', this)">
-                <img src="https://images.unsplash.com/photo-1698795635788-7291ee73e670?w=800&amp;h=450&amp;fit=crop&amp;auto=format" alt="Agua es Vida"/>
-                <div><p class="proj-opt-name">Agua es Vida</p><p class="proj-opt-cat">Salud</p></div>
-                <svg class="proj-check-icon hidden" style="margin-left:auto;flex-shrink:0;color:var(--terra)" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                <svg class="proj-check-icon" th:classappend="${p.id == proyectoSeleccionado} ? '' : 'hidden'" style="margin-left:auto;flex-shrink:0;color:var(--terra)" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
               </div>
             </div>
           </div>
@@ -128,18 +104,18 @@
             <h2 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1.05rem;color:var(--bark);margin-bottom:1rem">Tus datos</h2>
             <div class="grid gap-4">
               <div>
-                <label class="label">Nombre completo</label>
-                <input type="text" name="nombreDonante" class="input" id="donor-name" placeholder="María García" oninput="updateSummary()"/>
-                <p class="error-msg hidden" id="name-error">⚠ El nombre es requerido</p>
+                <label class="label">Nombre completo *</label>
+                <input type="text" name="nombreDonante" class="input" id="donor-name" th:value="${currentUser != null ? currentUser.name : ''}" placeholder="María García" oninput="updateSummary(); clearFieldError('donor-name','name-error')"/>
+                <p class="error-msg hidden" id="name-error">⚠ El nombre es requerido (mínimo 2 caracteres)</p>
               </div>
               <div>
-                <label class="label">Correo electrónico</label>
-                <input type="email" name="correoDonante" class="input" id="donor-email" placeholder="maria@correo.com"/>
-                <p class="error-msg hidden" id="email-error">⚠ Correo inválido</p>
+                <label class="label">Correo electrónico *</label>
+                <input type="email" name="correoDonante" class="input" id="donor-email" th:value="${currentUser != null ? currentUser.email : ''}" placeholder="maria@correo.com" oninput="clearFieldError('donor-email','email-error')"/>
+                <p class="error-msg hidden" id="email-error">⚠ Ingresa un correo electrónico válido</p>
               </div>
               <div>
                 <label class="label">Teléfono (opcional)</label>
-                <input type="tel" name="telefonoDonante" class="input" placeholder="+51 999 999 999"/>
+                <input type="tel" name="telefonoDonante" id="donor-phone" class="input" placeholder="+51 999 999 999"/>
               </div>
             </div>
           </div>

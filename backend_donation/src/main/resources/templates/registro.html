@@ -9,22 +9,25 @@
   <link rel="stylesheet" th:href="@{/css/styles.css}" href="../static/css/styles.css"/>
 </head>
 <body>
-<!-- ══════════ VISTA: REGISTRO MULTIPASO (registro.html) ══════════ -->
+<!-- ══════════ VISTA: REGISTRO MULTIPASO DE CLIENTE (registro.html) ══════════ -->
 <div class="auth-wrap">
   <div class="auth-card">
     <div class="auth-side" style="background:linear-gradient(150deg,#7C9A3E,#3D6B35)">
       <svg class="auth-side-art" width="120" height="120" viewBox="0 0 200 200" fill="none" stroke="white" stroke-width="1.5">
         <path d="M100 180 Q60 140 60 100 Q60 60 100 40 Q140 60 140 100 Q140 140 100 180"/><path d="M100 40 Q100 20 110 10 M100 40 Q85 25 75 15"/><circle cx="100" cy="100" r="20"/>
       </svg>
-      <a class="auth-side-logo" th:href="@{/}" href="index.html">
+      <a class="auth-side-logo" th:href="@{/}" href="/">
         <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/></svg></div>
         <span>Semillas de Esperanza</span>
       </a>
-      <p style="color:rgba(255,255,255,.88);font-size:.875rem;line-height:1.65">Únete a más de 2,400 donantes que ya están construyendo un futuro mejor.</p>
+      <p style="color:rgba(255,255,255,.88);font-size:.875rem;line-height:1.65">Únete a nuestra comunidad de donantes y haz seguimiento transparente a cada proyecto que apoyas.</p>
+      <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.2)">
+        <a th:href="@{/}" href="/" style="color:#fff;font-size:.8rem;opacity:.85;display:inline-flex;align-items:center;gap:.35rem">← Volver al sitio público</a>
+      </div>
     </div>
     <div class="auth-form">
       <div class="auth-form-inner">
-        <!-- Step indicator -->
+        <!-- Indicador de pasos -->
         <div class="step-indicator" id="reg-steps">
           <div class="step-dot current" id="sdot-0">1</div>
           <div class="step-line" id="sline-0"></div>
@@ -34,63 +37,84 @@
           <span class="step-label" id="step-label">Datos personales</span>
         </div>
 
-        <form id="register-spring-form" th:action="@{/registro}" method="post" onsubmit="event.preventDefault()">
-          <!-- Step 0 -->
+        <!-- Alerta global de error o validación en registro -->
+        <div class="auth-alert error hidden mb-4" id="reg-server-alert" role="alert"></div>
+
+        <form id="register-spring-form" novalidate onsubmit="handleRegisterFormSubmit(event)">
+          <!-- Paso 0: Datos Personales -->
           <div id="reg-step-0">
-            <h1 style="font-size:1.4rem;color:var(--bark);margin-bottom:.25rem">Crear cuenta</h1>
-            <p class="text-sm text-clay mb-6">Comencemos con tus datos personales.</p>
+            <h1 style="font-size:1.4rem;color:var(--bark);margin-bottom:.25rem">Crear cuenta de donante</h1>
+            <p class="text-sm text-clay mb-5">Comencemos con tus datos personales.</p>
             <div class="mb-4">
-              <label class="label">Nombre completo</label>
-              <input type="text" name="nombre" class="input" id="reg-name" placeholder="María García López"/>
-              <p class="error-msg hidden" id="reg-name-err">⚠ El nombre es requerido</p>
+              <label class="label" for="reg-name">Nombre completo *</label>
+              <input type="text" name="name" class="input" id="reg-name" placeholder="María García López" maxlength="50" autocomplete="name" oninput="clearFieldError('reg-name','reg-name-err')"/>
+              <p class="error-msg hidden" id="reg-name-err">⚠ El nombre debe tener entre 2 y 50 caracteres</p>
             </div>
             <div class="mb-6">
-              <label class="label">Correo electrónico</label>
-              <input type="email" name="email" class="input" id="reg-email" placeholder="maria@correo.com"/>
-              <p class="error-msg hidden" id="reg-email-err">⚠ Correo inválido</p>
+              <label class="label" for="reg-email">Correo electrónico *</label>
+              <input type="email" name="email" class="input" id="reg-email" placeholder="maria@correo.com" autocomplete="email" oninput="clearFieldError('reg-email','reg-email-err')"/>
+              <p class="error-msg hidden" id="reg-email-err">⚠ Ingresa un formato de correo electrónico válido</p>
             </div>
             <button type="button" class="btn btn-primary w-full" style="font-size:1rem;padding:.875rem" onclick="regNext(0)">Continuar →</button>
           </div>
 
-          <!-- Step 1 -->
+          <!-- Paso 1: Contraseña y Confirmación -->
           <div id="reg-step-1" class="hidden">
-            <h1 style="font-size:1.4rem;color:var(--bark);margin-bottom:.25rem">Crea tu contraseña</h1>
-            <p class="text-sm text-clay mb-6">Elige una contraseña segura para tu cuenta.</p>
+            <h1 style="font-size:1.4rem;color:var(--bark);margin-bottom:.25rem">Configura tu contraseña</h1>
+            <p class="text-sm text-clay mb-4">Elige una contraseña segura que cumpla los requisitos.</p>
+
             <div class="mb-4">
-              <label class="label">Contraseña</label>
-              <input type="password" name="password" class="input" id="reg-pw" placeholder="Mínimo 8 caracteres" oninput="updatePwStrength(this.value)"/>
+              <label class="label" for="reg-pw">Contraseña *</label>
+              <div class="pw-input-wrap">
+                <input type="password" name="password" class="input" id="reg-pw" placeholder="Mínimo 8 caracteres" style="padding-right:2.75rem" autocomplete="new-password" oninput="updatePwStrength(this.value); clearFieldError('reg-pw','reg-pw-err')"/>
+                <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('reg-pw', this)" aria-label="Mostrar u ocultar contraseña" title="Mostrar/ocultar contraseña">👁️</button>
+              </div>
               <div class="pw-bars mt-2" id="pw-bars"><div class="pw-bar" id="pb0"></div><div class="pw-bar" id="pb1"></div><div class="pw-bar" id="pb2"></div><div class="pw-bar" id="pb3"></div></div>
-              <p class="text-xs mt-1" id="pw-label" style="font-weight:500"></p>
-              <p class="error-msg hidden" id="reg-pw-err">⚠ Mínimo 8 caracteres</p>
+              <p class="text-xs mt-1" id="pw-label" style="font-weight:600"></p>
+
+              <!-- Checklist interactivo de reglas del backend -->
+              <ul class="pw-req-list mt-2" id="pw-req-list">
+                <li id="req-len">○ Entre 8 y 100 caracteres</li>
+                <li id="req-upper">○ Al menos una letra mayúscula (A-Z)</li>
+                <li id="req-lower">○ Al menos una letra minúscula (a-z)</li>
+                <li id="req-num">○ Al menos un número (0-9)</li>
+              </ul>
+              <p class="error-msg hidden" id="reg-pw-err">⚠ La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número</p>
             </div>
+
             <div class="mb-4">
-              <label class="label">Confirmar contraseña</label>
-              <input type="password" name="confirmPassword" class="input" id="reg-confirm" placeholder="Repite tu contraseña"/>
+              <label class="label" for="reg-confirm">Confirmar contraseña *</label>
+              <div class="pw-input-wrap">
+                <input type="password" name="confirmPassword" class="input" id="reg-confirm" placeholder="Repite tu contraseña" style="padding-right:2.75rem" autocomplete="new-password" oninput="clearFieldError('reg-confirm','reg-confirm-err')"/>
+                <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('reg-confirm', this)" aria-label="Mostrar u ocultar confirmación de contraseña" title="Mostrar/ocultar contraseña">👁️</button>
+              </div>
               <p class="error-msg hidden" id="reg-confirm-err">⚠ Las contraseñas no coinciden</p>
             </div>
-            <label class="flex items-center gap-2 text-sm text-clay mb-6" style="cursor:pointer">
-              <input type="checkbox" name="aceptaTerminos" id="reg-terms" style="accent-color:var(--terra)"/>
-              Acepto los <a style="color:var(--terra)">Términos y Condiciones</a>
+
+            <label class="flex items-center gap-2 text-sm text-clay mb-2" style="cursor:pointer">
+              <input type="checkbox" name="aceptaTerminos" id="reg-terms" style="accent-color:var(--terra)" onchange="document.getElementById('reg-terms-err').classList.add('hidden')"/>
+              <span>Acepto los <a style="color:var(--terra);font-weight:500">Términos y Condiciones</a></span>
             </label>
-            <p class="error-msg hidden mb-3" id="reg-terms-err">⚠ Debes aceptar los términos</p>
-            <div class="flex gap-3">
-              <button type="button" class="btn btn-ghost" style="flex:1" onclick="regBack()">← Atrás</button>
-              <button type="button" class="btn btn-primary" style="flex:1;font-size:1rem" onclick="regNext(1)">Crear cuenta</button>
+            <p class="error-msg hidden mb-4" id="reg-terms-err">⚠ Debes aceptar los Términos y Condiciones para crear tu cuenta</p>
+
+            <div class="flex gap-3 mt-4">
+              <button type="button" id="reg-back-btn" class="btn btn-ghost" style="flex:1" onclick="regBack()">← Atrás</button>
+              <button type="button" id="reg-submit-btn" class="btn btn-primary" style="flex:1;font-size:1rem" onclick="regNext(1)">Crear cuenta</button>
             </div>
           </div>
 
-          <!-- Step 2 -->
+          <!-- Paso 2: Éxito y Redirección Automática -->
           <div id="reg-step-2" class="hidden text-center py-6">
             <div style="width:5rem;height:5rem;border-radius:50%;background:linear-gradient(135deg,#2F9E6B,#C5D49A);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
             </div>
-            <h2 style="font-size:1.4rem;color:var(--bark);margin-bottom:.5rem">¡Cuenta creada!</h2>
-            <p class="text-sm text-clay mb-6">Ya eres parte de la comunidad Semillas de Esperanza.</p>
-            <a class="btn btn-primary w-full" style="font-size:1rem;padding:.875rem" th:href="@{/dashboard}" href="dashboard.html">Ir a mi cuenta</a>
+            <h2 style="font-size:1.4rem;color:var(--bark);margin-bottom:.5rem">¡Cuenta creada con éxito!</h2>
+            <p class="text-sm text-clay mb-6">Tu sesión ha sido iniciada automáticamente. Redirigiendo a tu dashboard...</p>
+            <a class="btn btn-primary w-full" style="font-size:1rem;padding:.875rem" th:href="@{/dashboard}" href="/dashboard">Ir a mi dashboard ahora →</a>
           </div>
         </form>
 
-        <p class="text-center text-sm text-clay mt-6" id="reg-login-link">¿Ya tienes cuenta? <a style="color:var(--terra);font-weight:600;cursor:pointer" th:href="@{/login}" href="login.html">Inicia sesión</a></p>
+        <p class="text-center text-sm text-clay mt-6" id="reg-login-link">¿Ya tienes cuenta? <a style="color:var(--terra);font-weight:600;cursor:pointer" th:href="@{/login}" href="/login">Inicia sesión</a></p>
       </div>
     </div>
   </div>

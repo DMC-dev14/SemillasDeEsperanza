@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.donation.app.dto.request.LoginRequest;
+import com.donation.app.dto.request.RegisterRequest;
 import com.donation.app.dto.response.AuthResponse;
 import com.donation.app.exception.BusinessException;
 import com.donation.app.model.User;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
@@ -25,18 +27,27 @@ public class AuthService {
         String email = request.email().trim();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas"));
+                .orElseGet(() -> userRepository.findByEmail(email.toLowerCase())
+                        .orElseThrow(() -> new BusinessException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas")));
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new BusinessException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas");
+            throw new BusinessException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas");
         }
 
         if (!Boolean.TRUE.equals(user.getActive())) {
-            throw new BusinessException(HttpStatus.FORBIDDEN, "Usuario inactivo");
+            throw new BusinessException(HttpStatus.FORBIDDEN, "Tu cuenta se encuentra inactiva. Contacta al administrador.");
         }
 
-        JwtService.IssuedToken token = jwtService.issue(new CustomUserDetails(user));
+        return issueForUser(user);
+    }
 
+    public AuthResponse registerAndLogin(RegisterRequest request) {
+        User savedUser = userService.registerEntity(request);
+        return issueForUser(savedUser);
+    }
+
+    public AuthResponse issueForUser(User user) {
+        JwtService.IssuedToken token = jwtService.issue(new CustomUserDetails(user));
         return new AuthResponse(
                 token.value(),
                 UserService.mapToUserResponse(user),
