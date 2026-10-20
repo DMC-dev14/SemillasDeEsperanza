@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Semillas de Esperanza — Quiénes Somos')}">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Semillas de Esperanza — Quiénes Somos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" href="../static/css/styles.css"/>
+</head>
+<body>
+<!-- ══════════ HEADER (Fragmento Thymeleaf + Natural Template Fallback) ══════════ -->
+<header id="header" th:replace="~{fragments/header :: header('about')}">
+  <div class="header-inner">
+    <a class="logo" th:href="@{/}" href="index.html">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/>
+        </svg>
+      </div>
+      <div class="logo-text">Semillas<span>de Esperanza</span></div>
+    </a>
+    <nav class="nav-links">
+      <a th:href="@{/}" href="index.html" class="">Inicio</a>
+      <a th:href="@{/proyectos}" href="proyectos.html" class="">Proyectos</a>
+      <a th:href="@{/nosotros}" href="nosotros.html" class="active">Quiénes Somos</a>
+      <a th:href="@{/contacto}" href="contacto.html" class="">Contacto</a>
+    </nav>
+    <div class="header-right">
+      <a class="login-btn" th:href="@{/login}" href="login.html">Iniciar sesión</a>
+      <a class="btn btn-primary btn-sm" th:href="@{/donar}" href="donar.html">Donar ahora</a>
+      <div class="hamburger" onclick="toggleMenu()" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <a th:href="@{/}" href="index.html" onclick="closeMenu()">Inicio</a>
+    <a th:href="@{/proyectos}" href="proyectos.html" onclick="closeMenu()">Proyectos</a>
+    <a th:href="@{/nosotros}" href="nosotros.html" onclick="closeMenu()">Quiénes Somos</a>
+    <a th:href="@{/contacto}" href="contacto.html" onclick="closeMenu()">Contacto</a>
+    <a th:href="@{/login}" href="login.html" onclick="closeMenu()">Iniciar sesión</a>
+  </div>
+</header>
+<!-- ══════════ VISTA: QUIÉNES SOMOS (nosotros.html) ══════════ -->
+<main>
+  <div style="padding:5rem 0;background:var(--sand);text-align:center;border-bottom:1px solid var(--dune)">
+    <div class="container">
+      <p class="section-label">Nuestra historia</p>
+      <h1 class="section-title text-4xl mt-2 mb-4">Quiénes somos</h1>
+      <p class="text-clay" style="max-width:42rem;margin:0 auto;line-height:1.75;font-size:1.05rem">Somos una organización sin fines de lucro fundada en Lima en 2018, con la convicción de que cada niño en Latinoamérica merece una oportunidad real de futuro.</p>
+    </div>
+  </div>
+  <!-- Mission + Vision -->
+  <section class="section" style="background:#fff;border-bottom:1px solid var(--dune)">
+    <div class="container">
+      <div class="grid grid-2 gap-8">
+        <div class="p-8 rounded-2xl" style="background:var(--parchment);border:1px solid var(--dune)">
+          <div style="width:3rem;height:3rem;border-radius:.875rem;background:var(--grad135);display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <h2 style="font-size:1.2rem;color:var(--bark);margin-bottom:.75rem">Misión</h2>
+          <p class="text-sm text-clay" style="line-height:1.75">Conectar donantes comprometidos con proyectos de alto impacto que garanticen educación, salud, vivienda y nutrición a niños en situación de vulnerabilidad en Latinoamérica, operando con total transparencia y eficiencia.</p>
+        </div>
+        <div class="p-8 rounded-2xl" style="background:var(--parchment);border:1px solid var(--dune)">
+          <div style="width:3rem;height:3rem;border-radius:.875rem;background:linear-gradient(135deg,#2F9E6B,#7CC5A0);display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+          </div>
+          <h2 style="font-size:1.2rem;color:var(--bark);margin-bottom:.75rem">Visión</h2>
+          <p class="text-sm text-clay" style="line-height:1.75">Ser la plataforma de donaciones más confiable y efectiva de América Latina, donde cada sol donado se convierta en un futuro mejor, y donde ningún niño quede atrás por falta de oportunidades.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Timeline -->
+  <section class="section bg-parchment">
+    <div class="container" style="max-width:44rem">
+      <h2 class="section-title text-3xl text-center mb-12">Nuestra historia</h2>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-year">2018</div><h3 class="tl-title">Fundación de la organización</h3><p class="tl-desc">Valentina Ríos y Carlos Mendoza fundan Semillas de Esperanza en Lima con el primer proyecto en Villa El Salvador.</p></div>
+        <div class="tl-item"><div class="tl-year">2019</div><h3 class="tl-title">Primer proyecto de salud</h3><p class="tl-desc">Lanzamos brigadas médicas en Cusco, atendiendo a más de 500 niños en el primer año.</p></div>
+        <div class="tl-item"><div class="tl-year">2021</div><h3 class="tl-title">Expansión nacional</h3><p class="tl-desc">Llegamos a Arequipa, Trujillo e Iquitos con proyectos de vivienda y nutrición escolar.</p></div>
+        <div class="tl-item"><div class="tl-year">2023</div><h3 class="tl-title">Certificación internacional</h3><p class="tl-desc">Recibimos la certificación GuideStar Platinum y el reconocimiento Charity Navigator 4 estrellas.</p></div>
+        <div class="tl-item"><div class="tl-year">2026</div><h3 class="tl-title">Más de 12,000 niños atendidos</h3><p class="tl-desc">Con 47 proyectos activos, seguimos creciendo gracias a la comunidad de más de 2,400 donantes.</p></div>
+      </div>
+    </div>
+  </section>
+  <!-- Team -->
+  <section class="section" style="background:var(--sand);border-top:1px solid var(--dune);border-bottom:1px solid var(--dune)">
+    <div class="container">
+      <div class="text-center mb-12">
+        <p class="section-label">Las personas detrás</p>
+        <h2 class="section-title text-3xl mt-2">Nuestro equipo</h2>
+        <p class="text-sm text-clay mt-2">Por privacidad y seguridad, nuestros colaboradores prefieren mantenerse anónimos.</p>
+      </div>
+      <div class="grid gap-8 team-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="team-card"><div class="team-avatar"><svg width="48" height="48" viewBox="0 0 24 24" fill="rgba(255,255,255,.7)"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div><p style="font-weight:600;font-size:.875rem;color:var(--bark)">Anónimo</p><p class="text-xs text-clay mt-1">Directora Ejecutiva</p></div>
+        <div class="team-card"><div class="team-avatar"><svg width="48" height="48" viewBox="0 0 24 24" fill="rgba(255,255,255,.7)"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div><p style="font-weight:600;font-size:.875rem;color:var(--bark)">Anónimo</p><p class="text-xs text-clay mt-1">Director de Programas</p></div>
+        <div class="team-card"><div class="team-avatar"><svg width="48" height="48" viewBox="0 0 24 24" fill="rgba(255,255,255,.7)"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div><p style="font-weight:600;font-size:.875rem;color:var(--bark)">Anónimo</p><p class="text-xs text-clay mt-1">Coordinadora de Proyectos</p></div>
+        <div class="team-card"><div class="team-avatar"><svg width="48" height="48" viewBox="0 0 24 24" fill="rgba(255,255,255,.7)"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div><p style="font-weight:600;font-size:.875rem;color:var(--bark)">Anónimo</p><p class="text-xs text-clay mt-1">Resp. de Comunicaciones</p></div>
+      </div>
+    </div>
+  </section>
+  <!-- Certs -->
+  <section class="section bg-parchment">
+    <div class="container">
+      <div class="text-center mb-10">
+        <h2 class="section-title text-3xl">Transparencia y certificaciones</h2>
+        <p class="text-sm text-clay mt-2">Operamos bajo los más altos estándares de transparencia y rendición de cuentas.</p>
+      </div>
+      <div class="grid grid-2 gap-5">
+        <div class="cert-card"><div class="cert-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div><p style="font-weight:600;font-size:.9rem;color:var(--bark)">SUNAT Donativos</p><p class="text-xs text-clay mt-0.5" style="line-height:1.6">Organización reconocida para recibir donativos deducibles de impuestos.</p></div></div>
+        <div class="cert-card"><div class="cert-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div><p style="font-weight:600;font-size:.9rem;color:var(--bark)">GuideStar Platinum</p><p class="text-xs text-clay mt-0.5" style="line-height:1.6">Máximo nivel de transparencia financiera y operativa.</p></div></div>
+        <div class="cert-card"><div class="cert-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div><p style="font-weight:600;font-size:.9rem;color:var(--bark)">ISO 9001:2015</p><p class="text-xs text-clay mt-0.5" style="line-height:1.6">Sistema de gestión de calidad certificado internacionalmente.</p></div></div>
+        <div class="cert-card"><div class="cert-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div><p style="font-weight:600;font-size:.9rem;color:var(--bark)">Charity Navigator ★★★★</p><p class="text-xs text-clay mt-0.5" style="line-height:1.6">Máxima calificación en eficiencia y sostenibilidad.</p></div></div>
+      </div>
+    </div>
+  </section>
+  <!-- CTA -->
+  <section class="section text-center" style="background:var(--grad135)">
+    <div class="container">
+      <h2 style="font-size:1.875rem;color:#fff;font-family:'Poppins',sans-serif;font-weight:700;margin-bottom:.75rem">¿Quieres ser parte del equipo?</h2>
+      <p style="color:rgba(255,255,255,.8);margin-bottom:2rem">Buscamos voluntarios comprometidos con la transformación social en Latinoamérica.</p>
+      <a class="hero-white-btn" th:href="@{/contacto}" href="contacto.html">Contáctanos</a>
+    </div>
+  </section>
+</main>
+<!-- ══════════ FOOTER (Fragmento Thymeleaf + Natural Template Fallback) ══════════ -->
+<div th:replace="~{fragments/footer :: footer}">
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="logo" href="index.html" style="margin-bottom:.75rem">
+            <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/></svg></div>
+            <span style="font-family:'Poppins',sans-serif;font-weight:700;color:#fff;font-size:.9rem">Semillas de Esperanza</span>
+          </a>
+          <p>Conectamos donantes con proyectos que transforman la vida de niños y adolescentes en riesgo en Latinoamérica.</p>
+          <div class="footer-social">
+            <a title="Facebook">f</a><a title="Instagram">ig</a><a title="Twitter">tw</a><a title="YouTube">yt</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Navegación</h4>
+          <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="proyectos.html">Proyectos</a></li>
+            <li><a href="nosotros.html">Quiénes Somos</a></li>
+            <li><a href="donar.html">Donar</a></li>
+            <li><a href="contacto.html">Contacto</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contacto</h4>
+          <div class="footer-contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg><span>hola@semillasesperanza.org</span></div>
+          <div class="footer-contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg><span>+51 1 234 5678</span></div>
+          <div class="footer-contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span>Av. Larco 1301, Miraflores, Lima</span></div>
+        </div>
+        <div class="footer-col">
+          <h4>Newsletter</h4>
+          <p style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:.75rem">Recibe historias de impacto y novedades de nuestros proyectos.</p>
+          <div class="newsletter-form">
+            <input type="email" placeholder="tu@correo.com"/>
+            <button onclick="showToast('success','¡Suscripción confirmada! 🌱')">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,.1)">
+      <div class="container">
+        <div class="footer-bottom">
+          <p>© 2026 Semillas de Esperanza. Todos los derechos reservados.</p>
+          <div><a>Política de Privacidad</a><a>Términos y Condiciones</a></div>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <div id="toast-container"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script th:src="@{/js/app.js}" src="../static/js/app.js"></script>
+</div>
+</body>
+</html>

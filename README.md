@@ -80,9 +80,9 @@ El frontend quedará disponible en `http://localhost:4200`
 
 ## 📌 Funcionalidades principales
 
-- [ ] Funcionalidad 1
-- [ ] Funcionalidad 2
-- [ ] Funcionalidad 3
+- Creación de usuarios
+- Pasarela de pagos para las donaciones
+- Métodos de seguridad como recuperación de contraseña e encriptación de contraseña
 
 ## 🤝 Contribuir
 
@@ -93,10 +93,6 @@ Las contribuciones son bienvenidas. Para contribuir:
 3. Haz commit de tus cambios (`git commit -m 'Agrega nueva funcionalidad'`)
 4. Sube tus cambios (`git push origin feature/nueva-funcionalidad`)
 5. Abre un Pull Request
-
-## 📄 Licencia
-
-Este proyecto está bajo la licencia [MIT](LICENSE).
 
 ## 👥 Autores
 

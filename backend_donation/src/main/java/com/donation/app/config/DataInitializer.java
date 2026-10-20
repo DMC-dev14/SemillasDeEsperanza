@@ -100,6 +100,7 @@ public class DataInitializer {
             log.info("Usuario cliente de prueba creado con email: {}", emailDemo);
             return saved;
         });
+        log.warn("Revisa app.admin.password: el administrador se creo con la contrasena de configuracion.");
     }
 
     private void crearCampanasSiNoExisten(CampaignRepository campaignRepository) {
