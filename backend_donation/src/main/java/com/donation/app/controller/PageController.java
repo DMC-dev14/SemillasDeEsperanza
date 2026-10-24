@@ -15,6 +15,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.donation.app.dto.response.CampaignResponse;
 import com.donation.app.dto.response.DonationResponse;
+import com.donation.app.dto.response.CampaignResponse;
+import com.donation.app.dto.response.DonationResponse;
 import com.donation.app.dto.response.UserResponse;
 import com.donation.app.enums.CampaignStatus;
 import com.donation.app.enums.PaymentStatus;
@@ -22,14 +24,9 @@ import com.donation.app.enums.RolNombre;
 import com.donation.app.model.Campaign;
 import com.donation.app.repository.CampaignRepository;
 import com.donation.app.security.CustomUserDetailsService.CustomUserDetails;
-<<<<<<< HEAD
-=======
 import com.donation.app.service.CampaignService;
 import com.donation.app.service.DonationService;
 import com.donation.app.service.UserService;
-
-import lombok.RequiredArgsConstructor;
->>>>>>> 7fb6b8b862f38f66996d35a75ac2a749c3382a17
 
 @Controller
 public class PageController {
@@ -39,16 +36,12 @@ public class PageController {
     private final DonationService donationService;
     private final UserService userService;
 
-    @ModelAttribute
-    public void addGlobalUserAttributes(@AuthenticationPrincipal CustomUserDetails principal, Model model) {
-        if (principal != null && principal.getUser() != null) {
-            UserResponse userResp = UserService.mapToUserResponse(principal.getUser());
-            model.addAttribute("currentUser", userResp);
-            model.addAttribute("currentRole", userResp.rolName() != null ? userResp.rolName() : RolNombre.USUARIO.name());
-        } else {
-            model.addAttribute("currentUser", null);
-            model.addAttribute("currentRole", "VISITANTE");
-        }
+    public PageController(CampaignRepository campaignRepository, CampaignService campaignService,
+            DonationService donationService, UserService userService) {
+        this.campaignRepository = campaignRepository;
+        this.campaignService = campaignService;
+        this.donationService = donationService;
+        this.userService = userService;
     }
 
     private boolean isAdmin(CustomUserDetails principal) {
@@ -63,10 +56,6 @@ public class PageController {
                 && principal.getUser() != null
                 && principal.getUser().getRol() != null
                 && RolNombre.USUARIO.name().equals(principal.getUser().getRol().getName());
-    }
-
-    public PageController(CampaignRepository campaignRepository) {
-        this.campaignRepository = campaignRepository;
     }
 
     @GetMapping({"/", "/index"})
@@ -159,24 +148,9 @@ public class PageController {
 
     @GetMapping("/dashboard")
     public String dashboard(@AuthenticationPrincipal CustomUserDetails principal, Model model) {
-<<<<<<< HEAD
         if (principal != null) {
             model.addAttribute("usuario", principal.getUser());
         }
-=======
-        if (principal == null) {
-            return "redirect:/login";
-        }
-        if (isAdmin(principal)) {
-            return "redirect:/admin";
-        }
-        UserResponse user = UserService.mapToUserResponse(principal.getUser());
-        model.addAttribute("usuario", user);
-        model.addAttribute("resumen", donationService.getClientDashboardStats(user.id()));
-        model.addAttribute("historialDonaciones", donationService.getMyDonations(user.id()));
-        model.addAttribute("topDonadores", donationService.getTopDonors());
-        model.addAttribute("donacionesRecientes", donationService.getRecentCompletedDonations());
->>>>>>> 7fb6b8b862f38f66996d35a75ac2a749c3382a17
         return "dashboard";
     }
 

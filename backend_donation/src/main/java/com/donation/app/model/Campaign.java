@@ -87,10 +87,26 @@ public class Campaign {
     @Builder.Default
     private Long donorsCount = 0L;
 
+    public String getImageUrl() {
+        if (image != null && image.getImageUrl() != null && !image.getImageUrl().isBlank()) {
+            return image.getImageUrl();
+        }
+        return "https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&h=450&fit=crop&auto=format";
+    }
+
     public String getImage() {
-        return (imageUrl != null && !imageUrl.isBlank())
-                ? imageUrl
-                : "https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&h=450&fit=crop&auto=format";
+        return getImageUrl();
+    }
+
+    public void setImageUrl(String url) {
+        if (url == null || url.isBlank()) {
+            return;
+        }
+        if (image == null) {
+            image = Image.builder().imageUrl(url).build();
+        } else {
+            image.setImageUrl(url);
+        }
     }
 
     public String getCategory() {

@@ -15,6 +15,7 @@ import com.donation.app.enums.CampaignStatus;
 import com.donation.app.enums.PaymentStatus;
 import com.donation.app.exception.BusinessException;
 import com.donation.app.model.Campaign;
+import com.donation.app.model.Image;
 import com.donation.app.model.User;
 import com.donation.app.repository.CampaignRepository;
 import com.donation.app.repository.DonationRepository;
@@ -56,15 +57,22 @@ public class CampaignService {
 
     @Transactional
     public CampaignResponse create(CampaignRequest request, User creator) {
+        String imageUrl = request.imageUrl() != null && !request.imageUrl().isBlank()
+                ? request.imageUrl().trim()
+                : "https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&h=450&fit=crop&auto=format";
+
+        Image image = Image.builder()
+                .nombre(request.title() != null ? request.title().trim() : "campaign")
+                .imageUrl(imageUrl)
+                .build();
+
         Campaign campaign = Campaign.builder()
                 .title(request.title().trim())
                 .description(request.description() != null ? request.description().trim() : "")
                 .history(request.history() != null && !request.history().isBlank()
                         ? request.history().trim()
-                        : request.description().trim())
-                .imageUrl(request.imageUrl() != null && !request.imageUrl().isBlank()
-                        ? request.imageUrl().trim()
-                        : "https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&h=450&fit=crop&auto=format")
+                        : (request.description() != null ? request.description().trim() : ""))
+                .image(image)
                 .targetAmount(request.targetAmount())
                 .amountCollected(BigDecimal.ZERO)
                 .status(request.status() != null ? request.status() : CampaignStatus.ACTIVE)

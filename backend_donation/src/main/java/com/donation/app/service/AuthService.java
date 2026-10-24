@@ -44,7 +44,9 @@ public class AuthService {
     }
 
     public AuthResponse registerAndLogin(RegisterRequest request) {
-        User savedUser = userService.registerEntity(request);
+        com.donation.app.dto.response.UserResponse userResp = userService.register(request);
+        User savedUser = userRepository.findByEmail(userResp.email())
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
         return issueForUser(savedUser);
     }
 
