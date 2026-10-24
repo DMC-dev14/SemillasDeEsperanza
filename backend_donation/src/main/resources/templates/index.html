@@ -124,10 +124,17 @@
             <p class="progress-pct" th:text="${#numbers.formatInteger(pct, 1) + '%'}">91%</p>
           </div>
           <div class="flex items-center gap-6 mt-4" style="flex-wrap:wrap">
+<<<<<<< HEAD
             <div><p style="font-size:1.5rem;font-family:'Poppins',sans-serif;font-weight:700;color:var(--bark)" th:text="${dest != null ? #numbers.formatDecimal(dest.amountCollected.doubleValue() / 1000, 1, 1) + 'k' : 'S/29.1k'}">S/29.1k</p><p class="text-xs text-clay">recaudados</p></div>
             <div style="width:1px;height:2.5rem;background:var(--dune)"></div>
             <div><p style="font-size:1.5rem;font-family:'Poppins',sans-serif;font-weight:700;color:var(--bark)">408</p><p class="text-xs text-clay">donantes</p></div>
             <a class="btn btn-primary" style="margin-left:auto" th:href="${dest != null ? '/donar?proyecto=' + dest.id : '/donar'}" href="donar.html">Donar ahora</a>
+=======
+            <div><p style="font-size:1.5rem;font-family:'Poppins',sans-serif;font-weight:700;color:var(--bark)" th:text="${campanaDestacada != null ? campanaDestacada.raisedFormatted : 'S/29.1k'}">S/29.1k</p><p class="text-xs text-clay">recaudados</p></div>
+            <div style="width:1px;height:2.5rem;background:var(--dune)"></div>
+            <div><p style="font-size:1.5rem;font-family:'Poppins',sans-serif;font-weight:700;color:var(--bark)" th:text="${campanaDestacada != null ? campanaDestacada.donors : '408'}">408</p><p class="text-xs text-clay">donantes</p></div>
+            <a class="btn btn-primary" style="margin-left:auto" th:href="@{/donar(proyecto=${campanaDestacada != null ? campanaDestacada.id : 1})}" href="/donar">Donar ahora</a>
+>>>>>>> 7fb6b8b862f38f66996d35a75ac2a749c3382a17
           </div>
         </div>
       </div>

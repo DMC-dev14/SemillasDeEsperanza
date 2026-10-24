@@ -14,6 +14,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -56,11 +58,52 @@ public class SecurityConfig {
                         "/nosotros", "/contacto", "/donar",
                         "/css/**", "/js/**", "/images/**", "/favicon.ico"
                 ).permitAll()
+<<<<<<< HEAD
                 // Solo el registro y el login son públicos. /api/auth/me exige token.
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
                 .requestMatchers("/api/auth/me").authenticated()
                 .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
                 .anyRequest().authenticated())
+=======
+                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/campaigns", "/api/campaigns/*").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/donations").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/donations/public-feed").permitAll()
+                .requestMatchers("/dashboard", "/dashboard/**").hasRole("USUARIO")
+                .requestMatchers("/admin", "/admin/**").hasRole("ADMINISTRADOR")
+                .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
+                .anyRequest().authenticated())
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    if (request.getRequestURI().startsWith("/api/")) {
+                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                        response.setCharacterEncoding("UTF-8");
+                        response.getWriter().write("{\"title\":\"Unauthorized\",\"status\":401,\"detail\":\"No autenticado. Inicia sesión para continuar.\"}");
+                    } else {
+                        response.sendRedirect("/login");
+                    }
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    if (request.getRequestURI().startsWith("/api/")) {
+                        response.setStatus(HttpStatus.FORBIDDEN.value());
+                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                        response.setCharacterEncoding("UTF-8");
+                        response.getWriter().write("{\"title\":\"Forbidden\",\"status\":403,\"detail\":\"No tienes permisos para acceder a este recurso.\"}");
+                    } else {
+                        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                        if (auth != null && auth.getAuthorities().stream()
+                                .anyMatch(a -> "ROLE_ADMINISTRADOR".equals(a.getAuthority()))) {
+                            response.sendRedirect("/admin");
+                        } else if (auth != null && auth.getAuthorities().stream()
+                                .anyMatch(a -> "ROLE_USUARIO".equals(a.getAuthority()))) {
+                            response.sendRedirect("/dashboard");
+                        } else {
+                            response.sendRedirect("/login");
+                        }
+                    }
+                }))
+>>>>>>> 7fb6b8b862f38f66996d35a75ac2a749c3382a17
             .httpBasic(basic -> basic.disable())
             .formLogin(form -> form
                 .loginPage("/login")

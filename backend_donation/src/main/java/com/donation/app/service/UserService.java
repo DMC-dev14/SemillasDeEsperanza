@@ -40,7 +40,46 @@ public class UserService {
 
     @Transactional // Escritura
     public UserResponse register(RegisterRequest request) {
+<<<<<<< HEAD
         return crearUsuario(request.name(), request.email(), request.password(), RolNombre.USUARIO.name());
+=======
+        return mapToUserResponse(registerEntity(request));
+    }
+
+    @Transactional // Escritura
+    public User registerEntity(RegisterRequest request) {
+        String email = request.email().trim().toLowerCase();
+
+        if (userRepository.existsByEmail(email)) {
+            throw new BusinessException(HttpStatus.CONFLICT, "El email ya está registrado");
+        }
+
+        Rol rolUsuario = obtenerRol(RolNombre.USUARIO.name());
+
+        User user = new User();
+        user.setName(request.name().trim());
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRol(rolUsuario);
+        user.setActive(true);
+
+        return userRepository.save(user);
+    }
+
+    @Transactional // Escritura
+    public void changePassword(Long userId, String currentPassword, String newPassword) {
+        User user = obtenerEntidad(userId);
+        if (currentPassword == null || !passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "La contraseña actual es incorrecta");
+        }
+        if (newPassword == null || newPassword.length() < 8 || newPassword.length() > 100
+                || !newPassword.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).*$")) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST,
+                    "La nueva contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+>>>>>>> 7fb6b8b862f38f66996d35a75ac2a749c3382a17
     }
 
     @Transactional // Escritura

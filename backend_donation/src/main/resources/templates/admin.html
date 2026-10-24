@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Semillas de Esperanza — Panel Administrador')}">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Semillas de Esperanza — Panel Administrador</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" href="../static/css/styles.css"/>
+</head>
+<body>
+<!-- ══════════ HEADER EXCLUSIVO DE ADMINISTRADOR ══════════ -->
+<header id="header" th:replace="~{fragments/header :: header('admin')}"></header>
+
+<!-- ══════════ VISTA: DASHBOARD DE ADMINISTRADOR (admin.html) ══════════ -->
+<main>
+  <!-- Encabezado Administrativo -->
+  <div class="dash-header" style="background:linear-gradient(135deg,#2D5428 0%,#3D6B35 60%,#7C9A3E 100%)">
+    <div class="container">
+      <div class="flex justify-between items-center" style="flex-wrap:wrap;gap:1rem">
+        <div>
+          <span class="badge" style="background:rgba(255,255,255,.2)!important;color:#fff!important;margin-bottom:.5rem">🛡️ CONSOLA DE ADMINISTRACIÓN</span>
+          <h1 style="font-size:2rem;color:#fff" th:text="${adminUser != null ? 'Hola, ' + adminUser.name : 'Panel de Control Administrativo'}">Panel de Control Administrativo</h1>
+          <p style="color:rgba(255,255,255,.82);font-size:.875rem;margin-top:.25rem">Gestión integral en tiempo real de campañas, donaciones y usuarios en la base de datos.</p>
+        </div>
+        <div class="flex gap-3" style="flex-wrap:wrap">
+          <button type="button" class="hero-white-btn" style="padding:.7rem 1.35rem;font-size:.875rem" onclick="openCampaignModal()">+ Nueva Campaña</button>
+          <button type="button" class="hero-ghost-btn" style="padding:.7rem 1.35rem;font-size:.875rem" onclick="openCreateUserModal()">+ Nuevo Usuario</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top:2rem;padding-bottom:4rem">
+    <!-- KPIs Reales desde MySQL -->
+    <div class="grid gap-4 mb-6" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">
+      <div class="dash-stat">
+        <span class="dash-stat-icon">💰</span>
+        <div>
+          <p class="dash-stat-val" id="admin-kpi-recaudado" th:text="${'S/' + #numbers.formatDecimal(totalRecaudadoGlobal, 1, 'COMMA', 2, 'POINT')}">S/0.00</p>
+          <p class="dash-stat-lbl">Recaudación total acumulada</p>
+        </div>
+      </div>
+      <div class="dash-stat">
+        <span class="dash-stat-icon">🌱</span>
+        <div>
+          <p class="dash-stat-val"><span id="admin-kpi-activas" th:text="${campanasActivas}">0</span> <small style="font-size:.9rem;color:var(--clay);font-weight:500">/ <span id="admin-kpi-campanas" th:text="${totalCampanas}">0</span></small></p>
+          <p class="dash-stat-lbl">Campañas activas / totales</p>
+        </div>
+      </div>
+      <div class="dash-stat">
+        <span class="dash-stat-icon">🎁</span>
+        <div>
+          <p class="dash-stat-val" id="admin-kpi-donaciones" th:text="${totalDonacionesGlobal}">0</p>
+          <p class="dash-stat-lbl">Donaciones registradas</p>
+        </div>
+      </div>
+      <div class="dash-stat">
+        <span class="dash-stat-icon">👥</span>
+        <div>
+          <p class="dash-stat-val" id="admin-kpi-usuarios" th:text="${totalUsuariosGlobal}">0</p>
+          <p class="dash-stat-lbl">Usuarios en base de datos</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra de Pestañas de Administración -->
+    <div class="filter-pills mb-6" style="border-bottom:1px solid var(--dune);padding-bottom:1rem">
+      <button type="button" class="pill active admin-tab-btn" data-tab="resumen" onclick="switchAdminTab('resumen')">📊 Resumen General</button>
+      <button type="button" class="pill admin-tab-btn" data-tab="campanas" onclick="switchAdminTab('campanas')">🌱 Gestión de Campañas</button>
+      <button type="button" class="pill admin-tab-btn" data-tab="donaciones" onclick="switchAdminTab('donaciones')">💸 Gestión de Donaciones</button>
+      <button type="button" class="pill admin-tab-btn" data-tab="usuarios" onclick="switchAdminTab('usuarios')">👥 Gestión de Usuarios</button>
+    </div>
+
+    <!-- ══════════ SECCIÓN 1: RESUMEN EJECUTIVO ══════════ -->
+    <section id="admin-sec-resumen" class="admin-section">
+      <div class="grid gap-6 dash-grid-top" style="grid-template-columns:1.2fr 1fr">
+        <!-- Estado de Campañas -->
+        <div class="bg-white rounded-2xl border p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1.05rem;color:var(--bark)">Avance de metas por campaña</h2>
+            <button type="button" class="text-xs font-semibold" style="color:var(--terra)" onclick="switchAdminTab('campanas')">Ver todas →</button>
+          </div>
+          <div class="grid gap-4">
+            <div th:each="c : ${campanas}" class="p-3 rounded-xl" style="background:var(--parchment);border:1px solid var(--dune)">
+              <div class="flex justify-between items-center mb-1">
+                <strong style="font-size:.9rem;color:var(--bark)" th:text="${c.title}">Campaña</strong>
+                <span class="badge"
+                      th:classappend="${c.status.name() == 'ACTIVE' ? 'badge-edu' : (c.status.name() == 'COMPLETED' ? 'badge-sal' : 'badge-viv')}"
+                      th:text="${c.status.name()}">ACTIVE</span>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-labels">
+                  <span th:text="${'Recaudado: S/' + #numbers.formatDecimal(c.amountCollected, 1, 'COMMA', 2, 'POINT')}">S/0</span>
+                  <span th:text="${'Meta: S/' + #numbers.formatDecimal(c.targetAmount, 1, 'COMMA', 2, 'POINT')}">S/0</span>
+                </div>
+                <div class="progress-track" style="height:.55rem">
+                  <div class="progress-fill" th:style="'width:' + ${c.porcentaje} + '%'"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Últimas Donaciones Recibidas -->
+        <div class="bg-white rounded-2xl border p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1.05rem;color:var(--bark)">Últimas donaciones registradas</h2>
+            <button type="button" class="text-xs font-semibold" style="color:var(--terra)" onclick="switchAdminTab('donaciones')">Gestionar →</button>
+          </div>
+          <div class="grid gap-2">
+            <div class="feed-item" th:each="d, iter : ${donaciones}" th:if="${iter.index < 6}">
+              <div class="feed-avatar" th:text="${d.donorName != null && !d.donorName.isEmpty() ? #strings.substring(d.donorName,0,1).toUpperCase() : 'D'}">D</div>
+              <div style="flex:1;min-width:0">
+                <p class="text-sm truncate" style="color:var(--bark)">
+                  <strong th:text="${d.donorName}">Donante</strong> ·
+                  <strong class="feed-amount" th:text="${'S/' + #numbers.formatDecimal(d.amount, 1, 'COMMA', 2, 'POINT')}">S/100.00</strong>
+                </p>
+                <p class="text-xs text-clay truncate" th:text="${d.campaignTitle + ' (' + d.voucherNumber + ')'}">Campaña</p>
+              </div>
+              <span class="badge"
+                    th:classappend="${d.status.name() == 'COMPLETED' ? 'badge-edu' : (d.status.name() == 'PENDING' ? 'badge-sal' : 'badge-viv')}"
+                    th:text="${d.status.name()}">COMPLETED</span>
+            </div>
+            <div th:if="${donaciones == null || donaciones.isEmpty()}" class="text-center py-4 text-sm text-clay">
+              No hay donaciones registradas en la base de datos.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ SECCIÓN 2: GESTIÓN DE CAMPAÑAS ══════════ -->
+    <section id="admin-sec-campanas" class="admin-section hidden">
+      <div class="bg-white rounded-2xl border p-6">
+        <div class="flex justify-between items-center mb-5" style="flex-wrap:wrap;gap:1rem">
+          <div>
+            <h2 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1.15rem;color:var(--bark)">🌱 Gestión de Campañas y Proyectos</h2>
+            <p class="text-xs text-clay">Crea, edita, activa o finaliza campañas de donación directamente en la base de datos.</p>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm" onclick="openCampaignModal()">+ Crear Nueva Campaña</button>
+        </div>
+
+        <div style="overflow-x:auto">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Campaña</th>
+                <th>Meta</th>
+                <th>Recaudado</th>
+                <th>Progreso</th>
+                <th>Estado</th>
+                <th style="text-align:right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="admin-campaigns-tbody">
+              <tr th:each="c : ${campanas}">
+                <td style="font-weight:600;color:var(--clay)" th:text="${'#' + c.id}">#1</td>
+                <td>
+                  <div class="flex items-center gap-3">
+                    <img th:src="${c.imageUrl}" alt="img" style="width:3rem;height:2.2rem;object-fit:cover;border-radius:.5rem;flex-shrink:0"/>
+                    <div>
+                      <p style="font-weight:600;color:var(--bark);font-size:.875rem" th:text="${c.title}">Aulas del Futuro</p>
+                      <p class="text-xs text-clay truncate" style="max-width:240px" th:text="${c.description}">Descripción</p>
+                    </div>
+                  </div>
+                </td>
+                <td style="font-weight:600" th:text="${'S/' + #numbers.formatDecimal(c.targetAmount, 1, 'COMMA', 2, 'POINT')}">S/45,000.00</td>
+                <td style="font-weight:700;color:var(--terra)" th:text="${'S/' + #numbers.formatDecimal(c.amountCollected, 1, 'COMMA', 2, 'POINT')}">S/35,100.00</td>
+                <td style="min-width:110px">
+                  <div class="progress-track" style="height:.45rem">
+                    <div class="progress-fill" th:style="'width:' + ${c.porcentaje} + '%'"></div>
+                  </div>
+                  <span class="text-xs text-clay" th:text="${c.porcentaje + '%'}">78%</span>
+                </td>
+                <td>
+                  <select class="input" style="padding:.3rem .6rem;font-size:.78rem;width:auto"
+                          th:attr="data-campaign-id=${c.id}"
+                          onchange="changeCampaignStatus(this.getAttribute('data-campaign-id'), this.value)">
+                    <option value="ACTIVE" th:selected="${c.status.name() == 'ACTIVE'}">ACTIVE (Activa)</option>
+                    <option value="DRAFT" th:selected="${c.status.name() == 'DRAFT'}">DRAFT (Borrador)</option>
+                    <option value="COMPLETED" th:selected="${c.status.name() == 'COMPLETED'}">COMPLETED (Completada)</option>
+                    <option value="CANCELLED" th:selected="${c.status.name() == 'CANCELLED'}">CANCELLED (Cancelada)</option>
+                  </select>
+                </td>
+                <td style="text-align:right;white-space:nowrap">
+                  <button type="button" class="btn btn-outline btn-sm" style="padding:.35rem .7rem;font-size:.75rem"
+                          th:attr="data-id=${c.id},data-title=${c.title},data-desc=${c.description},data-history=${c.history},data-img=${c.imageUrl},data-target=${c.targetAmount},data-status=${c.status.name()}"
+                          onclick="openEditCampaignModalFromBtn(this)">
+                    ✏️ Editar
+                  </button>
+                  <button type="button" class="btn btn-ghost btn-sm" style="padding:.35rem .7rem;font-size:.75rem;color:var(--brick)!important;border-color:rgba(193,70,47,.3)!important"
+                          th:attr="data-id=${c.id},data-title=${c.title}"
+                          onclick="deleteCampaign(this.getAttribute('data-id'), this.getAttribute('data-title'))">
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ SECCIÓN 3: GESTIÓN DE DONACIONES ══════════ -->
+    <section id="admin-sec-donaciones" class="admin-section hidden">
+      <div class="bg-white rounded-2xl border p-6">
+        <div class="flex justify-between items-center mb-5" style="flex-wrap:wrap;gap:1rem">
+          <div>
+            <h2 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1.15rem;color:var(--bark)">💸 Control y Auditoría de Donaciones</h2>
+            <p class="text-xs text-clay">Supervisa las donaciones recibidas y actualiza su estado de pago. El monto recaudado de la campaña se ajusta automáticamente.</p>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Recibo</th>
+                <th>Fecha</th>
+                <th>Donante</th>
+                <th>Campaña</th>
+                <th>Método</th>
+                <th>Monto</th>
+                <th>Estado de Pago</th>
+              </tr>
+            </thead>
+            <tbody id="admin-donations-tbody">
+              <tr th:each="d : ${donaciones}">
+                <td>
+                  <code style="font-weight:600;color:var(--terra)" th:text="${d.voucherNumber}">REC-2026-00001</code>
+                  <div class="text-xs text-clay" th:text="${d.codeReferential}">TX-001</div>
+                </td>
+                <td style="white-space:nowrap;color:var(--clay)" th:text="${d.donationDate != null ? #temporals.format(d.donationDate, 'dd/MM/yyyy HH:mm') : '-'}">17/10/2026</td>
+                <td>
+                  <p style="font-weight:600;color:var(--bark);font-size:.85rem" th:text="${d.donorName}">María García</p>
+                  <p class="text-xs text-clay" th:text="${d.donorEmail}">cliente@semillas.org</p>
+                </td>
+                <td style="font-weight:500" th:text="${d.campaignTitle}">Aulas del Futuro</td>
+                <td><span class="badge badge-edu" th:text="${d.methodPay}">CREDIT_CARD</span></td>
+                <td style="font-weight:700;color:var(--bark)" th:text="${'S/' + #numbers.formatDecimal(d.amount, 1, 'COMMA', 2, 'POINT')}">S/150.00</td>
+                <td>
+                  <select class="input" style="padding:.3rem .6rem;font-size:.78rem;width:auto"
+                          th:attr="data-donation-id=${d.id}"
+                          onchange="changeDonationStatus(this.getAttribute('data-donation-id'), this.value)">
+                    <option value="COMPLETED" th:selected="${d.status.name() == 'COMPLETED'}">COMPLETED (Confirmada)</option>
+                    <option value="PENDING" th:selected="${d.status.name() == 'PENDING'}">PENDING (Pendiente)</option>
+                    <option value="REFUNDED" th:selected="${d.status.name() == 'REFUNDED'}">REFUNDED (Reembolsada)</option>
+                    <option value="FAILED" th:selected="${d.status.name() == 'FAILED'}">FAILED (Fallida)</option>
+                  </select>
+                </td>
+              </tr>
+              <tr th:if="${donaciones == null || donaciones.isEmpty()}">
+                <td colspan="7" class="text-center py-5 text-clay">No existen donaciones registradas aún.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ SECCIÓN 4: GESTIÓN DE USUARIOS ══════════ -->
+    <section id="admin-sec-usuarios" class="admin-section hidden">
+      <div class="bg-white rounded-2xl border p-6">
+        <div class="flex justify-between items-center mb-5" style="flex-wrap:wrap;gap:1rem">
+          <div>
+            <h2 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1.15rem;color:var(--bark)">👥 Administración de Usuarios y Roles</h2>
+            <p class="text-xs text-clay">Gestiona cuentas de clientes y administradores registradas en la base de datos.</p>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm" onclick="openCreateUserModal()">+ Crear Usuario</button>
+        </div>
+
+        <div style="overflow-x:auto">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Correo electrónico</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Fecha registro</th>
+                <th style="text-align:right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-tbody">
+              <tr th:each="u : ${usuarios}">
+                <td style="color:var(--clay);font-weight:600" th:text="${'#' + u.id}">#1</td>
+                <td style="font-weight:600;color:var(--bark)" th:text="${u.name}">Nombre</td>
+                <td th:text="${u.email}">correo@semillas.org</td>
+                <td>
+                  <span class="badge"
+                        th:classappend="${u.rolName == 'ADMINISTRADOR' ? 'badge-sal' : 'badge-edu'}"
+                        th:text="${u.rolName == 'ADMINISTRADOR' ? 'ADMINISTRADOR' : 'CLIENTE (USUARIO)'}">
+                    CLIENTE
+                  </span>
+                </td>
+                <td>
+                  <span class="badge"
+                        th:classappend="${u.active ? 'badge-edu' : 'badge-viv'}"
+                        th:text="${u.active ? 'Activo' : 'Inactivo'}">Activo</span>
+                </td>
+                <td class="text-xs text-clay" th:text="${u.createdAccount != null ? #temporals.format(u.createdAccount, 'dd/MM/yyyy HH:mm') : '-'}">17/10/2026</td>
+                <td style="text-align:right;white-space:nowrap">
+                  <button type="button" class="btn btn-outline btn-sm" style="padding:.3rem .65rem;font-size:.75rem"
+                          th:if="${adminUser == null || u.id != adminUser.id}"
+                          th:attr="data-id=${u.id},data-active=${!u.active}"
+                          th:text="${u.active ? 'Desactivar' : 'Activar'}"
+                          onclick="toggleUserActive(this.getAttribute('data-id'), this.getAttribute('data-active') === 'true')">
+                    Desactivar
+                  </button>
+                  <span th:if="${adminUser != null && u.id == adminUser.id}" class="text-xs text-clay">Tu cuenta actual</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ══════════ MODAL CREAR / EDITAR CAMPAÑA ══════════ -->
+  <div id="campaign-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeCampaignModal()">
+    <div class="modal-box" style="text-align:left;max-width:34rem">
+      <div class="flex justify-between items-center mb-4">
+        <h2 id="campaign-modal-title" style="font-size:1.25rem;color:var(--bark)">Nueva Campaña</h2>
+        <button type="button" onclick="closeCampaignModal()" style="font-size:1.2rem;color:var(--clay)">✕</button>
+      </div>
+      <div id="campaign-modal-err" class="auth-alert error hidden mb-3"></div>
+      <form id="campaign-form" onsubmit="handleSaveCampaign(event)">
+        <input type="hidden" id="camp-id"/>
+        <div class="grid gap-3 mb-4">
+          <div>
+            <label class="label">Título de la campaña *</label>
+            <input type="text" id="camp-title" class="input" placeholder="Ej. Aulas Digitales en Puno" required minlength="3" maxlength="100"/>
+          </div>
+          <div class="grid grid-2 gap-3">
+            <div>
+              <label class="label">Meta de recaudación (S/) *</label>
+              <input type="number" id="camp-target" class="input" placeholder="25000" min="100" step="0.01" required/>
+            </div>
+            <div>
+              <label class="label">Estado *</label>
+              <select id="camp-status" class="input">
+                <option value="ACTIVE">ACTIVE (Activa y pública)</option>
+                <option value="DRAFT">DRAFT (Borrador)</option>
+                <option value="COMPLETED">COMPLETED (Completada)</option>
+                <option value="CANCELLED">CANCELLED (Cancelada)</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="label">URL de Imagen</label>
+            <input type="url" id="camp-image" class="input" placeholder="https://images.unsplash.com/..."/>
+          </div>
+          <div>
+            <label class="label">Descripción corta (máx. 255 caracteres) *</label>
+            <textarea id="camp-desc" class="input" rows="2" style="min-height:70px" maxlength="255" placeholder="Resumen del impacto directo del proyecto..." required></textarea>
+          </div>
+          <div>
+            <label class="label">Historia / Detalle (máx. 255 caracteres)</label>
+            <textarea id="camp-history" class="input" rows="2" style="min-height:70px" maxlength="255" placeholder="Contexto de la comunidad beneficiada..."></textarea>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <button type="button" class="btn btn-ghost" style="flex:1" onclick="closeCampaignModal()">Cancelar</button>
+          <button type="submit" id="btn-save-campaign" class="btn btn-primary" style="flex:1">Guardar campaña</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════ MODAL CREAR USUARIO (ADMIN) ══════════ -->
+  <div id="create-user-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeCreateUserModal()">
+    <div class="modal-box" style="text-align:left;max-width:30rem">
+      <div class="flex justify-between items-center mb-4">
+        <h2 style="font-size:1.25rem;color:var(--bark)">Registrar Usuario</h2>
+        <button type="button" onclick="closeCreateUserModal()" style="font-size:1.2rem;color:var(--clay)">✕</button>
+      </div>
+      <div id="create-user-err" class="auth-alert error hidden mb-3"></div>
+      <form id="create-user-form" onsubmit="handleAdminCreateUser(event)">
+        <div class="grid gap-3 mb-4">
+          <div>
+            <label class="label">Nombre completo *</label>
+            <input type="text" id="admin-user-name" class="input" placeholder="Ej. Carlos Mendoza" required minlength="2" maxlength="50"/>
+          </div>
+          <div>
+            <label class="label">Correo electrónico *</label>
+            <input type="email" id="admin-user-email" class="input" placeholder="carlos@semillas.org" required/>
+          </div>
+          <div>
+            <label class="label">Rol asignado *</label>
+            <select id="admin-user-role" class="input">
+              <option value="USUARIO">CLIENTE (USUARIO)</option>
+              <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+            </select>
+          </div>
+          <div>
+            <label class="label">Contraseña *</label>
+            <div class="pw-input-wrap">
+              <input type="password" id="admin-user-pw" class="input" placeholder="Mín. 8 caracteres, Mayús, Minús y Número" style="padding-right:2.75rem" required/>
+              <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('admin-user-pw', this)" aria-label="Mostrar u ocultar contraseña">👁️</button>
+            </div>
+            <p class="text-xs text-clay mt-1">Requisitos: al menos 8 caracteres, 1 mayúscula, 1 minúscula y 1 número.</p>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <button type="button" class="btn btn-ghost" style="flex:1" onclick="closeCreateUserModal()">Cancelar</button>
+          <button type="submit" id="btn-admin-create-user" class="btn btn-primary" style="flex:1">Crear usuario</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<!-- ══════════ FOOTER EXCLUSIVO DE ADMINISTRADOR ══════════ -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
