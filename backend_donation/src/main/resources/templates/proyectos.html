@@ -63,7 +63,7 @@
       <!-- Card 1 (Plantilla dinámica th:each en Spring Boot) -->
       <div class="project-card" th:each="p : ${proyectos}" th:attr="data-category=${p.category}" data-category="Educación" th:onclick="|window.location.href='@{/proyectos/{id}(id=${p.id})}'|" onclick="window.location.href='proyecto-detalle.html?id=aulas-futuro'">
         <div class="project-card-img">
-          <img th:src="${p.image}" src="https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&amp;h=450&amp;fit=crop&amp;auto=format" th:alt="${p.title}" alt="Aulas del Futuro" loading="lazy"/>
+          <img th:src="${p.image != null ? p.image.imageUrl : 'https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&h=450&fit=crop&auto=format'}" src="https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&amp;h=450&amp;fit=crop&amp;auto=format" th:alt="${p.title}" alt="Aulas del Futuro" loading="lazy"/>
           <span class="badge badge-edu project-card-badge" th:classappend="${p.badgeClass}" th:text="${p.category}">Educación</span>
         </div>
         <div class="project-card-body">

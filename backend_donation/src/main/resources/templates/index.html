@@ -104,30 +104,30 @@
         <p class="section-label">Campaña destacada</p>
         <h2 class="section-title text-3xl">¡Estamos muy cerca de la meta!</h2>
       </div>
-      <div class="featured-card">
+      <div class="featured-card" th:with="dest=${campanaDestacada}, pct=${campanaDestacada != null and campanaDestacada.targetAmount != null and campanaDestacada.amountCollected != null and campanaDestacada.targetAmount.signum() > 0 ? (campanaDestacada.amountCollected.doubleValue() * 100 / campanaDestacada.targetAmount.doubleValue()) : 0}">
         <div class="featured-img">
-          <img th:src="${campanaDestacada != null ? campanaDestacada.image : 'https://images.unsplash.com/photo-1698795635937-31264cdbf359?w=600&h=400&fit=crop&auto=format'}" src="https://images.unsplash.com/photo-1698795635937-31264cdbf359?w=600&h=400&fit=crop&auto=format" alt="Mesa Llena" loading="lazy"/>
+          <img th:src="${dest != null and dest.image != null ? dest.image.imageUrl : 'https://images.unsplash.com/photo-1698795635937-31264cdbf359?w=600&h=400&fit=crop&auto=format'}" src="https://images.unsplash.com/photo-1698795635937-31264cdbf359?w=600&h=400&fit=crop&auto=format" alt="Mesa Llena" loading="lazy"/>
           <div class="featured-img-overlay"></div>
         </div>
         <div class="featured-body">
-          <span class="badge badge-ali mb-4" th:text="${campanaDestacada != null ? campanaDestacada.category : 'Alimentación'}">Alimentación</span>
-          <h3 style="font-size:1.5rem;color:var(--bark);margin-bottom:.75rem" th:text="${campanaDestacada != null ? campanaDestacada.title : 'Mesa Llena'}">Mesa Llena</h3>
-          <p class="text-sm text-clay mt-2 mb-6" style="line-height:1.7" th:text="${campanaDestacada != null ? campanaDestacada.description : 'Programa de nutrición escolar que garantiza un almuerzo balanceado diario a 420 niños de tres escuelas públicas en El Porvenir, Trujillo.'}">Programa de nutrición escolar que garantiza un almuerzo balanceado diario a 420 niños de tres escuelas públicas en El Porvenir, Trujillo.</p>
+          <span class="badge badge-ali mb-4">Alimentación</span>
+          <h3 style="font-size:1.5rem;color:var(--bark);margin-bottom:.75rem" th:text="${dest != null ? dest.title : 'Mesa Llena'}">Mesa Llena</h3>
+          <p class="text-sm text-clay mt-2 mb-6" style="line-height:1.7" th:text="${dest != null ? dest.description : 'Programa de nutrición escolar que garantiza un almuerzo balanceado diario a 420 niños de tres escuelas públicas en El Porvenir, Trujillo.'}">Programa de nutrición escolar que garantiza un almuerzo balanceado diario a 420 niños de tres escuelas públicas en El Porvenir, Trujillo.</p>
           <div class="progress-wrap mb-4">
             <div class="progress-labels">
-              <strong th:text="${campanaDestacada != null ? 'S/' + #numbers.formatInteger(campanaDestacada.raised, 1, 'COMMA') + ' recaudados' : 'S/29,120 recaudados'}">S/29,120 recaudados</strong>
-              <span th:text="${campanaDestacada != null ? 'Meta: S/' + #numbers.formatInteger(campanaDestacada.goal, 1, 'COMMA') : 'Meta: S/32,000'}">Meta: S/32,000</span>
+              <strong th:text="${dest != null ? 'S/' + #numbers.formatInteger(dest.amountCollected, 1, 'COMMA') + ' recaudados' : 'S/29,120 recaudados'}">S/29,120 recaudados</strong>
+              <span th:text="${dest != null ? 'Meta: S/' + #numbers.formatInteger(dest.targetAmount, 1, 'COMMA') : 'Meta: S/32,000'}">Meta: S/32,000</span>
             </div>
             <div class="progress-track" style="height:.875rem">
-              <div class="progress-fill" th:style="${campanaDestacada != null ? 'width:' + campanaDestacada.porcentaje + '%' : 'width:91%'}" style="width:91%"></div>
+              <div class="progress-fill" th:style="'width:' + ${pct} + '%'" style="width:91%"></div>
             </div>
-            <p class="progress-pct" th:text="${campanaDestacada != null ? campanaDestacada.porcentaje + '%' : '91%'}">91%</p>
+            <p class="progress-pct" th:text="${#numbers.formatInteger(pct, 1) + '%'}">91%</p>
           </div>
           <div class="flex items-center gap-6 mt-4" style="flex-wrap:wrap">
-            <div><p style="font-size:1.5rem;font-family:'Poppins',sans-serif;font-weight:700;color:var(--bark)">S/29.1k</p><p class="text-xs text-clay">recaudados</p></div>
+            <div><p style="font-size:1.5rem;font-family:'Poppins',sans-serif;font-weight:700;color:var(--bark)" th:text="${dest != null ? #numbers.formatDecimal(dest.amountCollected.doubleValue() / 1000, 1, 1) + 'k' : 'S/29.1k'}">S/29.1k</p><p class="text-xs text-clay">recaudados</p></div>
             <div style="width:1px;height:2.5rem;background:var(--dune)"></div>
-            <div><p style="font-size:1.5rem;font-family:'Poppins',sans-serif;font-weight:700;color:var(--bark)" th:text="${campanaDestacada != null ? campanaDestacada.donors : '408'}">408</p><p class="text-xs text-clay">donantes</p></div>
-            <a class="btn btn-primary" style="margin-left:auto" th:href="@{/donar(proyecto='mesa-llena')}" href="donar.html">Donar ahora</a>
+            <div><p style="font-size:1.5rem;font-family:'Poppins',sans-serif;font-weight:700;color:var(--bark)">408</p><p class="text-xs text-clay">donantes</p></div>
+            <a class="btn btn-primary" style="margin-left:auto" th:href="${dest != null ? '/donar?proyecto=' + dest.id : '/donar'}" href="donar.html">Donar ahora</a>
           </div>
         </div>
       </div>

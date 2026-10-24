@@ -31,7 +31,7 @@
         <!-- Mensaje de error opcional desde Spring Security / Controlador -->
         <p class="error-msg mb-3" th:if="${param.error}">⚠ Credenciales incorrectas. Intenta nuevamente.</p>
 
-        <form id="login-spring-form" th:action="@{/login}" method="post" onsubmit="handleLogin(event)">
+        <form id="login-spring-form" th:action="@{/login}" method="post">
           <div class="mb-4">
             <label class="label">Correo electrónico</label>
             <input type="email" name="username" class="input" id="login-email" placeholder="maria@correo.com"/>

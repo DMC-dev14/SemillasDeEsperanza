@@ -1,6 +1,7 @@
 package com.donation.app.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,14 +12,16 @@ import org.springframework.web.server.ResponseStatusException;
 import com.donation.app.enums.CampaignStatus;
 import com.donation.app.model.Campaign;
 import com.donation.app.repository.CampaignRepository;
-
-import lombok.RequiredArgsConstructor;
+import com.donation.app.security.CustomUserDetailsService.CustomUserDetails;
 
 @Controller
-@RequiredArgsConstructor
 public class PageController {
 
     private final CampaignRepository campaignRepository;
+
+    public PageController(CampaignRepository campaignRepository) {
+        this.campaignRepository = campaignRepository;
+    }
 
     @GetMapping({"/", "/index"})
     public String index(Model model) {
@@ -71,7 +74,10 @@ public class PageController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard() {
+    public String dashboard(@AuthenticationPrincipal CustomUserDetails principal, Model model) {
+        if (principal != null) {
+            model.addAttribute("usuario", principal.getUser());
+        }
         return "dashboard";
     }
 }

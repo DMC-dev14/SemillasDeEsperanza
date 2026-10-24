@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <header id="header" th:fragment="header(activePage)">
   <div class="header-inner">
@@ -18,7 +18,11 @@
       <a th:href="@{/contacto}" href="contacto.html" th:classappend="${activePage == 'contact'} ? 'active' : ''">Contacto</a>
     </nav>
     <div class="header-right">
-      <a class="login-btn" th:href="@{/login}" href="login.html">Iniciar sesión</a>
+      <a class="login-btn" th:href="@{/login}" href="login.html" sec:authorize="isAnonymous()">Iniciar sesión</a>
+      <a class="login-btn" th:href="@{/dashboard}" href="/dashboard" sec:authorize="isAuthenticated()">Mi cuenta</a>
+      <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()" style="display:inline">
+        <button type="submit" class="login-btn" style="background:none;border:none;cursor:pointer">Cerrar sesión</button>
+      </form>
       <a class="btn btn-primary btn-sm" th:href="@{/donar}" href="donar.html">Donar ahora</a>
       <div class="hamburger" onclick="toggleMenu()" id="hamburger">
         <span></span><span></span><span></span>

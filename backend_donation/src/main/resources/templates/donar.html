@@ -91,7 +91,7 @@
             <h2 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1.05rem;color:var(--bark);margin-bottom:1rem">¿A qué proyecto?</h2>
             <div class="project-selector" id="project-selector" th:remove="all-but-first">
               <div class="proj-opt" th:each="p : ${proyectos}" th:attr="data-project-id=${p.id}" data-project-id="aulas-futuro" th:classappend="${p.id == proyectoSeleccionado} ? 'selected' : ''" onclick="selectProject(this.getAttribute('data-project-id'), this)">
-                <img th:src="${p.image}" src="https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&amp;h=450&amp;fit=crop&amp;auto=format" th:alt="${p.title}" alt="Aulas del Futuro"/>
+                <img th:src="${p.image != null ? p.image.imageUrl : 'https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&h=450&fit=crop&auto=format'}" src="https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&amp;h=450&amp;fit=crop&amp;auto=format" th:alt="${p.title}" alt="Aulas del Futuro"/>
                 <div><p class="proj-opt-name" th:text="${p.title}">Aulas del Futuro</p><p class="proj-opt-cat" th:text="${p.category}">Educación</p></div>
                 <svg class="proj-check-icon hidden" style="margin-left:auto;flex-shrink:0;color:var(--terra)" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
               </div>

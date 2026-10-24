@@ -1,6 +1,8 @@
 package com.donation.app.service;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -8,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.donation.app.dto.request.CreateUserRequest;
 import com.donation.app.dto.request.RegisterRequest;
@@ -15,6 +18,7 @@ import com.donation.app.dto.request.UpdateUserRequest;
 import com.donation.app.dto.response.UserResponse;
 import com.donation.app.enums.RolNombre;
 import com.donation.app.exception.BusinessException;
+import com.donation.app.model.Image;
 import com.donation.app.model.Rol;
 import com.donation.app.model.User;
 import com.donation.app.repository.DonationRepository;
@@ -32,42 +36,35 @@ public class UserService {
     private final RolRepository rolRepository;
     private final DonationRepository donationRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ImageService imageService;
 
     @Transactional // Escritura
     public UserResponse register(RegisterRequest request) {
-        String email = request.email().trim();
-
-        if (userRepository.existsByEmail(email)) {
-            throw new BusinessException(HttpStatus.CONFLICT, "El email ya está registrado");
-        }
-
-        Rol rolUsuario = obtenerRol(RolNombre.USUARIO.name());
-
-        User user = new User();
-        user.setName(request.name().trim());
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRol(rolUsuario);
-        user.setActive(true);
-
-        User savedUser = userRepository.save(user);
-        return mapToUserResponse(savedUser);
+        return crearUsuario(request.name(), request.email(), request.password(), RolNombre.USUARIO.name());
     }
 
     @Transactional // Escritura
     public UserResponse createUser(CreateUserRequest request) {
-        String email = request.email().trim();
+        return crearUsuario(request.name(), request.email(), request.password(), request.rol());
+    }
+
+    /**
+     * Punto único de creación de cuentas (tanto para el registro público como
+     * para la creación desde el panel de administración).
+     */
+    private UserResponse crearUsuario(String name, String emailRaw, String password, String rolNombre) {
+        String email = normalizarEmail(emailRaw);
 
         if (userRepository.existsByEmail(email)) {
             throw new BusinessException(HttpStatus.CONFLICT, "El email ya está registrado");
         }
 
-        Rol rol = obtenerRol(request.rol().trim());
+        Rol rol = obtenerRol(rolNombre.trim());
 
         User user = new User();
-        user.setName(request.name().trim());
+        user.setName(name.trim());
         user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setPassword(passwordEncoder.encode(password));
         user.setRol(rol);
         user.setActive(true);
 
@@ -93,16 +90,25 @@ public class UserService {
         }
 
         if (request.email() != null) {
-            String email = request.email().trim();
+            String email = normalizarEmail(request.email());
             if (!email.equals(user.getEmail()) && userRepository.existsByEmail(email)) {
                 throw new BusinessException(HttpStatus.CONFLICT, "El email ya está registrado");
             }
             user.setEmail(email);
         }
 
-        if (request.imageUrl() != null) {
-            user.setImageUrl(request.imageUrl().trim());
+        if (request.rol() != null && !request.rol().equals(nombreRolActual(user))) {
+            // Un administrador no puede quitarse a sí mismo el rol (perdería el acceso).
+            if (esUsuarioAutenticado(id)) {
+                throw new BusinessException(HttpStatus.CONFLICT, "No puedes cambiar tu propio rol");
+            }
+
+            // Si es el último administrador activo, tampoco puede dejar de serlo.
+            verificarNoEsUltimoAdmin(user);
+
+            user.setRol(obtenerRol(request.rol().trim()));
         }
+
         if (request.active() != null && !request.active().equals(user.getActive())) {
             if (Boolean.FALSE.equals(request.active())) {
                 verificarNoEsPropiaCuenta(id);
@@ -129,6 +135,43 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    @Transactional
+    public UserResponse updateAvatar(Long userId, MultipartFile file) throws IOException {
+        User user = obtenerEntidad(userId);
+        Image oldImage = user.getImage();
+
+        Image newImage = imageService.uploadImage(file);
+        user.setImage(newImage);
+        User saved = userRepository.save(user);
+
+        if (oldImage != null) {
+            try {
+                imageService.deleteImage(oldImage);
+            } catch (IOException ex) {
+                // Ignorar fallo al eliminar la imagen antigua
+            }
+        }
+
+        return mapToUserResponse(saved);
+    }
+
+    @Transactional
+    public UserResponse deleteAvatar(Long userId) throws IOException {
+        User user = obtenerEntidad(userId);
+        Image oldImage = user.getImage();
+
+        if (oldImage == null) {
+            return mapToUserResponse(user);
+        }
+
+        user.setImage(null);
+        userRepository.save(user);
+
+        imageService.deleteImage(oldImage);
+
+        return mapToUserResponse(user);
+    }
+
     private User obtenerEntidad(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
@@ -140,10 +183,21 @@ public class UserService {
                         "El rol especificado no existe: " + nombre));
     }
 
-    private void verificarNoEsPropiaCuenta(Long id) {
-        User actual = usuarioAutenticado();
+    private String normalizarEmail(String email) {
+        return email.trim().toLowerCase(Locale.ROOT);
+    }
 
-        if (actual != null && actual.getId().equals(id)) {
+    private String nombreRolActual(User user) {
+        return user.getRol() != null ? user.getRol().getName() : null;
+    }
+
+    private boolean esUsuarioAutenticado(Long id) {
+        User actual = usuarioAutenticado();
+        return actual != null && actual.getId().equals(id);
+    }
+
+    private void verificarNoEsPropiaCuenta(Long id) {
+        if (esUsuarioAutenticado(id)) {
             throw new BusinessException(HttpStatus.CONFLICT,
                     "No puedes desactivar ni eliminar tu propia cuenta");
         }
@@ -157,7 +211,7 @@ public class UserService {
         if (esAdminActivo
                 && userRepository.countByRol_NameAndActiveTrue(RolNombre.ADMINISTRADOR.name()) <= 1) {
             throw new BusinessException(HttpStatus.CONFLICT,
-                    "No se puede desactivar ni eliminar al último administrador");
+                    "No se puede desactivar, eliminar o cambiar el rol del último administrador");
         }
     }
 
@@ -176,11 +230,11 @@ public class UserService {
             user.getId(),
             user.getName(),
             user.getEmail(),
-            user.getImageUrl(),
+            user.getImage() != null ? user.getImage().getImageUrl() : null,
             user.getActive(),
             user.getCreatedAccount(),
             user.getRol() != null ? user.getRol().getName() : null
-            
+
         );
     }
 }

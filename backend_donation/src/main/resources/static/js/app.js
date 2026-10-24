@@ -392,27 +392,6 @@ function updatePwStrength(pw) {
   }
 }
 
-// ══════════ LOGIN ══════════
-function handleLogin(e) {
-  const email = document.getElementById('login-email').value.trim();
-  const pw = document.getElementById('login-pw').value;
-  let ok = true;
-  if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) { document.getElementById('login-email-err').classList.remove('hidden'); ok = false; }
-  else { document.getElementById('login-email-err').classList.add('hidden'); }
-  if (pw.length < 6) { document.getElementById('login-pw-err').classList.remove('hidden'); ok = false; }
-  else { document.getElementById('login-pw-err').classList.add('hidden'); }
-  if (!ok) {
-    if (e) e.preventDefault();
-    return false;
-  }
-  const form = document.getElementById('login-spring-form');
-  if (!form || form.getAttribute('data-submit-backend') !== 'true') {
-    if (e) e.preventDefault();
-    showToast('success', '¡Bienvenido de vuelta! Sesión iniciada correctamente.');
-    setTimeout(() => { window.location.href = 'dashboard.html'; }, 700);
-  }
-}
-
 // ══════════ CONTACT ══════════
 function handleContact(e) {
   const name = document.getElementById('c-name').value.trim();

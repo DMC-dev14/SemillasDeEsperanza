@@ -1,5 +1,7 @@
 package com.donation.app.service;
 
+import java.util.Locale;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,7 @@ public class AuthService {
     private final JwtService jwtService;
 
     public AuthResponse login(LoginRequest request) {
-        String email = request.email().trim();
+        String email = request.email().trim().toLowerCase(Locale.ROOT);
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas"));
