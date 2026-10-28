@@ -56,9 +56,20 @@ public class SecurityConfig {
                         "/nosotros", "/contacto", "/donar",
                         "/css/**", "/js/**", "/images/**", "/favicon.ico"
                 ).permitAll()
-                // Solo el registro y el login son públicos. /api/auth/me exige token.
-                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
-                .requestMatchers("/api/auth/me").authenticated()
+                // Las donaciones pueden ser anónimas; los endpoints de campañas activas
+                // y el feed público son visibles sin autenticación.
+                .requestMatchers(HttpMethod.GET, "/api/campaigns/active").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/campaigns/{id:\\d+}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/campaigns/admin").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/api/campaigns", "/api/campaigns/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/donations/public-feed").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/donations").permitAll()
+                // Registro, login y logout son públicos.
+                .requestMatchers(HttpMethod.POST,
+                        "/api/auth/register", "/api/auth/login", "/api/auth/logout").permitAll()
+                // Datos y acciones del propio usuario autenticado.
+                .requestMatchers("/api/auth/me", "/api/auth/me/**",
+                        "/api/auth/profile", "/api/auth/change-password").authenticated()
                 .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
                 .anyRequest().authenticated())
             .httpBasic(basic -> basic.disable())

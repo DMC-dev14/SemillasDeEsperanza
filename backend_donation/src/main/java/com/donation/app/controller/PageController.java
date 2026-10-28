@@ -148,6 +148,9 @@ public class PageController {
 
     @GetMapping("/dashboard")
     public String dashboard(@AuthenticationPrincipal CustomUserDetails principal, Model model) {
+        if (isAdmin(principal)) {
+            return "redirect:/admin";
+        }
         if (principal != null) {
             model.addAttribute("usuario", principal.getUser());
         }

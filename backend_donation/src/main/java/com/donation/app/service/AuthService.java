@@ -6,9 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.donation.app.dto.request.ChangePasswordRequest;
 import com.donation.app.dto.request.LoginRequest;
 import com.donation.app.dto.request.RegisterRequest;
+import com.donation.app.dto.request.UpdateProfileRequest;
 import com.donation.app.dto.response.AuthResponse;
+import com.donation.app.dto.response.UserResponse;
 import com.donation.app.exception.BusinessException;
 import com.donation.app.model.User;
 import com.donation.app.repository.UserRepository;
@@ -48,6 +51,22 @@ public class AuthService {
         User savedUser = userRepository.findByEmail(userResp.email())
                 .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
         return issueForUser(savedUser);
+    }
+
+    /**
+     * Actualiza el perfil del usuario autenticado y emite un token nuevo.
+     * Es necesario un token nuevo porque el subject del JWT es el email: si el
+     * usuario cambia su correo, el token anterior deja de ser válido.
+     */
+    public AuthResponse updateProfile(Long userId, UpdateProfileRequest request) {
+        UserResponse updated = userService.updateOwnProfile(userId, request);
+        User user = userRepository.findByEmail(updated.email())
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+        return issueForUser(user);
+    }
+
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        userService.changePassword(userId, request);
     }
 
     public AuthResponse issueForUser(User user) {

@@ -12,8 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.donation.app.dto.request.ChangePasswordRequest;
 import com.donation.app.dto.request.CreateUserRequest;
 import com.donation.app.dto.request.RegisterRequest;
+import com.donation.app.dto.request.UpdateProfileRequest;
 import com.donation.app.dto.request.UpdateUserRequest;
 import com.donation.app.dto.response.UserResponse;
 import com.donation.app.enums.RolNombre;
@@ -118,6 +120,38 @@ public class UserService {
         }
 
         return mapToUserResponse(userRepository.save(user));
+    }
+
+    @Transactional // Escritura
+    public UserResponse updateOwnProfile(Long userId, UpdateProfileRequest request) {
+        User user = obtenerEntidad(userId);
+
+        String email = normalizarEmail(request.email());
+        if (!email.equals(user.getEmail()) && userRepository.existsByEmail(email)) {
+            throw new BusinessException(HttpStatus.CONFLICT, "El email ya está registrado");
+        }
+
+        user.setName(request.name().trim());
+        user.setEmail(email);
+
+        return mapToUserResponse(userRepository.save(user));
+    }
+
+    @Transactional // Escritura
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        User user = obtenerEntidad(userId);
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "La contraseña actual es incorrecta");
+        }
+
+        if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST,
+                    "La nueva contraseña debe ser distinta a la actual");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
     }
 
     @Transactional // Escritura

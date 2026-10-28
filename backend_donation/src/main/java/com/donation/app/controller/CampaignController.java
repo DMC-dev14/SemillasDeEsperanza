@@ -33,45 +33,56 @@ public class CampaignController {
 
     private final CampaignService campaignService;
 
-    @GetMapping
+    // PÚBLICO - Listar campañas activas
+    @GetMapping("/active")
     public ResponseEntity<List<CampaignResponse>> getActive() {
         return ResponseEntity.ok(campaignService.getActive());
     }
 
+    // PÚBLICO - Ver detalle de campaña
+    @GetMapping("/{id}")
+    public ResponseEntity<CampaignResponse> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(campaignService.getById(id));
+    }
+
+    // SOLO ADMIN - Ver TODAS (incluidas DRAFT/CANCELLED/COMPLETED)
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<List<CampaignResponse>> getAllForAdmin() {
         return ResponseEntity.ok(campaignService.getAll());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CampaignResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(campaignService.getById(id));
-    }
-
+    // SOLO ADMIN - Crear
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<CampaignResponse> create(@Valid @RequestBody CampaignRequest request,
-                                                   @AuthenticationPrincipal CustomUserDetails principal) {
+            @AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(campaignService.create(request, principal != null ? principal.getUser() : null));
     }
 
+    // SOLO ADMIN - Editar completo
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<CampaignResponse> update(@PathVariable Long id,
-                                                   @Valid @RequestBody CampaignRequest request) {
+            @Valid @RequestBody CampaignRequest request) {
         return ResponseEntity.ok(campaignService.update(id, request));
     }
 
+    // SOLO ADMIN - Cambiar solo estado
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<CampaignResponse> updateStatus(@PathVariable Long id,
-                                                         @RequestBody Map<String, String> body) {
-        CampaignStatus status = CampaignStatus.valueOf(body.get("status"));
+            @RequestBody Map<String, String> body) {
+        String statusStr = body.get("status");
+        if (statusStr == null || statusStr.isBlank()) {
+            throw new com.donation.app.exception.BusinessException(HttpStatus.BAD_REQUEST, "El estado es obligatorio");
+        }
+        CampaignStatus status = CampaignStatus.valueOf(statusStr);
         return ResponseEntity.ok(campaignService.updateStatus(id, status));
     }
 
+    // SOLO ADMIN - Eliminar
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

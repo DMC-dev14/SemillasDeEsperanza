@@ -744,9 +744,6 @@ function updatePwStrength(pw) {
   }
 }
 
-<<<<<<< HEAD
-// ══════════ CONTACT ══════════
-=======
 function updateReqItem(id, met, labelText) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -1059,7 +1056,6 @@ async function toggleUserActive(id, active) {
 }
 
 // ══════════ CONTACTO ══════════
->>>>>>> 7fb6b8b862f38f66996d35a75ac2a749c3382a17
 function handleContact(e) {
   const name = document.getElementById('c-name').value.trim();
   const email = document.getElementById('c-email').value.trim();

@@ -144,7 +144,7 @@ public class CampaignService {
                 c.getTitle(),
                 c.getDescription(),
                 c.getHistory(),
-                c.getImage(),
+                c.getImageUrl(),
                 c.getCategory(),
                 c.getBadgeClass(),
                 c.getLocation(),
