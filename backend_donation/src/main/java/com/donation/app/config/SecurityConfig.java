@@ -41,68 +41,84 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtService, userDetailsService);
 
         http
-            .csrf(csrf -> csrf.disable())
-            .cors(Customizer.withDefaults())
-            // IF_REQUIRED mantiene la sesión para las vistas Thymeleaf (form login).
-            // La API REST funciona con JWT y no depende de la sesión.
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/error").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers(
-                        "/", "/index",
-                        "/login", "/registro",
-                        "/proyectos", "/proyectos/**",
-                        "/nosotros", "/contacto", "/donar",
-                        "/css/**", "/js/**", "/images/**", "/favicon.ico"
-                ).permitAll()
-                // Las donaciones pueden ser anónimas; los endpoints de campañas activas
-                // y el feed público son visibles sin autenticación.
-                .requestMatchers(HttpMethod.GET, "/api/campaigns/active").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/campaigns/{id:\\d+}").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/campaigns/admin").hasRole("ADMINISTRADOR")
-                .requestMatchers(HttpMethod.GET, "/api/campaigns", "/api/campaigns/*").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/donations/public-feed").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/donations").permitAll()
-                // Registro, login y logout son públicos.
-                .requestMatchers(HttpMethod.POST,
-                        "/api/auth/register", "/api/auth/login", "/api/auth/logout").permitAll()
-                // Datos y acciones del propio usuario autenticado.
-                .requestMatchers("/api/auth/me", "/api/auth/me/**",
-                        "/api/auth/profile", "/api/auth/change-password").authenticated()
-                .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
-                .anyRequest().authenticated())
-            .httpBasic(basic -> basic.disable())
-            .formLogin(form -> form
-                .loginPage("/login")
-                .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/dashboard", true)
-                .failureUrl("/login?error")
-                .permitAll())
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
-                .permitAll())
-            .exceptionHandling(ex -> ex
-                // Para la API siempre devolvemos JSON (401/403), nunca una redirección al login.
-                .authenticationEntryPoint((request, response, authException) -> {
-                    if (esRutaApi(request)) {
-                        escribirErrorApi(response, HttpStatus.UNAUTHORIZED, "No autenticado",
-                                "Debes enviar un token JWT válido en el header Authorization: Bearer <token>");
-                    } else {
-                        response.sendRedirect("/login");
-                    }
-                })
-                .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    if (esRutaApi(request)) {
-                        escribirErrorApi(response, HttpStatus.FORBIDDEN, "Acceso denegado",
-                                "No tienes permisos para realizar esta operación");
-                    } else {
-                        response.sendError(HttpStatus.FORBIDDEN.value(),
-                                "No tienes permisos para realizar esta operación");
-                    }
-                }))
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
+                // IF_REQUIRED mantiene la sesión para las vistas Thymeleaf (form login).
+                // La API REST funciona con JWT y no depende de la sesión.
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(
+                                "/", "/index",
+                                "/login", "/registro",
+                                "/proyectos", "/proyectos/**",
+                                "/nosotros", "/contacto", "/donar",
+                                "/css/**", "/js/**", "/images/**", "/favicon.ico")
+                        .permitAll()
+                        // Las donaciones pueden ser anónimas; los endpoints de campañas activas
+                        // y el feed público son visibles sin autenticación.
+                        .requestMatchers(HttpMethod.GET, "/api/campaigns/active").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/campaigns/{id:\\d+}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/campaigns/admin").hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/campaigns", "/api/campaigns/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/donations/public-feed").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/donations").permitAll()
+
+                        // PÚBLICO - Iniciar pago con Yape
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/payment-gateway/charge-payment",
+                                "/api/payment-gateway/yape/token")
+                        .permitAll()
+                        // Registro, login, logout y recuperación de contraseña son públicos.
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/auth/register", "/api/auth/login", "/api/auth/logout",
+                                "/api/auth/forgot-password", "/api/auth/reset-password")
+                        .permitAll()
+                        // Mercado Pago - Recibir notificaciones
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/payment-gateway/webhook")
+                        .permitAll()
+                        // Datos y acciones del propio usuario autenticado.
+                        .requestMatchers("/api/auth/me", "/api/auth/me/**",
+                                "/api/auth/profile", "/api/auth/change-password")
+                        .authenticated()
+                        .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
+                        .anyRequest().authenticated())
+                .httpBasic(basic -> basic.disable())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/dashboard", true)
+                        .failureUrl("/login?error")
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                        .permitAll())
+                .exceptionHandling(ex -> ex
+                        // Para la API siempre devolvemos JSON (401/403), nunca una redirección al
+                        // login.
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            if (esRutaApi(request)) {
+                                escribirErrorApi(response, HttpStatus.UNAUTHORIZED, "No autenticado",
+                                        "Debes enviar un token JWT válido en el header Authorization: Bearer <token>");
+                            } else {
+                                response.sendRedirect("/login");
+                            }
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            if (esRutaApi(request)) {
+                                escribirErrorApi(response, HttpStatus.FORBIDDEN, "Acceso denegado",
+                                        "No tienes permisos para realizar esta operación");
+                            } else {
+                                response.sendError(HttpStatus.FORBIDDEN.value(),
+                                        "No tienes permisos para realizar esta operación");
+                            }
+                        }))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

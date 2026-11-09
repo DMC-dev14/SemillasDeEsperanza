@@ -35,8 +35,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn("Violacion de integridad en base de datos: {}", ex.getMostSpecificCause().getMessage());
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.CONFLICT,
-                "El registro ya existe o viola una restricción de integridad"
-        );
+                "El registro ya existe o viola una restricción de integridad");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
     }
 
@@ -58,33 +57,47 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-        MethodArgumentNotValidException ex,
-        HttpHeaders headers,
-        HttpStatusCode status,
-        WebRequest request) {
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
 
-    List<String> errors = ex.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(error -> error.getDefaultMessage() != null ? error.getDefaultMessage() : "Campo inválido")
-            .toList();
+        List<String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getDefaultMessage() != null ? error.getDefaultMessage() : "Campo inválido")
+                .toList();
 
-    ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-            HttpStatus.BAD_REQUEST,
-            "Datos invalidos"
-    );
-    problem.setProperty("errors", errors);
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "Datos invalidos");
+        problem.setProperty("errors", errors);
 
-    return ResponseEntity.badRequest().body(problem);
-}
+        return ResponseEntity.badRequest().body(problem);
+    }
+
+    @ExceptionHandler(org.springframework.web.reactive.function.client.WebClientResponseException.class)
+    public ResponseEntity<ProblemDetail> handleMercadoPagoError(
+            org.springframework.web.reactive.function.client.WebClientResponseException ex) {
+
+        log.error("MercadoPago respondió {}: {}",
+                ex.getStatusCode(), ex.getResponseBodyAsString());
+
+        HttpStatus status = ex.getStatusCode().is5xxServerError()
+                ? HttpStatus.BAD_GATEWAY
+                : HttpStatus.UNPROCESSABLE_ENTITY;
+
+        return ResponseEntity.status(status).body(
+                ProblemDetail.forStatusAndDetail(status,
+                        "No se pudo procesar el pago con Mercado Pago"));
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleGenericException(Exception ex) {
         log.error("Error inesperado en el servidor", ex);
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "Ocurrió un error inesperado en el servidor"
-        );
+                "Ocurrió un error inesperado en el servidor");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem);
     }
 }

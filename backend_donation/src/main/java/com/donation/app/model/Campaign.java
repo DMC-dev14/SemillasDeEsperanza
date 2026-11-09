@@ -85,6 +85,7 @@ public class Campaign {
 
     @jakarta.persistence.Transient
     @Builder.Default
+    @Column(name = "donors_count", nullable = false)
     private Long donorsCount = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY)

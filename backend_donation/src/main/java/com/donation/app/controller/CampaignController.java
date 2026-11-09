@@ -33,6 +33,13 @@ public class CampaignController {
 
     private final CampaignService campaignService;
 
+    
+    // PÚBLICO - Listar campañas activas
+    @GetMapping
+    public ResponseEntity<List<CampaignResponse>> getAllPublic() {
+        return ResponseEntity.ok(campaignService.getActive());
+    }
+
     // PÚBLICO - Listar campañas activas
     @GetMapping("/active")
     public ResponseEntity<List<CampaignResponse>> getActive() {

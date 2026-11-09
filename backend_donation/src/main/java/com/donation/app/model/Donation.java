@@ -63,4 +63,17 @@ public class Donation {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campaign_id")
     private Campaign campaign;
+
+    @Column(name = "payer_email", length = 255)
+    private String payerEmail;
+
+    @Column(name = "mercadopago_payment_id", length = 64, unique = true)
+    private String mercadoPagoPaymentId;
+
+    @Column(name = "payment_attempt_key", length = 36, unique = true)
+    private String paymentAttemptKey;
+
+    @Column(name = "checkout_token", length = 36, unique = true)
+    private String checkoutToken;
+
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.donation.app.dto.request.DonationRequest;
+import com.donation.app.dto.response.DonationCreatedResponse;
 import com.donation.app.dto.response.DonationResponse;
 import com.donation.app.enums.CampaignStatus;
 import com.donation.app.enums.Method;
@@ -43,25 +44,39 @@ public class DonationService {
     private final UserRepository userRepository;
 
     @Transactional
-    public DonationResponse createDonation(DonationRequest request, User authenticatedUser) {
-        Campaign campaign = campaignRepository.findById(request.campaignId())
-                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "La campaña seleccionada no existe"));
+    public DonationCreatedResponse createDonation(
+            DonationRequest request,
+            User authenticatedUser) {
+
+        Campaign campaign = campaignRepository
+                .findById(request.campaignId())
+                .orElseThrow(() -> new BusinessException(
+                        HttpStatus.NOT_FOUND,
+                        "La campaña seleccionada no existe"));
 
         if (campaign.getStatus() != CampaignStatus.ACTIVE) {
-            throw new BusinessException(HttpStatus.BAD_REQUEST, "Esta campaña no está activa para recibir donaciones");
+            throw new BusinessException(
+                    HttpStatus.BAD_REQUEST,
+                    "Esta campaña no está activa para recibir donaciones");
+        }
+
+        if (request.amount() == null ||
+                request.amount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException(
+                    HttpStatus.BAD_REQUEST,
+                    "El monto debe ser mayor que cero");
         }
 
         String donorName = request.donorName().trim();
-        String donorEmail = request.donorEmail().trim().toLowerCase();
+        String donorEmail = request.donorEmail()
+                .trim()
+                .toLowerCase();
 
-        User donor = authenticatedUser;
-        if (donor == null) {
-            donor = userRepository.findByEmail(donorEmail).orElse(null);
-        }
+        String cleanMsg = request.message() != null
+                && !request.message().isBlank()
+                        ? request.message().trim()
+                        : "Donación de " + donorName;
 
-        String cleanMsg = request.message() != null && !request.message().isBlank()
-                ? request.message().trim()
-                : ("Donación " + (request.donationType() != null ? request.donationType() : "única") + " - " + donorName);
         if (cleanMsg.length() > 250) {
             cleanMsg = cleanMsg.substring(0, 250);
         }
@@ -70,40 +85,39 @@ public class DonationService {
                 .amount(request.amount())
                 .currency("PEN")
                 .message(cleanMsg)
-                .status(PaymentStatus.COMPLETED)
-                .donor(donor)
+                .status(PaymentStatus.PENDING)
+                .payerEmail(donorEmail)
+                .checkoutToken(UUID.randomUUID().toString())
+                .paymentAttemptKey(UUID.randomUUID().toString())
+                .donor(authenticatedUser)
                 .campaign(campaign)
                 .build();
+
         Donation savedDonation = donationRepository.save(donation);
 
-        Method method = parseMethod(request.paymentMethod());
-        String txCode = "TX-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-
         Transaction transaction = Transaction.builder()
-                .codeReferential(txCode)
-                .methodPay(method)
+                .codeReferential(
+                        "TX-" + UUID.randomUUID()
+                                .toString()
+                                .substring(0, 8)
+                                .toUpperCase())
+                .methodPay(parseMethod(request.paymentMethod()))
                 .amount(request.amount())
                 .currency("PEN")
-                .status(PaymentStatus.COMPLETED)
+                .status(PaymentStatus.PENDING)
                 .donation(savedDonation)
                 .build();
+
         Transaction savedTx = transactionRepository.save(transaction);
 
-        String voucherNum = String.format("REC-2026-%05d", savedDonation.getId());
-        Voucher voucher = new Voucher();
-        voucher.setNumber(voucherNum);
-        voucher.setEmailSend(donorEmail);
-        voucher.setFilePath("/api/donations/" + savedDonation.getId());
-        voucher.setTransaction(savedTx);
-        voucherRepository.save(voucher);
-
-        BigDecimal currentCollected = campaign.getAmountCollected() != null
-                ? campaign.getAmountCollected()
-                : BigDecimal.ZERO;
-        campaign.setAmountCollected(currentCollected.add(request.amount()));
-        campaignRepository.save(campaign);
-
-        return mapToResponse(savedDonation, savedTx, voucher, donorName, donorEmail);
+        return new DonationCreatedResponse(
+                mapToResponse(
+                        savedDonation,
+                        savedTx,
+                        null,
+                        donorName,
+                        donorEmail),
+                savedDonation.getCheckoutToken());
     }
 
     public List<DonationResponse> getMyDonations(Long userId) {
@@ -125,34 +139,75 @@ public class DonationService {
     }
 
     @Transactional
-    public DonationResponse updateStatus(Long donationId, PaymentStatus newStatus) {
+    public DonationResponse updateStatus(
+            Long donationId,
+            PaymentStatus newStatus) {
+
         if (newStatus == null) {
-            throw new BusinessException(HttpStatus.BAD_REQUEST, "El estado es obligatorio");
+            throw new BusinessException(
+                    HttpStatus.BAD_REQUEST,
+                    "El estado es obligatorio");
         }
-        Donation donation = donationRepository.findById(donationId)
-                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "Donación no encontrada"));
+
+        Donation donation = donationRepository
+                .findLockedById(donationId)
+                .orElseThrow(() -> new BusinessException(
+                        HttpStatus.NOT_FOUND,
+                        "Donación no encontrada"));
+
+        Transaction transaction = transactionRepository
+                .findFirstByDonation_IdOrderByTransactionDateDesc(donationId)
+                .orElse(null);
+
+        // Impedir cambios manuales en pagos Yape
+        if (transaction != null &&
+                transaction.getMethodPay() == Method.YAPE) {
+            throw new BusinessException(
+                    HttpStatus.FORBIDDEN,
+                    "El estado de pagos Yape debe verificarse con Mercado Pago");
+        }
 
         PaymentStatus oldStatus = donation.getStatus();
+
         if (oldStatus != newStatus) {
+
             Campaign campaign = donation.getCampaign();
+
             if (campaign != null) {
-                BigDecimal current = campaign.getAmountCollected() != null ? campaign.getAmountCollected() : BigDecimal.ZERO;
-                if (oldStatus == PaymentStatus.COMPLETED && newStatus != PaymentStatus.COMPLETED) {
-                    BigDecimal updated = current.subtract(donation.getAmount());
-                    campaign.setAmountCollected(updated.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : updated);
-                    campaignRepository.save(campaign);
-                } else if (oldStatus != PaymentStatus.COMPLETED && newStatus == PaymentStatus.COMPLETED) {
-                    campaign.setAmountCollected(current.add(donation.getAmount()));
-                    campaignRepository.save(campaign);
+                campaign = campaignRepository
+                        .findLockedById(campaign.getId())
+                        .orElseThrow(() -> new BusinessException(
+                                HttpStatus.NOT_FOUND,
+                                "Campaña no encontrada"));
+
+                BigDecimal current = campaign.getAmountCollected() != null
+                        ? campaign.getAmountCollected()
+                        : BigDecimal.ZERO;
+
+                if (oldStatus == PaymentStatus.COMPLETED &&
+                        newStatus != PaymentStatus.COMPLETED) {
+
+                    campaign.setAmountCollected(
+                            current.subtract(donation.getAmount())
+                                    .max(BigDecimal.ZERO));
+
+                } else if (oldStatus != PaymentStatus.COMPLETED &&
+                        newStatus == PaymentStatus.COMPLETED) {
+
+                    campaign.setAmountCollected(
+                            current.add(donation.getAmount()));
                 }
+
+                campaignRepository.save(campaign);
             }
+
             donation.setStatus(newStatus);
             donationRepository.save(donation);
 
-            transactionRepository.findFirstByDonation_IdOrderByTransactionDateDesc(donationId).ifPresent(tx -> {
-                tx.setStatus(newStatus);
-                transactionRepository.save(tx);
-            });
+            if (transaction != null) {
+                transaction.setStatus(newStatus);
+                transactionRepository.save(transaction);
+            }
         }
 
         return mapToResponse(donation);
@@ -209,7 +264,7 @@ public class DonationService {
         List<Map.Entry<String, BigDecimal>> sorted = new ArrayList<>(totalsByDonor.entrySet());
         sorted.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 
-        String[] badges = {"🥇", "🥈", "🥉", "#4", "#5"};
+        String[] badges = { "🥇", "🥈", "🥉", "#4", "#5" };
         List<Map<String, Object>> result = new ArrayList<>();
         int limit = Math.min(5, sorted.size());
         for (int i = 0; i < limit; i++) {
@@ -230,7 +285,9 @@ public class DonationService {
         Voucher v = (tx != null) ? voucherRepository.findFirstByTransaction_Id(tx.getId()).orElse(null) : null;
 
         String donorName = d.getDonor() != null ? d.getDonor().getName() : extractDonorNameFromMessage(d.getMessage());
-        String donorEmail = d.getDonor() != null ? d.getDonor().getEmail() : (v != null ? v.getEmailSend() : "donante@semillas.org");
+        String donorEmail = d.getDonor() != null
+                ? d.getDonor().getEmail()
+                : d.getPayerEmail();
 
         return mapToResponse(d, tx, v, donorName, donorEmail);
     }
@@ -250,12 +307,12 @@ public class DonationService {
                 d.getCampaign() != null ? d.getCampaign().getTitle() : "Campaña General",
                 tx != null ? tx.getMethodPay() : Method.CREDIT_CARD,
                 tx != null ? tx.getCodeReferential() : ("TX-" + d.getId()),
-                v != null ? v.getNumber() : String.format("REC-2026-%05d", d.getId())
-        );
+                v != null ? v.getNumber() : null);
     }
 
     private Method parseMethod(String raw) {
-        if (raw == null) return Method.CREDIT_CARD;
+        if (raw == null)
+            return Method.CREDIT_CARD;
         return switch (raw.trim().toLowerCase()) {
             case "card", "credit_card" -> Method.CREDIT_CARD;
             case "debit_card" -> Method.DEBIT_CARD;
@@ -271,15 +328,100 @@ public class DonationService {
         if (msg != null && msg.contains(" - ")) {
             String[] parts = msg.split(" - ");
             String candidate = parts[parts.length - 1].trim();
-            if (!candidate.isEmpty()) return candidate;
+            if (!candidate.isEmpty())
+                return candidate;
         }
         return "Donante Solidario";
     }
 
     private String formatShortName(String fullName) {
-        if (fullName == null || fullName.isBlank()) return "Donante";
+        if (fullName == null || fullName.isBlank())
+            return "Donante";
         String[] parts = fullName.trim().split("\\s+");
-        if (parts.length == 1) return parts[0];
+        if (parts.length == 1)
+            return parts[0];
         return parts[0] + " " + parts[1].charAt(0) + ".";
     }
+
+    @Transactional
+    public void confirmYapePayment(
+            Long donationId,
+            String paymentId,
+            BigDecimal paidAmount,
+            String currency) {
+
+        Donation donation = donationRepository
+                .findLockedById(donationId)
+                .orElseThrow(() -> new BusinessException(
+                        HttpStatus.NOT_FOUND,
+                        "Donación no encontrada"));
+
+        if (donation.getStatus() == PaymentStatus.COMPLETED) {
+            if (paymentId.equals(donation.getMercadoPagoPaymentId())) {
+                return;
+            }
+            throw new BusinessException(
+                    HttpStatus.CONFLICT,
+                    "La donación ya tiene otro pago confirmado");
+        }
+
+        if (donation.getStatus() != PaymentStatus.PENDING) {
+            throw new BusinessException(
+                    HttpStatus.CONFLICT,
+                    "La donación no está pendiente");
+        }
+
+        if (!"PEN".equals(currency) ||
+                donation.getAmount().compareTo(paidAmount) != 0) {
+            throw new BusinessException(
+                    HttpStatus.BAD_REQUEST,
+                    "Los datos del pago no coinciden con la donación");
+        }
+
+        Transaction transaction = transactionRepository
+                .findFirstByDonation_IdOrderByTransactionDateDesc(
+                        donationId)
+                .orElseThrow(() -> new BusinessException(
+                        HttpStatus.NOT_FOUND,
+                        "Transacción no encontrada"));
+
+        if (transaction.getMethodPay() != Method.YAPE) {
+            throw new BusinessException(
+                    HttpStatus.CONFLICT,
+                    "La transacción no corresponde a Yape");
+        }
+
+        Campaign campaign = campaignRepository
+                .findLockedById(donation.getCampaign().getId())
+                .orElseThrow(() -> new BusinessException(
+                        HttpStatus.NOT_FOUND,
+                        "Campaña no encontrada"));
+
+        donation.setMercadoPagoPaymentId(paymentId);
+        donation.setStatus(PaymentStatus.COMPLETED);
+
+        transaction.setStatus(PaymentStatus.COMPLETED);
+
+        BigDecimal collected = campaign.getAmountCollected() != null
+                ? campaign.getAmountCollected()
+                : BigDecimal.ZERO;
+
+        campaign.setAmountCollected(
+                collected.add(donation.getAmount()));
+
+        Voucher voucher = new Voucher();
+        voucher.setNumber(
+                String.format("REC-%d-%05d",
+                        java.time.LocalDate.now().getYear(),
+                        donation.getId()));
+        voucher.setEmailSend(donation.getPayerEmail());
+        voucher.setFilePath("/api/donations/" + donation.getId());
+        voucher.setTransaction(transaction);
+
+        donationRepository.save(donation);
+        transactionRepository.save(transaction);
+        campaignRepository.save(campaign);
+        voucherRepository.save(voucher);
+    }
+
 }

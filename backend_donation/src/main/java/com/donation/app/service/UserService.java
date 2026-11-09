@@ -3,6 +3,7 @@ package com.donation.app.service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -270,5 +271,17 @@ public class UserService {
             user.getRol() != null ? user.getRol().getName() : null
 
         );
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public Optional<User> findByName(String name) {
+        return userRepository.findByName(name);
+    }
+
+    public Optional<User> findByNameOrEmail(String name, String email) {
+        return userRepository.findByNameOrEmail(name, email);
     }
 }

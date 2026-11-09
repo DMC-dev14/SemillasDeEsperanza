@@ -33,12 +33,7 @@
 
         <!-- Alerta visible de error de servidor / credenciales -->
         <div class="auth-alert error hidden mb-4" id="login-server-alert" role="alert"></div>
-
-<<<<<<< HEAD
-        <form id="login-spring-form" th:action="@{/login}" method="post">
-=======
         <form id="login-spring-form" novalidate onsubmit="handleLogin(event)">
->>>>>>> 7fb6b8b862f38f66996d35a75ac2a749c3382a17
           <div class="mb-4">
             <label class="label" for="login-email">Correo electrónico</label>
             <input type="email" name="email" class="input" id="login-email" placeholder="maria@correo.com" autocomplete="email" oninput="clearFieldError('login-email','login-email-err')"/>

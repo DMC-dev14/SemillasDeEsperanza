@@ -19,10 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.donation.app.dto.request.ChangePasswordRequest;
+import com.donation.app.dto.request.ForgotPasswordRequest;
 import com.donation.app.dto.request.LoginRequest;
 import com.donation.app.dto.request.RegisterRequest;
 import com.donation.app.dto.request.UpdateProfileRequest;
 import com.donation.app.dto.response.AuthResponse;
+import com.donation.app.dto.response.ResetPasswordResponse;
 import com.donation.app.dto.response.UserResponse;
 import com.donation.app.exception.BusinessException;
 import com.donation.app.model.User;
@@ -71,6 +73,25 @@ public class AuthController {
             @AuthenticationPrincipal CustomUserDetails principal,
             @Valid @RequestBody ChangePasswordRequest request) {
         authService.changePassword(usuarioAutenticado(principal).getId(), request);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Inicia el flujo de recuperación de contraseña. Responde 200 siempre, exista
+     * o no el correo, para no revelar qué emails están registrados.
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Restablece la contraseña usando el token de un solo uso enviado por correo.
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordResponse request) {
+        authService.resetPassword(request);
         return ResponseEntity.noContent().build();
     }
 
