@@ -40,23 +40,25 @@ public class MercadoPagoWebhookController {
 
     @PostMapping("/webhook")
     public Mono<ResponseEntity<Void>> recibirNotificacion(
-            @RequestParam(name = "data.id", required = false) String paymentId,
-
-            @RequestParam(name = "type", required = false) String type,
-
+            @RequestParam(name = "data.id", required = false) String paymentIdQuery,
+            @RequestParam(name = "type", required = false) String typeQuery,
             @RequestHeader(name = "x-signature", required = false) String signature,
-
-            @RequestHeader(name = "x-request-id", required = false) String requestId) {
+            @RequestHeader(name = "x-request-id", required = false) String requestId,
+            @RequestBody(required = false) JsonNode body) {
 
         if (accessToken.isBlank() || webhookSecret.isBlank()) {
-            return Mono.just(
-                    ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build());
+            log.error("Webhook no configurado: falta MP_ACCESS_TOKEN o MP_WEBHOOK_SECRET");
+            return Mono.just(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build());
         }
 
-        // Comprobar que la notificación es auténtica
+        String paymentId = paymentIdQuery != null ? paymentIdQuery
+                : body != null ? body.path("data").path("id").asText(null) : null;
+
+        String type = typeQuery != null ? typeQuery
+                : body != null ? body.path("type").asText(null) : null;
+
         if (!firmaValida(paymentId, signature, requestId)) {
-            return Mono.just(
-                    ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+            return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
         }
 
         ResponseEntity<Void> ok = ResponseEntity.ok().build();
@@ -163,4 +165,7 @@ public class MercadoPagoWebhookController {
             return false;
         }
     }
+
+    private static final org.slf4j.Logger log =
+            org.slf4j.LoggerFactory.getLogger(MercadoPagoWebhookController.class);
 }

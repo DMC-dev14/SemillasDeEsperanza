@@ -81,11 +81,19 @@ public class SecurityConfig {
                                 HttpMethod.POST,
                                 "/api/payment-gateway/webhook")
                         .permitAll()
+                        // PayPal - Checkout API (público, protegido por checkoutToken)
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/paypal/orders",
+                                "/api/paypal/orders/*/capture",
+                                "/api/paypal/webhook")
+                        .permitAll()
                         // Datos y acciones del propio usuario autenticado.
                         .requestMatchers("/api/auth/me", "/api/auth/me/**",
                                 "/api/auth/profile", "/api/auth/change-password")
                         .authenticated()
                         .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(basic -> basic.disable())
                 .formLogin(form -> form

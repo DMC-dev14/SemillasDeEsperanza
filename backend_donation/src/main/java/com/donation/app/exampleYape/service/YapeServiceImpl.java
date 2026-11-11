@@ -14,6 +14,8 @@ import com.donation.app.model.Transaction;
 import com.donation.app.repository.DonationRepository;
 import com.donation.app.repository.TransactionRepository;
 import com.donation.app.service.DonationService;
+import com.donation.app.exception.BusinessException;
+import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -51,8 +53,9 @@ public class YapeServiceImpl implements YapeService {
                                 .flatMap(data -> {
 
                                         if (publicKey == null || publicKey.isBlank()) {
-                                                return Mono.error(new IllegalStateException(
-                                                                "Falta configurar MP_PUBLIC_KEY"));
+                                                return Mono.error(new BusinessException(
+                                                                HttpStatus.SERVICE_UNAVAILABLE,
+                                                                "La pasarela de pagos no está disponible"));
                                         }
 
                                         YapeGenerateTokenRequest request = YapeGenerateTokenRequest.builder()
@@ -72,9 +75,10 @@ public class YapeServiceImpl implements YapeService {
                                                         .bodyToMono(YapeGenerateTokenResponse.class)
                                                         .map(response -> {
 
-                                                                if (response.getId() == null ||
-                                                                                response.getId().isBlank()) {
-                                                                        throw new IllegalStateException(
+                                                                if (response.getId() == null
+                                                                                || response.getId().isBlank()) {
+                                                                        throw new BusinessException(
+                                                                                        HttpStatus.BAD_GATEWAY,
                                                                                         "Mercado Pago no devolvió el token de Yape");
                                                                 }
 
@@ -87,29 +91,34 @@ public class YapeServiceImpl implements YapeService {
 
                 Donation donation = donationRepository
                                 .findById(body.getDonationId())
-                                .orElseThrow(() -> new IllegalArgumentException(
+                                .orElseThrow(() -> new BusinessException(
+                                                HttpStatus.NOT_FOUND,
                                                 "Donación no encontrada"));
 
                 if (!Objects.equals(
                                 donation.getCheckoutToken(),
                                 body.getCheckoutToken())) {
-                        throw new SecurityException(
+                        throw new BusinessException(
+                                        HttpStatus.FORBIDDEN,
                                         "No autorizado para pagar esta donación");
                 }
 
                 if (donation.getStatus() != PaymentStatus.PENDING) {
-                        throw new IllegalStateException(
+                        throw new BusinessException(
+                                        HttpStatus.CONFLICT,
                                         "La donación no está pendiente");
                 }
 
                 Transaction transaction = transactionRepository
                                 .findFirstByDonation_IdOrderByTransactionDateDesc(
                                                 donation.getId())
-                                .orElseThrow(() -> new IllegalStateException(
+                                .orElseThrow(() -> new BusinessException(
+                                                HttpStatus.NOT_FOUND,
                                                 "Transacción no encontrada"));
 
                 if (transaction.getMethodPay() != Method.YAPE) {
-                        throw new IllegalStateException(
+                        throw new BusinessException(
+                                        HttpStatus.CONFLICT,
                                         "La donación no utiliza Yape");
                 }
 
@@ -129,8 +138,9 @@ public class YapeServiceImpl implements YapeService {
                                 .flatMap(data -> {
 
                                         if (accessToken == null || accessToken.isBlank()) {
-                                                return Mono.error(new IllegalStateException(
-                                                                "Falta configurar MP_ACCESS_TOKEN"));
+                                                return Mono.error(new BusinessException(
+                                                                HttpStatus.SERVICE_UNAVAILABLE,
+                                                                "La pasarela de pagos no está disponible"));
                                         }
 
                                         ChargePaymentRequest request = ChargePaymentRequest.builder()
@@ -171,54 +181,59 @@ public class YapeServiceImpl implements YapeService {
                                 body.getToken().isBlank() ||
                                 body.getCheckoutToken() == null ||
                                 body.getCheckoutToken().isBlank()) {
-                        throw new IllegalArgumentException(
+                        throw new BusinessException(
+                                        HttpStatus.BAD_REQUEST,
                                         "Datos de pago incompletos");
                 }
 
                 Donation donation = donationRepository
                                 .findById(body.getDonationId())
-                                .orElseThrow(() -> new IllegalArgumentException(
+                                .orElseThrow(() -> new BusinessException(
+                                                HttpStatus.NOT_FOUND,
                                                 "Donación no encontrada"));
 
                 if (!Objects.equals(
                                 donation.getCheckoutToken(),
                                 body.getCheckoutToken())) {
-                        throw new SecurityException(
+                        throw new BusinessException(
+                                        HttpStatus.FORBIDDEN,
                                         "No autorizado para pagar esta donación");
                 }
 
                 if (donation.getStatus() != PaymentStatus.PENDING) {
-                        throw new IllegalStateException(
+                        throw new BusinessException(
+                                        HttpStatus.CONFLICT,
                                         "La donación no está pendiente");
                 }
 
                 Transaction transaction = transactionRepository
                                 .findFirstByDonation_IdOrderByTransactionDateDesc(
                                                 donation.getId())
-                                .orElseThrow(() -> new IllegalStateException(
+                                .orElseThrow(() -> new BusinessException(
+                                                HttpStatus.NOT_FOUND,
                                                 "Transacción no encontrada"));
 
                 if (transaction.getMethodPay() != Method.YAPE) {
-                        throw new IllegalStateException(
+                        throw new BusinessException(
+                                        HttpStatus.CONFLICT,
                                         "La donación no utiliza Yape");
                 }
 
                 if (!"PEN".equals(donation.getCurrency()) ||
                                 donation.getAmount() == null ||
                                 donation.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-                        throw new IllegalStateException(
+                        throw new BusinessException(
+                                        HttpStatus.BAD_REQUEST,
                                         "Monto o moneda no válidos");
                 }
 
                 if (donation.getPayerEmail() == null ||
                                 donation.getPayerEmail().isBlank()) {
-                        throw new IllegalStateException(
+                        throw new BusinessException(
+                                        HttpStatus.BAD_REQUEST,
                                         "Falta el correo del donante");
                 }
 
-                // El token de Yape es único por intento y de un solo uso.
-                // Usarlo como idempotency key permite reintentar tras un rechazo
-                // sin riesgo de doble cobro.
                 return new PaymentData(
                                 donation.getId(),
                                 donation.getAmount(),
@@ -230,9 +245,9 @@ public class YapeServiceImpl implements YapeService {
                         PaymentData data,
                         ChargePaymentResponse response) {
 
-                if (response.getId() == null ||
-                                response.getId().isBlank()) {
-                        return Mono.error(new IllegalStateException(
+                if (response.getId() == null || response.getId().isBlank()) {
+                        return Mono.error(new BusinessException(
+                                        HttpStatus.BAD_GATEWAY,
                                         "Mercado Pago no devolvió un ID de pago"));
                 }
 
@@ -255,8 +270,9 @@ public class YapeServiceImpl implements YapeService {
                                                 amount = new BigDecimal(
                                                                 payment.path("transaction_amount").asText());
                                         } catch (NumberFormatException e) {
-                                                return Mono.error(new IllegalStateException(
-                                                                "Importe del pago no válido", e));
+                                                return Mono.error(new BusinessException(
+                                                                HttpStatus.BAD_GATEWAY,
+                                                                "Importe del pago no válido"));
                                         }
 
                                         if (!"approved".equals(status) ||
@@ -266,7 +282,8 @@ public class YapeServiceImpl implements YapeService {
                                                         !response.getId().equals(paymentId) ||
                                                         amount.compareTo(data.amount()) != 0) {
 
-                                                return Mono.error(new IllegalStateException(
+                                                return Mono.error(new BusinessException(
+                                                                HttpStatus.BAD_GATEWAY,
                                                                 "El pago no pudo verificarse"));
                                         }
 

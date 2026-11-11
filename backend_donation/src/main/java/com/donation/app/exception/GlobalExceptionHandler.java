@@ -16,88 +16,121 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
+
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+        private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ProblemDetail> handleBusinessException(BusinessException ex) {
-        return ResponseEntity
-                .status(ex.getStatus())
-                .body(ProblemDetail.forStatusAndDetail(ex.getStatus(), ex.getMessage()));
-    }
+        private final ObjectMapper objectMapper;
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ProblemDetail> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-        log.warn("Violacion de integridad en base de datos: {}", ex.getMostSpecificCause().getMessage());
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.CONFLICT,
-                "El registro ya existe o viola una restricción de integridad");
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
-    }
+        @ExceptionHandler(BusinessException.class)
+        public ResponseEntity<ProblemDetail> handleBusinessException(BusinessException ex) {
+                return ResponseEntity
+                                .status(ex.getStatus())
+                                .body(ProblemDetail.forStatusAndDetail(ex.getStatus(), ex.getMessage()));
+        }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ProblemDetail> handleAccessDenied(AccessDeniedException ex) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ProblemDetail.forStatusAndDetail(
-                        HttpStatus.FORBIDDEN, "No tienes permisos para esta operación"));
-    }
+        @ExceptionHandler(DataIntegrityViolationException.class)
+        public ResponseEntity<ProblemDetail> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+                log.warn("Violacion de integridad en base de datos: {}", ex.getMostSpecificCause().getMessage());
+                ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                                HttpStatus.CONFLICT,
+                                "El registro ya existe o viola una restricción de integridad");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+        }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ProblemDetail> handleAuthentication(AuthenticationException ex) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(ProblemDetail.forStatusAndDetail(
-                        HttpStatus.UNAUTHORIZED, "No autenticado"));
-    }
+        @ExceptionHandler(AccessDeniedException.class)
+        public ResponseEntity<ProblemDetail> handleAccessDenied(AccessDeniedException ex) {
+                return ResponseEntity
+                                .status(HttpStatus.FORBIDDEN)
+                                .body(ProblemDetail.forStatusAndDetail(
+                                                HttpStatus.FORBIDDEN, "No tienes permisos para esta operación"));
+        }
 
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex,
-            HttpHeaders headers,
-            HttpStatusCode status,
-            WebRequest request) {
+        @ExceptionHandler(AuthenticationException.class)
+        public ResponseEntity<ProblemDetail> handleAuthentication(AuthenticationException ex) {
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(ProblemDetail.forStatusAndDetail(
+                                                HttpStatus.UNAUTHORIZED, "No autenticado"));
+        }
 
-        List<String> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(error -> error.getDefaultMessage() != null ? error.getDefaultMessage() : "Campo inválido")
-                .toList();
+        @Override
+        protected ResponseEntity<Object> handleMethodArgumentNotValid(
+                        MethodArgumentNotValidException ex,
+                        HttpHeaders headers,
+                        HttpStatusCode status,
+                        WebRequest request) {
 
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                "Datos invalidos");
-        problem.setProperty("errors", errors);
+                List<String> errors = ex.getBindingResult()
+                                .getFieldErrors()
+                                .stream()
+                                .map(error -> error.getDefaultMessage() != null ? error.getDefaultMessage()
+                                                : "Campo inválido")
+                                .toList();
 
-        return ResponseEntity.badRequest().body(problem);
-    }
+                ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                                HttpStatus.BAD_REQUEST,
+                                "Datos invalidos");
+                problem.setProperty("errors", errors);
 
-    @ExceptionHandler(org.springframework.web.reactive.function.client.WebClientResponseException.class)
-    public ResponseEntity<ProblemDetail> handleMercadoPagoError(
-            org.springframework.web.reactive.function.client.WebClientResponseException ex) {
+                return ResponseEntity.badRequest().body(problem);
+        }
 
-        log.error("MercadoPago respondió {}: {}",
-                ex.getStatusCode(), ex.getResponseBodyAsString());
+        @ExceptionHandler(WebClientResponseException.class)
+        public ResponseEntity<ProblemDetail> handleMercadoPagoError(WebClientResponseException ex) {
+                log.error("MercadoPago respondió {}: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
 
-        HttpStatus status = ex.getStatusCode().is5xxServerError()
-                ? HttpStatus.BAD_GATEWAY
-                : HttpStatus.UNPROCESSABLE_ENTITY;
+                HttpStatus status = ex.getStatusCode().is5xxServerError()
+                                ? HttpStatus.BAD_GATEWAY
+                                : HttpStatus.UNPROCESSABLE_ENTITY;
 
-        return ResponseEntity.status(status).body(
-                ProblemDetail.forStatusAndDetail(status,
-                        "No se pudo procesar el pago con Mercado Pago"));
-    }
+                ProblemDetail pd = ProblemDetail.forStatusAndDetail(status, mensajeMp(ex.getResponseBodyAsString()));
+                pd.setTitle("Pago rechazado por Mercado Pago");
+                return ResponseEntity.status(status).body(pd);
+        }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ProblemDetail> handleGenericException(Exception ex) {
-        log.error("Error inesperado en el servidor", ex);
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Ocurrió un error inesperado en el servidor");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem);
-    }
+        private String mensajeMp(String body) {
+                try {
+                        JsonNode cause = objectMapper.readTree(body).path("cause");
+                        if (cause.isArray() && !cause.isEmpty()) {
+                                String d = cause.get(0).path("description").asText("");
+                                if (!d.isBlank())
+                                        return traducir(d);
+                        }
+                        String m = objectMapper.readTree(body).path("message").asText("");
+                        if (!m.isBlank())
+                                return traducir(m);
+                } catch (Exception ignored) {
+                }
+                return "No se pudo procesar el pago con Mercado Pago";
+        }
+
+        private String traducir(String mp) {
+                return switch (mp) {
+                        case "Invalid value for transaction_amount" ->
+                                "El monto no es válido para Yape (mínimo S/ 1.24)";
+                        case "Invalid card token", "Invalid token" ->
+                                "El código de Yape venció. Genera uno nuevo e inténtalo otra vez.";
+                        default -> mp;
+                };
+        }
+
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ProblemDetail> handleGenericException(Exception ex) {
+                log.error("Error inesperado en el servidor", ex);
+                ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Ocurrió un error inesperado en el servidor");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem);
+        }
 }

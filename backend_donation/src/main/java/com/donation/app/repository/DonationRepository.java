@@ -30,6 +30,8 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
 
     List<Donation> findByCampaign_IdAndStatus(Long campaignId, PaymentStatus status);
 
+    Optional<Donation> findByPaypalOrderId(String paypalOrderId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT d FROM Donation d WHERE d.id = :id")
     Optional<Donation> findLockedById(@Param("id") Long id);
