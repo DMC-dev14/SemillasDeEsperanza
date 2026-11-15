@@ -1,0 +1,47 @@
+.user-form-header {
+  background: linear-gradient(135deg, #2d5428 0%, #3d6b35 60%, #7c9a3e 100%);
+}
+
+.user-form-top-bar {
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.user-form-sub-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.user-form-title {
+  font-size: 2rem;
+  color: #fff;
+}
+
+.user-form-actions {
+  flex-wrap: wrap;
+}
+
+.user-form-hero-btn {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+.user-form-container {
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
+  max-width: 42rem;
+}
+
+.user-form-section-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--bark);
+  margin-bottom: 1rem;
+}
+
+.input-pw {
+  padding-right: 2.75rem;
+}
+

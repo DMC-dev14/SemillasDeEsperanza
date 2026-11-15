@@ -1,0 +1,73 @@
+.donate-hero {
+  background: var(--grad135);
+}
+
+.donate-hero-title {
+  font-size: 2.5rem;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+}
+
+.donate-hero-sub {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+}
+
+.donate-container {
+  padding-top: 3rem;
+  padding-bottom: 4rem;
+}
+
+.donate-layout {
+  grid-template-columns: 1fr;
+}
+
+.donate-form-col {
+  max-width: 44rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.donate-section-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--bark);
+  margin-bottom: 1rem;
+}
+
+.recurring-box {
+  background: var(--parchment);
+  border: 1px solid var(--dune);
+}
+
+.custom-amount-wrap {
+  position: relative;
+}
+
+.custom-amount-prefix {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--clay);
+  font-weight: 600;
+}
+
+.custom-amount-input {
+  padding-left: 2.5rem;
+}
+
+.proj-check-icon {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--terra);
+}
+
+.donate-confirm-btn {
+  font-size: 1rem;
+  padding: 1.1rem;
+}
+

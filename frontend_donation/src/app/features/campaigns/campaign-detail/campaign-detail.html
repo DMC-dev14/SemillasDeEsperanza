@@ -1,0 +1,70 @@
+@if (project(); as proyecto) {
+  <main>
+    <div class="detail-banner">
+      <img id="detail-img" [src]="proyecto.imageUrl" [alt]="proyecto.title" class="detail-banner-img" (error)="onImageError($event)"/>
+      <div class="detail-banner-overlay"></div>
+      <span id="detail-badge" class="badge detail-badge" [ngClass]="proyecto.badgeClass || 'badge-edu'">{{ proyecto.category }}</span>
+    </div>
+    <div class="container detail-container">
+      <a routerLink="/proyectos" class="back-link mb-6">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        Volver a proyectos
+      </a>
+      <div id="detail-content">
+        <p id="detail-location" class="detail-location">📍 {{ proyecto.location }}</p>
+        <h1 id="detail-title" class="detail-title">{{ proyecto.title }}</h1>
+        <div class="grid gap-8 detail-grid">
+          <div>
+            <p id="detail-description" class="detail-description">{{ proyecto.history || proyecto.description }}</p>
+            <div class="bg-white rounded-2xl border p-6">
+              <h3 class="detail-funds-title">¿Cómo se usarán los fondos?</h3>
+              <div class="flex items-center gap-3 mb-3">
+                <span class="detail-fund-label">Materiales y equipamiento</span>
+                <div class="detail-fund-bar"><div class="detail-fund-fill fill-60"></div></div>
+                <span class="detail-fund-pct">60%</span>
+              </div>
+              <div class="flex items-center gap-3 mb-3">
+                <span class="detail-fund-label">Personal y capacitación</span>
+                <div class="detail-fund-bar"><div class="detail-fund-fill fill-25"></div></div>
+                <span class="detail-fund-pct">25%</span>
+              </div>
+              <div class="flex items-center gap-3 mb-3">
+                <span class="detail-fund-label">Logística y administración</span>
+                <div class="detail-fund-bar"><div class="detail-fund-fill fill-15"></div></div>
+                <span class="detail-fund-pct">15%</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="bg-white rounded-2xl border shadow-lg p-6 detail-sidebar-card">
+              <div class="grid grid-2 gap-3 mb-5">
+                <div class="text-center p-3 rounded-xl bg-parchment">
+                  <p id="detail-raised" class="detail-stat-val">{{ campaignService.formatShortCurrency(proyecto.amountCollected) }}</p>
+                  <p class="text-xs text-clay mt-1">recaudados</p>
+                </div>
+                <div class="text-center p-3 rounded-xl bg-parchment">
+                  <p id="detail-goal" class="detail-stat-val">{{ campaignService.formatShortCurrency(proyecto.targetAmount) }}</p>
+                  <p class="text-xs text-clay mt-1">meta</p>
+                </div>
+              </div>
+              <div class="progress-wrap mb-4">
+                <div class="progress-track detail-progress-track">
+                  <div id="detail-progress-fill" class="progress-fill" [style.width.%]="proyecto.porcentaje"></div>
+                </div>
+                <p id="detail-progress-pct" class="progress-pct">{{ proyecto.porcentaje }}%</p>
+              </div>
+              <p class="detail-donors-text">👥 <strong id="detail-donors" class="text-bark">{{ proyecto.donorsCount }}</strong> donantes</p>
+              <a class="btn btn-primary w-full detail-donate-btn" [routerLink]="['/donar']" [queryParams]="{ proyecto: proyecto.id }">Donar a este proyecto</a>
+              <p class="detail-safe-note">Donación 100% segura · Comprobante incluido</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+} @else {
+  <main class="container detail-container text-center">
+    <p class="text-clay mb-4">{{ loading() ? 'Cargando información del proyecto...' : 'Proyecto no disponible.' }}</p>
+    <a routerLink="/proyectos" class="btn btn-outline">Volver a proyectos</a>
+  </main>
+}

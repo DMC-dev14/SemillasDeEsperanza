@@ -1,0 +1,94 @@
+.home-sub-centered {
+  margin: 0 auto;
+}
+
+.what-card-title {
+  font-size: 1.2rem;
+  color: var(--bark);
+  margin-bottom: 0.625rem;
+}
+
+.what-card-desc {
+  line-height: 1.7;
+}
+
+.featured-badge {
+  align-self: flex-start;
+}
+
+.featured-title {
+  font-size: 1.5rem;
+  color: var(--bark);
+  margin-bottom: 0.75rem;
+}
+
+.featured-track {
+  height: 0.875rem;
+}
+
+.featured-stats-row {
+  flex-wrap: wrap;
+}
+
+.featured-stat-val {
+  font-size: 1.5rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: var(--bark);
+}
+
+.featured-stat-divider {
+  width: 1px;
+  height: 2.5rem;
+  background: var(--dune);
+}
+
+.featured-donate-btn {
+  margin-left: auto;
+}
+
+.home-testimonials-container {
+  max-width: 44rem;
+}
+
+.home-seals-section {
+  background: var(--sand);
+  border-top: 1px solid var(--dune);
+  border-bottom: 1px solid var(--dune);
+}
+
+.home-seals-title {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.home-seals-row {
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.seal-pill {
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  background: #fff;
+  border: 1px solid var(--dune);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--clay);
+}
+
+.home-newsletter-container {
+  max-width: 36rem;
+}
+
+.home-newsletter-form {
+  max-width: 26rem;
+  margin: 0 auto;
+}
+
+.home-newsletter-input {
+  flex: 1;
+}
+

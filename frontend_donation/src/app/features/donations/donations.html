@@ -1,1 +1,234 @@
-<p>donations works!</p>
+<main>
+  <div class="py-14 text-center donate-hero">
+    <h1 class="donate-hero-title">Haz tu donación</h1>
+    <p class="donate-hero-sub">Cada sol que aportas transforma una vida real.</p>
+  </div>
+  <div class="container donate-container">
+    <form id="donate-spring-form" [formGroup]="donateForm" (ngSubmit)="openDonateModal()" novalidate>
+      <div class="grid gap-8 donate-layout" id="donate-layout">
+        <div class="donate-form-col" id="donate-form-col">
+          @if (alertMessage()) {
+            <div id="donate-server-alert" class="auth-alert mb-4" [ngClass]="alertType()">
+              {{ alertMessage() }}
+            </div>
+          }
+
+          <div class="bg-white rounded-2xl border p-6 mb-6">
+            <h2 class="donate-section-title">Tipo de donación</h2>
+            <div class="type-toggle">
+              <button
+                type="button"
+                class="type-btn"
+                [class.active]="selectedType() === 'unica'"
+                id="type-unica"
+                (click)="setType('unica')"
+              >Única</button>
+              <button
+                type="button"
+                class="type-btn"
+                [class.active]="selectedType() === 'recurrente'"
+                id="type-recurrente"
+                (click)="setType('recurrente')"
+              >Recurrente</button>
+            </div>
+            @if (selectedType() === 'recurrente') {
+              <div id="recurring-note" class="mt-3 p-3 rounded-xl text-xs text-clay recurring-box">
+                💳 Se cargará mensualmente. Puedes cancelar cuando quieras desde tu cuenta.
+              </div>
+            }
+          </div>
+
+          <div class="bg-white rounded-2xl border p-6 mb-6">
+            <h2 class="donate-section-title">¿Cuánto quieres donar?</h2>
+            <div class="amount-grid">
+              @for (amt of presetAmounts; track amt) {
+                <button
+                  type="button"
+                  class="amount-btn"
+                  [class.selected]="!isCustomAmount() && selectedAmount() === amt"
+                  (click)="selectAmount(amt)"
+                >S/{{ amt }}</button>
+              }
+            </div>
+            <div class="custom-amount-wrap">
+              <span class="custom-amount-prefix">S/</span>
+              <input
+                type="number"
+                class="input custom-amount-input"
+                formControlName="customAmount"
+                id="custom-amount"
+                placeholder="Monto personalizado"
+                (input)="onCustomAmount($event)"
+                min="5"
+              />
+            </div>
+            @if (amountInvalid()) {
+              <p class="error-msg" id="amount-error">⚠ El monto mínimo es S/5</p>
+            }
+          </div>
+
+          <div class="bg-white rounded-2xl border p-6 mb-6">
+            <h2 class="donate-section-title">¿A qué proyecto?</h2>
+            @if (campaigns().length > 0) {
+              <div class="project-selector" id="project-selector">
+                @for (p of campaigns(); track p.id) {
+                  <div
+                    class="proj-opt"
+                    [class.selected]="selectedProjectId() === p.id"
+                    (click)="selectProject(p.id)"
+                  >
+                    <img [src]="p.imageUrl" [alt]="p.title" (error)="onImageError($event)"/>
+                    <div>
+                      <p class="proj-opt-name">{{ p.title }}</p>
+                      <p class="proj-opt-cat">{{ p.category }}</p>
+                    </div>
+                    @if (selectedProjectId() === p.id) {
+                      <svg class="proj-check-icon" width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                      </svg>
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="text-sm text-clay">
+                {{ loadingCampaigns() ? 'Cargando proyectos activos...' : 'Se asignará al fondo general de proyectos activos.' }}
+              </p>
+            }
+          </div>
+
+          <div class="bg-white rounded-2xl border p-6 mb-6">
+            <h2 class="donate-section-title">Tus datos</h2>
+            <div class="grid gap-4">
+              <div>
+                <label class="label" for="donor-name">Nombre completo *</label>
+                <input
+                  type="text"
+                  formControlName="donorName"
+                  class="input"
+                  [class.error]="donateForm.controls.donorName.invalid && donateForm.controls.donorName.touched"
+                  id="donor-name"
+                  placeholder="María García"
+                />
+                @if (donateForm.controls.donorName.invalid && donateForm.controls.donorName.touched) {
+                  <p class="error-msg" id="name-error">⚠ El nombre es requerido (mínimo 2 caracteres)</p>
+                }
+              </div>
+              <div>
+                <label class="label" for="donor-email">Correo electrónico *</label>
+                <input
+                  type="email"
+                  formControlName="donorEmail"
+                  class="input"
+                  [class.error]="donateForm.controls.donorEmail.invalid && donateForm.controls.donorEmail.touched"
+                  id="donor-email"
+                  placeholder="maria@correo.com"
+                />
+                @if (donateForm.controls.donorEmail.invalid && donateForm.controls.donorEmail.touched) {
+                  <p class="error-msg" id="email-error">⚠ Ingresa un correo electrónico válido</p>
+                }
+              </div>
+              <div>
+                <label class="label" for="donor-phone">Teléfono (opcional)</label>
+                <input
+                  type="tel"
+                  formControlName="donorPhone"
+                  id="donor-phone"
+                  class="input"
+                  placeholder="+51 999 999 999"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border p-6 mb-6">
+            <h2 class="donate-section-title">Método de pago</h2>
+            <div class="pay-methods">
+              <div class="pay-btn" [class.selected]="selectedPay() === 'card'" id="pay-card" (click)="selectPay('card')">
+                <div class="pay-btn-icon">💳</div>
+                <div class="pay-btn-label">Tarjeta</div>
+              </div>
+              <div class="pay-btn" [class.selected]="selectedPay() === 'transfer'" id="pay-transfer" (click)="selectPay('transfer')">
+                <div class="pay-btn-icon">🏦</div>
+                <div class="pay-btn-label">Transferencia</div>
+              </div>
+              <div class="pay-btn" [class.selected]="selectedPay() === 'wallet'" id="pay-wallet" (click)="selectPay('wallet')">
+                <div class="pay-btn-icon">📱</div>
+                <div class="pay-btn-label">Billetera (Yape)</div>
+              </div>
+              <div class="pay-btn" [class.selected]="selectedPay() === 'paypal'" id="pay-paypal" (click)="selectPay('paypal')">
+                <div class="pay-btn-icon">🌐</div>
+                <div class="pay-btn-label">PayPal</div>
+              </div>
+            </div>
+            @if (selectedPay() === 'card') {
+              <div id="card-fields" class="mt-4 grid gap-3">
+                <div>
+                  <input
+                    type="text"
+                    formControlName="cardNumber"
+                    class="input"
+                    [class.error]="donateForm.controls.cardNumber.invalid && donateForm.controls.cardNumber.touched"
+                    placeholder="Número de tarjeta (13 a 19 dígitos)"
+                    maxlength="19"
+                  />
+                  @if (donateForm.controls.cardNumber.invalid && donateForm.controls.cardNumber.touched) {
+                    <p class="error-msg">⚠ Ingresa un número de tarjeta válido (solo dígitos, 13-19)</p>
+                  }
+                </div>
+                <div class="grid grid-2 gap-3">
+                  <div>
+                    <input
+                      type="text"
+                      formControlName="cardExpiry"
+                      class="input"
+                      [class.error]="donateForm.controls.cardExpiry.invalid && donateForm.controls.cardExpiry.touched"
+                      placeholder="MM/AA"
+                      maxlength="5"
+                    />
+                    @if (donateForm.controls.cardExpiry.invalid && donateForm.controls.cardExpiry.touched) {
+                      <p class="error-msg">⚠ Formato MM/AA válido</p>
+                    }
+                  </div>
+                  <div>
+                    <input
+                      type="password"
+                      formControlName="cardCvv"
+                      class="input"
+                      [class.error]="donateForm.controls.cardCvv.invalid && donateForm.controls.cardCvv.touched"
+                      placeholder="CVV"
+                      maxlength="4"
+                    />
+                    @if (donateForm.controls.cardCvv.invalid && donateForm.controls.cardCvv.touched) {
+                      <p class="error-msg">⚠ CVV de 3 o 4 dígitos</p>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary w-full donate-confirm-btn"
+            id="confirm-btn"
+            [disabled]="processing()"
+          >
+            {{ processing() ? 'Procesando donación...' : ('Confirmar donación · S/' + (selectedAmount() || '–')) }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <app-confirm-modal
+    [open]="modalOpen()"
+    title="¿Confirmar donación?"
+    [description]="'Estás por donar <strong style=\'color:var(--terra)\'>S/' + selectedAmount().toFixed(2) + '</strong> al proyecto <strong>' + (selectedProject()?.title || 'Proyecto Social') + '</strong>.'"
+    [subDescription]="'Se registrará el comprobante para <strong>' + donateForm.controls.donorEmail.value + '</strong>.'"
+    confirmText="¡Confirmar!"
+    cancelText="Cancelar"
+    (confirmed)="confirmDonation()"
+    (cancelled)="closeDonateModal()"
+  ></app-confirm-modal>
+</main>

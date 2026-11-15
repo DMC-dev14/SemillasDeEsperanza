@@ -1,1 +1,135 @@
-<p>payments works!</p>
+<main>
+  <div class="dash-header">
+    <div class="container">
+      <div class="flex justify-between items-center payments-header-row">
+        <div>
+          <p class="payments-header-label">Pasarela de Pagos</p>
+          <h1 class="payments-header-title">Autorización de Donación</h1>
+        </div>
+        <a routerLink="/donar" class="hero-ghost-btn payments-back-btn">← Volver a Donaciones</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container payments-container">
+    @if (!hasValidContext()) {
+      <div class="bg-white rounded-2xl border p-6 text-center">
+        <h2 class="payments-card-title">No hay un pago pendiente activo</h2>
+        <p class="text-sm text-clay mb-6">
+          Para autorizar un cobro con Billetera Digital (Yape) o PayPal, primero inicia tu aporte desde el formulario de donaciones.
+        </p>
+        <a routerLink="/donar" class="btn btn-primary">Ir al formulario de donación →</a>
+      </div>
+    } @else if (completed()) {
+      <div class="bg-white rounded-2xl border p-6 text-center">
+        <div class="payments-success-badge">✓</div>
+        <h2 class="payments-card-title">¡Pago autorizado con éxito!</h2>
+        <p class="text-sm text-clay mb-6">
+          Tu aporte
+          @if (donationAmount() > 0) {
+            por <strong>S/{{ donationAmount() | number: '1.2-2' }}</strong>
+          }
+          @if (campaignTitle()) {
+            para <strong>{{ campaignTitle() }}</strong>
+          }
+          ha sido confirmado.
+        </p>
+        <div class="flex gap-3 justify-center flex-wrap">
+          <a routerLink="/dashboard" class="btn btn-primary">Ver mis donaciones</a>
+          <a routerLink="/proyectos" class="btn btn-outline">Explorar proyectos</a>
+        </div>
+      </div>
+    } @else {
+      <div class="bg-white rounded-2xl border p-6">
+        @if (donationAmount() > 0 || campaignTitle()) {
+          <div class="payments-summary-box mb-6">
+            <span class="text-xs text-clay">Resumen de operación #{{ effectiveDonationId() }}</span>
+            <p class="font-semibold text-bark">
+              {{ campaignTitle() || 'Donación Solidaria' }}
+              @if (donationAmount() > 0) {
+                · <span class="text-terra">S/{{ donationAmount() | number: '1.2-2' }}</span>
+              }
+            </p>
+          </div>
+        }
+
+        <div class="type-toggle mb-6">
+          <button
+            type="button"
+            class="type-btn"
+            [class.active]="paymentMethod() === 'wallet'"
+            (click)="selectGateway('wallet')"
+          >
+            📱 Yape (Billetera Digital)
+          </button>
+          <button
+            type="button"
+            class="type-btn"
+            [class.active]="paymentMethod() === 'paypal'"
+            (click)="selectGateway('paypal')"
+          >
+            🌐 PayPal Checkout
+          </button>
+        </div>
+
+        @if (errorMsg()) {
+          <div class="auth-alert error mb-4">{{ errorMsg() }}</div>
+        }
+
+        @if (paymentMethod() === 'wallet') {
+          <h3 class="payments-card-title">📱 Confirmación de Billetera Digital (Yape)</h3>
+          <form [formGroup]="yapeForm" (ngSubmit)="processYape()" novalidate>
+            <div class="grid grid-2 gap-3 mb-4">
+              <div>
+                <label class="label" for="yape-phone">Número de celular (9 dígitos) *</label>
+                <input
+                  id="yape-phone"
+                  type="tel"
+                  formControlName="phoneNumber"
+                  class="input"
+                  [class.error]="yapeForm.controls.phoneNumber.invalid && yapeForm.controls.phoneNumber.touched"
+                  placeholder="999888777"
+                  maxlength="9"
+                />
+                @if (yapeForm.controls.phoneNumber.invalid && yapeForm.controls.phoneNumber.touched) {
+                  <p class="error-msg">⚠ El celular debe tener 9 dígitos</p>
+                }
+              </div>
+              <div>
+                <label class="label" for="yape-otp">Código de aprobación (6 dígitos) *</label>
+                <input
+                  id="yape-otp"
+                  type="text"
+                  formControlName="otp"
+                  class="input"
+                  [class.error]="yapeForm.controls.otp.invalid && yapeForm.controls.otp.touched"
+                  placeholder="123456"
+                  maxlength="6"
+                />
+                @if (yapeForm.controls.otp.invalid && yapeForm.controls.otp.touched) {
+                  <p class="error-msg">⚠ El código debe tener 6 dígitos</p>
+                }
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-full" [disabled]="loading()">
+              {{ loading() ? 'Autorizando pago...' : 'Autorizar cobro con Yape' }}
+            </button>
+          </form>
+        } @else {
+          <h3 class="payments-card-title">🌐 Autorización con PayPal</h3>
+          <p class="text-sm text-clay mb-4">
+            Se generará y capturará la orden de pago segura asociada a tu donación #{{ effectiveDonationId() }}.
+          </p>
+          <button
+            type="button"
+            class="btn btn-primary w-full"
+            [disabled]="loading()"
+            (click)="processPayPal()"
+          >
+            {{ loading() ? 'Procesando orden PayPal...' : 'Autorizar y completar pago con PayPal' }}
+          </button>
+        }
+      </div>
+    }
+  </div>
+</main>

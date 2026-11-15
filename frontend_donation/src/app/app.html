@@ -1,5 +1,17 @@
-<app-header></app-header>
+@if (!isStandaloneAuthPage()) {
+  <app-header></app-header>
+}
 
 <router-outlet></router-outlet>
 
-<app-footer></app-footer>
+@if (!isStandaloneAuthPage()) {
+  <app-footer></app-footer>
+}
+
+<div id="toast-container">
+  @for (t of toastService.toasts(); track t.id) {
+    <div class="toast" [ngClass]="t.type" (click)="toastService.dismiss(t.id)">
+      <p>{{ t.message }}</p>
+    </div>
+  }
+</div>

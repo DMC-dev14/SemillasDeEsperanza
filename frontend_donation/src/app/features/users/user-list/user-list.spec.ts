@@ -1,17 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 
-import { UserList } from './user-list';
+import { UserListComponent } from './user-list';
 
-describe('UserList', () => {
-  let component: UserList;
-  let fixture: ComponentFixture<UserList>;
+describe('UserListComponent', () => {
+  let component: UserListComponent;
+  let fixture: ComponentFixture<UserListComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UserList],
+      imports: [UserListComponent],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(UserList);
+    fixture = TestBed.createComponent(UserListComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

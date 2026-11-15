@@ -1,0 +1,98 @@
+.about-hero {
+  padding: 5rem 0;
+  background: var(--sand);
+  text-align: center;
+  border-bottom: 1px solid var(--dune);
+}
+
+.about-hero-sub {
+  max-width: 42rem;
+  margin: 0 auto;
+  line-height: 1.75;
+  font-size: 1.05rem;
+}
+
+.about-mv-section {
+  background: #fff;
+  border-bottom: 1px solid var(--dune);
+}
+
+.about-mv-card {
+  background: var(--parchment);
+  border: 1px solid var(--dune);
+}
+
+.about-mv-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.icon-mission { background: var(--grad135); }
+.icon-vision { background: linear-gradient(135deg, #2f9e6b, #7cc5a0); }
+
+.about-mv-title {
+  font-size: 1.2rem;
+  color: var(--bark);
+  margin-bottom: 0.75rem;
+}
+
+.about-mv-desc {
+  line-height: 1.75;
+}
+
+.about-timeline-container {
+  max-width: 44rem;
+}
+
+.about-team-section {
+  background: var(--sand);
+  border-top: 1px solid var(--dune);
+  border-bottom: 1px solid var(--dune);
+}
+
+.team-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.team-member-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--bark);
+}
+
+.about-certs-grid {
+  gap: 1.25rem;
+}
+
+.cert-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--bark);
+}
+
+.cert-desc {
+  line-height: 1.6;
+}
+
+.about-cta-section {
+  background: var(--grad135);
+}
+
+.about-cta-title {
+  font-size: 1.875rem;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.about-cta-sub {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2rem;
+}
+

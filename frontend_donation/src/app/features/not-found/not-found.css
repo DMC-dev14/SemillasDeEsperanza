@@ -1,0 +1,37 @@
+.not-found-section {
+  min-height: 72vh;
+  display: flex;
+  align-items: center;
+}
+
+.not-found-container {
+  max-width: 38rem;
+}
+
+.not-found-icon {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 50%;
+  background: var(--grad135);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 10px 25px rgba(61, 107, 53, 0.25);
+}
+
+.not-found-title {
+  font-size: 2.5rem;
+  color: var(--bark);
+}
+
+.not-found-desc {
+  line-height: 1.75;
+  font-size: 1rem;
+}
+
+.not-found-actions {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+

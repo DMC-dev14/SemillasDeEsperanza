@@ -1,7 +1,4 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/frontend_donation/browser",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.csr.html" }
-  ]
+  "outputDirectory": "dist/frontend_donation/browser"
 }

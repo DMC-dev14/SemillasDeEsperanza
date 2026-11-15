@@ -1,0 +1,89 @@
+.contact-hero {
+  background: var(--sand);
+  border-bottom: 1px solid var(--dune);
+}
+
+.contact-hero-sub {
+  max-width: 38rem;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.contact-container {
+  padding: 3rem 1.5rem 4rem;
+}
+
+.contact-grid {
+  grid-template-columns: 3fr 2fr;
+}
+
+.contact-sent-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2f9e6b, #7cc5a0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+
+.contact-sent-title {
+  font-size: 1.4rem;
+  color: var(--bark);
+  margin-bottom: 0.5rem;
+}
+
+.contact-form-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--bark);
+  margin-bottom: 1.25rem;
+}
+
+.contact-form-row {
+  gap: 1.25rem;
+}
+
+.contact-submit-btn {
+  font-size: 1rem;
+  padding: 1rem;
+}
+
+.contact-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contact-item-label {
+  font-size: 0.75rem;
+  color: var(--clay);
+  font-weight: 500;
+  margin-bottom: 0.125rem;
+}
+
+.contact-item-val {
+  font-size: 0.875rem;
+  color: var(--bark);
+}
+
+.contact-call-box {
+  background: var(--parchment);
+  border-radius: 0.875rem;
+  border: 1px solid var(--dune);
+  padding: 1rem;
+}
+
+.contact-call-title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--bark);
+  margin-bottom: 0.25rem;
+}
+
+.contact-call-desc {
+  line-height: 1.6;
+}
+

@@ -1,0 +1,180 @@
+.admin-header-bg {
+  background: linear-gradient(135deg, #2d5428 0%, #3d6b35 60%, #7c9a3e 100%);
+}
+
+.admin-top-bar {
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-badge {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  margin-bottom: 0.5rem;
+}
+
+.admin-greeting {
+  font-size: 2rem;
+  color: #fff;
+}
+
+.admin-sub-label {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.admin-top-actions {
+  flex-wrap: wrap;
+}
+
+.admin-hero-btn {
+  padding: 0.7rem 1.35rem;
+  font-size: 0.875rem;
+}
+
+.admin-body-container {
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+}
+
+.admin-kpi-grid {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.admin-stat-sub {
+  font-size: 0.9rem;
+  color: var(--clay);
+  font-weight: 500;
+}
+
+.admin-tabs-bar {
+  border-bottom: 1px solid var(--dune);
+  padding-bottom: 1rem;
+}
+
+.admin-summary-grid {
+  grid-template-columns: 1.2fr 1fr;
+}
+
+.admin-card-heading {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--bark);
+}
+
+.admin-section-heading {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--bark);
+}
+
+.admin-campaign-card {
+  background: var(--parchment);
+  border: 1px solid var(--dune);
+}
+
+.admin-campaign-title {
+  font-size: 0.9rem;
+  color: var(--bark);
+}
+
+.admin-progress-track {
+  height: 0.55rem;
+}
+
+.admin-progress-track-sm {
+  height: 0.45rem;
+}
+
+.admin-thumb-img {
+  width: 3rem;
+  height: 2.2rem;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+}
+
+.admin-table-camp-title {
+  font-weight: 600;
+  color: var(--bark);
+  font-size: 0.875rem;
+}
+
+.admin-table-camp-desc {
+  max-width: 240px;
+}
+
+.admin-progress-cell {
+  min-width: 110px;
+}
+
+.admin-status-select {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+  width: auto;
+}
+
+.cell-right {
+  text-align: right;
+}
+
+.cell-nowrap {
+  white-space: nowrap;
+}
+
+.admin-action-btn {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  margin-right: 0.35rem;
+}
+
+.admin-delete-btn {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  color: var(--brick) !important;
+  border-color: rgba(193, 70, 47, 0.3) !important;
+}
+
+.admin-user-toggle-btn {
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+}
+
+.admin-modal-box {
+  text-align: left;
+  max-width: 34rem;
+}
+
+.admin-modal-user {
+  text-align: left;
+  max-width: 30rem;
+}
+
+.admin-modal-title {
+  font-size: 1.25rem;
+  color: var(--bark);
+}
+
+.admin-modal-close {
+  font-size: 1.2rem;
+  color: var(--clay);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.admin-textarea {
+  min-height: 70px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.input-pw {
+  padding-right: 2.75rem;
+}
+

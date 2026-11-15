@@ -1,9 +1,349 @@
-<div class="p-8">
-  <h1 class="text-2xl font-bold text-[#3D6B35]">
-    Bienvenido a Semillas de Esperanza
-  </h1>
+<main>
+  <div class="dash-header">
+    <div class="container">
+      <div class="flex justify-between items-center dash-top-bar">
+        <div>
+          <p class="dash-welcome-label">Panel de Donante · Bienvenido/a de vuelta,</p>
+          <h1 id="dash-user-greeting" class="dash-greeting">{{ (auth.currentUser()?.name || 'Donante') + ' 👋' }}</h1>
+          <p class="dash-sub-label">Gracias por transformar vidas reales con tus aportes.</p>
+        </div>
+        <div class="flex gap-3">
+          <a class="hero-white-btn dash-cta-btn" routerLink="/donar">+ Realizar nueva donación</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <p class="mt-4">
-    Has iniciado sesión correctamente.
-  </p>
-</div>
+  <div class="container dash-body-container">
+    <div class="grid grid-3 gap-4 mb-6">
+      <div class="dash-stat">
+        <span class="dash-stat-icon">💸</span>
+        <div>
+          <p class="dash-stat-val" id="stat-total-donado">{{ campaignService.formatFullCurrency(summary().totalDonado) }}</p>
+          <p class="dash-stat-lbl">Total donado confirmado</p>
+        </div>
+      </div>
+      <div class="dash-stat">
+        <span class="dash-stat-icon">🎁</span>
+        <div>
+          <p class="dash-stat-val" id="stat-cant-donaciones">{{ summary().cantidadDonaciones }}</p>
+          <p class="dash-stat-lbl">Donaciones realizadas</p>
+        </div>
+      </div>
+      <div class="dash-stat">
+        <span class="dash-stat-icon">🌱</span>
+        <div>
+          <p class="dash-stat-val" id="stat-proy-apoyados">{{ summary().proyectosApoyados }}</p>
+          <p class="dash-stat-lbl">Proyectos apoyados</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-6 mb-6 dash-grid-top">
+      <div class="bg-white rounded-2xl border p-6">
+        <h2 class="dash-card-title mb-5">🏆 Top donadores solidarios</h2>
+        <div id="top-donors-list">
+          @for (d of topDonors(); track d.rank) {
+            <div class="top-donor-row">
+              <span class="donor-badge-icon">{{ d.badge }}</span>
+              <div class="top-rank">{{ d.rank }}</div>
+              <div class="flex-1">
+                <p class="donor-row-name">{{ d.name }}</p>
+                <p class="text-xs text-clay">{{ d.donations }} {{ d.donations === 1 ? 'donación' : 'donaciones' }}</p>
+              </div>
+              <span class="donor-row-total">{{ campaignService.formatFullCurrency(d.total) }}</span>
+            </div>
+          } @empty {
+            <div class="text-center py-4 text-sm text-clay">
+              Aún no hay donaciones registradas. ¡Sé el primero en donar!
+            </div>
+          }
+        </div>
+        <div class="dash-card-footer">
+          <p class="text-xs text-clay">Datos actualizados en tiempo real desde la base de datos.</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border p-6">
+        <div class="flex justify-between items-center mb-5">
+          <h2 class="dash-card-title">Últimas donaciones de la comunidad</h2>
+          <div class="flex items-center gap-2 text-xs font-medium text-sage">
+            <div class="live-dot"></div> Base de datos en vivo
+          </div>
+        </div>
+        <div id="live-feed">
+          @for (r of recentFeed(); track r.id) {
+            <div class="feed-item">
+              <div class="feed-avatar">{{ donorInitial(r.donorName) }}</div>
+              <div class="feed-info-col">
+                <p class="text-sm truncate text-bark">
+                  <strong>{{ r.donorName }}</strong> donó
+                  <strong class="feed-amount">{{ campaignService.formatFullCurrency(r.amount) }}</strong>
+                </p>
+                <p class="text-xs text-clay truncate">a {{ r.campaignTitle }}</p>
+              </div>
+              <span class="text-xs text-clay feed-date">{{ r.donationDate | customDate }}</span>
+            </div>
+          } @empty {
+            <div class="text-center py-4 text-sm text-clay">
+              No hay actividad reciente todavía.
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-6 dash-grid-bottom">
+      <div class="bg-white rounded-2xl border p-6" id="mis-donaciones">
+        <div class="flex justify-between items-center mb-5 dash-top-bar">
+          <div>
+            <h2 class="dash-section-heading">Mis donaciones registradas</h2>
+            <p class="text-xs text-clay">Historial completo vinculado a tu cuenta en la base de datos.</p>
+          </div>
+          <a routerLink="/donar" class="btn btn-outline btn-sm">+ Nueva donación</a>
+        </div>
+
+        <div class="table-scroll">
+          @if (myDonations().length > 0) {
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Monto</th>
+                  <th>Campaña / Proyecto</th>
+                  <th>Método</th>
+                  <th>Estado</th>
+                  <th>Comprobante</th>
+                </tr>
+              </thead>
+              <tbody id="client-donations-tbody">
+                @for (don of myDonations(); track don.id) {
+                  <tr>
+                    <td class="text-clay cell-nowrap">{{ don.donationDate | customDate }}</td>
+                    <td class="font-bold text-bark">{{ campaignService.formatFullCurrency(don.amount) }}</td>
+                    <td class="font-medium">{{ don.campaignTitle }}</td>
+                    <td><span class="text-xs text-clay">{{ don.methodPay }}</span></td>
+                    <td>
+                      <span
+                        class="badge"
+                        [ngClass]="don.status === 'COMPLETED' ? 'badge-edu' : (don.status === 'PENDING' ? 'badge-sal' : 'badge-viv')"
+                      >
+                        {{ don.status === 'COMPLETED' ? 'Completada' : (don.status === 'PENDING' ? 'Pendiente' : don.status) }}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        class="text-xs font-semibold receipt-link-btn"
+                        (click)="openReceiptModal(don)"
+                      >
+                        Ver recibo
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          } @else {
+            <div class="text-center py-6">
+              <p class="text-3xl mb-2">🌱</p>
+              <h3 class="text-base text-bark mb-1">Aún no tienes donaciones registradas</h3>
+              <p class="text-sm text-clay mb-4">Tu primera semilla puede transformar el futuro de cientos de niños.</p>
+              <a routerLink="/donar" class="btn btn-primary btn-sm">Hacer mi primera donación</a>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border p-6" id="mi-perfil">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="dash-section-heading">Mi perfil</h2>
+          <button
+            type="button"
+            id="edit-profile-btn"
+            class="text-xs font-semibold text-terra"
+            (click)="toggleEditProfile()"
+          >
+            {{ editingProfile() ? 'Cancelar' : 'Editar' }}
+          </button>
+        </div>
+        <div class="text-center mb-5">
+          <div id="profile-avatar-circle" class="dash-profile-avatar">
+            {{ userInitial }}
+          </div>
+          <p id="profile-display-title" class="font-semibold text-bark">{{ auth.currentUser()?.name || 'Cliente' }}</p>
+          <span class="badge badge-edu mt-1">Rol: Cliente / Donante</span>
+        </div>
+
+        @if (!editingProfile()) {
+          <div id="profile-view">
+            <div class="mb-3">
+              <p class="text-xs text-clay mb-0.5">Nombre completo</p>
+              <p id="profile-view-name" class="text-sm font-medium text-bark">{{ auth.currentUser()?.name || 'Cliente' }}</p>
+            </div>
+            <div class="mb-3">
+              <p class="text-xs text-clay mb-0.5">Correo electrónico</p>
+              <p id="profile-view-email" class="text-sm font-medium text-bark">{{ auth.currentUser()?.email || 'cliente@semillas.org' }}</p>
+            </div>
+            <div class="mb-3">
+              <p class="text-xs text-clay mb-0.5">Estado de cuenta</p>
+              <p class="text-sm font-medium text-sage">● Activa y verificada</p>
+            </div>
+            <div>
+              <p class="text-xs text-clay mb-0.5">Miembro desde</p>
+              <p class="text-sm font-medium text-bark">{{ auth.currentUser()?.createdAccount ? (auth.currentUser()?.createdAccount | customDate:false) : '2026' }}</p>
+            </div>
+          </div>
+        } @else {
+          <form id="profile-edit" [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+            @if (profileError()) {
+              <div class="auth-alert error mb-3" id="profile-edit-err">{{ profileError() }}</div>
+            }
+            <div class="grid gap-3 mb-4">
+              <div>
+                <label class="label" for="edit-user-name">Nombre completo</label>
+                <input
+                  type="text"
+                  id="edit-user-name"
+                  formControlName="name"
+                  class="input dash-compact-input"
+                  [class.error]="profileForm.controls.name.invalid && profileForm.controls.name.touched"
+                />
+                @if (profileForm.controls.name.invalid && profileForm.controls.name.touched) {
+                  <p class="error-msg">⚠ El nombre debe tener entre 2 y 50 caracteres</p>
+                }
+              </div>
+              <div>
+                <label class="label" for="edit-user-email">Correo electrónico</label>
+                <input
+                  type="email"
+                  id="edit-user-email"
+                  formControlName="email"
+                  class="input dash-compact-input"
+                  [class.error]="profileForm.controls.email.invalid && profileForm.controls.email.touched"
+                />
+                @if (profileForm.controls.email.invalid && profileForm.controls.email.touched) {
+                  <p class="error-msg">⚠ Ingresa un correo electrónico válido</p>
+                }
+              </div>
+            </div>
+            <div id="save-profile-btn" class="mt-4">
+              <button type="submit" id="btn-save-profile" class="btn btn-primary w-full" [disabled]="savingProfile()">
+                {{ savingProfile() ? 'Guardando...' : 'Guardar cambios' }}
+              </button>
+            </div>
+          </form>
+        }
+
+        @if (changingPw()) {
+          <form id="pw-change-section" class="mt-4" [formGroup]="passwordForm" (ngSubmit)="savePwChange()" novalidate>
+            <div class="dash-pw-box">
+              @if (pwError()) {
+                <div class="auth-alert error mb-3" id="pw-change-err">{{ pwError() }}</div>
+              }
+              <div class="grid gap-3">
+                <div>
+                  <label class="label" for="dash-curr-pw">Contraseña actual</label>
+                  <div class="pw-input-wrap">
+                    <input
+                      [type]="showCurrPw() ? 'text' : 'password'"
+                      formControlName="currentPassword"
+                      class="input dash-pw-input"
+                      [class.error]="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched"
+                      id="dash-curr-pw"
+                      placeholder="••••••••"
+                    />
+                    <button type="button" class="pw-toggle-btn" (click)="showCurrPw.set(!showCurrPw())" aria-label="Mostrar u ocultar contraseña">
+                      {{ showCurrPw() ? '🙈' : '👁️' }}
+                    </button>
+                  </div>
+                  @if (passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched) {
+                    <p class="error-msg">⚠ Ingresa tu contraseña actual</p>
+                  }
+                </div>
+                <div>
+                  <label class="label" for="dash-new-pw">Nueva contraseña</label>
+                  <div class="pw-input-wrap">
+                    <input
+                      [type]="showNewPw() ? 'text' : 'password'"
+                      formControlName="newPassword"
+                      class="input dash-pw-input"
+                      [class.error]="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched"
+                      id="dash-new-pw"
+                      placeholder="Mín. 8 caracteres, Mayús, Minús y Número"
+                    />
+                    <button type="button" class="pw-toggle-btn" (click)="showNewPw.set(!showNewPw())" aria-label="Mostrar u ocultar contraseña">
+                      {{ showNewPw() ? '🙈' : '👁️' }}
+                    </button>
+                  </div>
+                  @if (passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched) {
+                    <p class="error-msg">⚠ Mín. 8 caracteres, mayúscula, minúscula y número</p>
+                  }
+                </div>
+                <div>
+                  <label class="label" for="dash-confirm-pw">Confirmar nueva contraseña</label>
+                  <div class="pw-input-wrap">
+                    <input
+                      [type]="showConfirmPw() ? 'text' : 'password'"
+                      formControlName="confirmPassword"
+                      class="input dash-pw-input"
+                      [class.error]="(passwordForm.get('confirmPassword')?.invalid || passwordForm.errors?.['passwordMismatch']) && passwordForm.get('confirmPassword')?.touched"
+                      id="dash-confirm-pw"
+                      placeholder="Repite la nueva contraseña"
+                    />
+                    <button type="button" class="pw-toggle-btn" (click)="showConfirmPw.set(!showConfirmPw())" aria-label="Mostrar u ocultar contraseña">
+                      {{ showConfirmPw() ? '🙈' : '👁️' }}
+                    </button>
+                  </div>
+                  @if ((passwordForm.get('confirmPassword')?.invalid || passwordForm.errors?.['passwordMismatch']) && passwordForm.get('confirmPassword')?.touched) {
+                    <p class="error-msg">⚠ Las contraseñas no coinciden</p>
+                  }
+                </div>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button type="button" class="btn btn-ghost btn-sm flex-1" (click)="togglePwChange()">Cancelar</button>
+                <button type="submit" id="btn-save-pw" class="btn btn-primary btn-sm flex-1" [disabled]="savingPw()">
+                  {{ savingPw() ? 'Guardando...' : 'Guardar' }}
+                </button>
+              </div>
+            </div>
+          </form>
+        }
+
+        @if (!editingProfile() && !changingPw()) {
+          <div id="profile-actions" class="grid gap-2 mt-4">
+            <button type="button" id="change-pw-btn" class="btn btn-ghost w-full btn-sm" (click)="togglePwChange()">
+              🔑 Cambiar contraseña
+            </button>
+            <a class="btn btn-outline w-full btn-sm" routerLink="/donar">Realizar donación</a>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (selectedReceipt(); as rec) {
+    <div id="receipt-modal" class="modal-overlay" (click)="$event.target === $event.currentTarget && closeReceiptModal()">
+      <div class="modal-box receipt-modal-box">
+        <div class="flex justify-between items-center mb-4 receipt-modal-header">
+          <div class="flex items-center gap-2">
+            <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/></svg></div>
+            <strong class="text-bark text-sm">Comprobante de Donación</strong>
+          </div>
+          <span class="badge badge-edu" id="rec-voucher">{{ rec.voucherNumber || ('REC-2026-' + rec.id) }}</span>
+        </div>
+        <div class="grid gap-2 text-sm mb-6">
+          <div class="flex justify-between"><span class="text-clay">Proyecto apoyado:</span><strong id="rec-campaign" class="text-bark">{{ rec.campaignTitle }}</strong></div>
+          <div class="flex justify-between"><span class="text-clay">Monto donado:</span><strong id="rec-amount" class="text-terra">{{ campaignService.formatFullCurrency(rec.amount) }}</strong></div>
+          <div class="flex justify-between"><span class="text-clay">Fecha y hora:</span><span id="rec-date">{{ rec.donationDate | customDate }}</span></div>
+          <div class="flex justify-between"><span class="text-clay">Método de pago:</span><span id="rec-method">{{ rec.methodPay }}</span></div>
+          <div class="flex justify-between"><span class="text-clay">Código transacción:</span><code id="rec-tx" class="text-bark">{{ rec.codeReferential }}</code></div>
+        </div>
+        <div class="flex gap-2">
+          <button type="button" class="btn btn-ghost w-full" (click)="closeReceiptModal()">Cerrar</button>
+          <button type="button" class="btn btn-primary w-full" (click)="printReceipt()">🖨️ Imprimir</button>
+        </div>
+      </div>
+    </div>
+  }
+</main>

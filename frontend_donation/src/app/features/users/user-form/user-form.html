@@ -1,1 +1,93 @@
-<p>user-form works!</p>
+<main>
+  <div class="dash-header user-form-header">
+    <div class="container">
+      <div class="flex justify-between items-center user-form-top-bar">
+        <div>
+          <p class="user-form-sub-label">Administración del Sistema</p>
+          <h1 class="user-form-title">Registrar Nuevo Usuario</h1>
+        </div>
+        <div class="flex gap-3 user-form-actions">
+          <a routerLink="/usuarios" class="hero-ghost-btn user-form-hero-btn">← Lista de Usuarios</a>
+          <a routerLink="/admin" class="hero-ghost-btn user-form-hero-btn">Panel Admin</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container user-form-container">
+    <div class="bg-white rounded-2xl border p-6">
+      <h3 class="user-form-section-title">
+        Datos del Usuario
+      </h3>
+      @if (errorMsg()) {
+        <div class="auth-alert error mb-3">{{ errorMsg() }}</div>
+      }
+      <form [formGroup]="userForm" (ngSubmit)="submitForm()" novalidate>
+        <div class="grid gap-3 mb-4">
+          <div>
+            <label class="label" for="user-form-name">Nombre completo *</label>
+            <input
+              id="user-form-name"
+              type="text"
+              formControlName="name"
+              class="input"
+              [class.error]="userForm.controls.name.invalid && userForm.controls.name.touched"
+              placeholder="Ej. Carlos Mendoza"
+            />
+            @if (userForm.controls.name.invalid && userForm.controls.name.touched) {
+              <p class="error-msg">⚠ El nombre debe tener entre 2 y 50 caracteres</p>
+            }
+          </div>
+          <div>
+            <label class="label" for="user-form-email">Correo electrónico *</label>
+            <input
+              id="user-form-email"
+              type="email"
+              formControlName="email"
+              class="input"
+              [class.error]="userForm.controls.email.invalid && userForm.controls.email.touched"
+              placeholder="carlos@semillas.org"
+            />
+            @if (userForm.controls.email.invalid && userForm.controls.email.touched) {
+              <p class="error-msg">⚠ El formato de correo es inválido</p>
+            }
+          </div>
+          <div>
+            <label class="label" for="user-form-role">Rol *</label>
+            <select id="user-form-role" formControlName="rol" class="input">
+              <option value="USUARIO">CLIENTE (USUARIO)</option>
+              <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" for="user-form-pw">Contraseña *</label>
+            <div class="pw-input-wrap">
+              <input
+                [type]="showPw() ? 'text' : 'password'"
+                id="user-form-pw"
+                formControlName="password"
+                class="input input-pw"
+                [class.error]="userForm.controls.password.invalid && userForm.controls.password.touched"
+                placeholder="Mín. 8 caracteres, Mayús, Minús y Número"
+              />
+              <button type="button" class="pw-toggle-btn" (click)="showPw.set(!showPw())">
+                {{ showPw() ? '🙈' : '👁️' }}
+              </button>
+            </div>
+            @if (userForm.controls.password.invalid && userForm.controls.password.touched) {
+              <p class="error-msg">⚠ Debe tener entre 8 y 72 caracteres, mayúscula, minúscula y número</p>
+            }
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn btn-primary w-full"
+          [disabled]="loading()"
+          (click)="submitForm()"
+        >
+          {{ loading() ? 'Guardando...' : 'Crear usuario' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</main>
