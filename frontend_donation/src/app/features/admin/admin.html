@@ -1,0 +1,547 @@
+<main>
+  <div class="dash-header admin-header-bg">
+    <div class="container">
+      <div class="flex justify-between items-center admin-top-bar">
+        <div>
+          <span class="badge admin-badge">🛡️ CONSOLA DE ADMINISTRACIÓN</span>
+          <h1 class="admin-greeting">{{ auth.currentUser()?.name ? ('Hola, ' + auth.currentUser()?.name) : 'Panel de Control Administrativo' }}</h1>
+          <p class="admin-sub-label">Gestión integral en tiempo real de campañas, donaciones y usuarios en la base de datos.</p>
+        </div>
+        <div class="flex gap-3 admin-top-actions">
+          <button type="button" class="hero-white-btn admin-hero-btn" (click)="openCampaignModal()">+ Nueva Campaña</button>
+          <button type="button" class="hero-ghost-btn admin-hero-btn" (click)="openCreateUserModal()">+ Nuevo Usuario</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container admin-body-container">
+    <div class="grid gap-4 mb-6 admin-kpi-grid">
+      <div class="dash-stat">
+        <span class="dash-stat-icon">💰</span>
+        <div>
+          <p class="dash-stat-val" id="admin-kpi-recaudado">{{ campaignService.formatFullCurrency(totalRecaudadoGlobal()) }}</p>
+          <p class="dash-stat-lbl">Recaudación total acumulada</p>
+        </div>
+      </div>
+      <div class="dash-stat">
+        <span class="dash-stat-icon">🌱</span>
+        <div>
+          <p class="dash-stat-val">
+            <span id="admin-kpi-activas">{{ campanasActivas() }}</span>
+            <small class="admin-stat-sub"> / <span id="admin-kpi-campanas">{{ totalCampanas() }}</span></small>
+          </p>
+          <p class="dash-stat-lbl">Campañas activas / totales</p>
+        </div>
+      </div>
+      <div class="dash-stat">
+        <span class="dash-stat-icon">🎁</span>
+        <div>
+          <p class="dash-stat-val" id="admin-kpi-donaciones">{{ totalDonacionesGlobal() }}</p>
+          <p class="dash-stat-lbl">Donaciones registradas</p>
+        </div>
+      </div>
+      <div class="dash-stat">
+        <span class="dash-stat-icon">👥</span>
+        <div>
+          <p class="dash-stat-val" id="admin-kpi-usuarios">{{ totalUsuariosGlobal() }}</p>
+          <p class="dash-stat-lbl">Usuarios en base de datos</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-pills mb-6 admin-tabs-bar">
+      <button type="button" class="pill admin-tab-btn" [class.active]="activeTab() === 'resumen'" (click)="switchAdminTab('resumen')">📊 Resumen General</button>
+      <button type="button" class="pill admin-tab-btn" [class.active]="activeTab() === 'campanas'" (click)="switchAdminTab('campanas')">🌱 Gestión de Campañas</button>
+      <button type="button" class="pill admin-tab-btn" [class.active]="activeTab() === 'donaciones'" (click)="switchAdminTab('donaciones')">💸 Gestión de Donaciones</button>
+      <button type="button" class="pill admin-tab-btn" [class.active]="activeTab() === 'usuarios'" (click)="switchAdminTab('usuarios')">👥 Gestión de Usuarios</button>
+    </div>
+
+    @if (activeTab() === 'resumen') {
+      <section id="admin-sec-resumen" class="admin-section">
+        <div class="grid gap-6 dash-grid-top admin-summary-grid">
+          <div class="bg-white rounded-2xl border p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="admin-card-heading">Avance de metas por campaña</h2>
+              <button type="button" class="text-xs font-semibold text-terra" (click)="switchAdminTab('campanas')">Ver todas →</button>
+            </div>
+            <div class="grid gap-4">
+              @for (c of campanas(); track c.id) {
+                <div class="p-3 rounded-xl admin-campaign-card">
+                  <div class="flex justify-between items-center mb-1">
+                    <strong class="admin-campaign-title">{{ c.title }}</strong>
+                    <span
+                      class="badge"
+                      [ngClass]="c.status === 'ACTIVE' ? 'badge-edu' : (c.status === 'COMPLETED' ? 'badge-sal' : 'badge-viv')"
+                    >{{ c.status }}</span>
+                  </div>
+                  <div class="progress-wrap">
+                    <div class="progress-labels">
+                      <span>Recaudado: {{ campaignService.formatFullCurrency(c.amountCollected) }}</span>
+                      <span>Meta: {{ campaignService.formatFullCurrency(c.targetAmount) }}</span>
+                    </div>
+                    <div class="progress-track admin-progress-track">
+                      <div class="progress-fill" [style.width.%]="c.porcentaje"></div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="admin-card-heading">Últimas donaciones registradas</h2>
+              <button type="button" class="text-xs font-semibold text-terra" (click)="switchAdminTab('donaciones')">Gestionar →</button>
+            </div>
+            <div class="grid gap-2">
+              @for (d of recentDonationsPreview(); track d.id) {
+                <div class="feed-item">
+                  <div class="feed-avatar">{{ donorInitial(d.donorName) }}</div>
+                  <div class="feed-info-col">
+                    <p class="text-sm truncate text-bark">
+                      <strong>{{ d.donorName }}</strong> ·
+                      <strong class="feed-amount">{{ campaignService.formatFullCurrency(d.amount) }}</strong>
+                    </p>
+                    <p class="text-xs text-clay truncate">{{ d.campaignTitle }} ({{ d.voucherNumber || ('REC-' + d.id) }})</p>
+                  </div>
+                  <span
+                    class="badge"
+                    [ngClass]="d.status === 'COMPLETED' ? 'badge-edu' : (d.status === 'PENDING' ? 'badge-sal' : 'badge-viv')"
+                  >{{ d.status }}</span>
+                </div>
+              } @empty {
+                <div class="text-center py-4 text-sm text-clay">
+                  No hay donaciones registradas en la base de datos.
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+
+    @if (activeTab() === 'campanas') {
+      <section id="admin-sec-campanas" class="admin-section">
+        <div class="bg-white rounded-2xl border p-6">
+          <div class="flex justify-between items-center mb-5 admin-top-bar">
+            <div>
+              <h2 class="admin-section-heading">🌱 Gestión de Campañas y Proyectos</h2>
+              <p class="text-xs text-clay">Crea, edita, activa o finaliza campañas de donación directamente en la base de datos.</p>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" (click)="openCampaignModal()">+ Crear Nueva Campaña</button>
+          </div>
+
+          <div class="table-scroll">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Campaña</th>
+                  <th>Meta</th>
+                  <th>Recaudado</th>
+                  <th>Progreso</th>
+                  <th>Estado</th>
+                  <th class="cell-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="admin-campaigns-tbody">
+                @for (c of campanas(); track c.id) {
+                  <tr>
+                    <td class="font-semibold text-clay">#{{ c.id }}</td>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <img [src]="c.imageUrl" alt="img" class="admin-thumb-img"/>
+                        <div>
+                          <p class="admin-table-camp-title">{{ c.title }}</p>
+                          <p class="text-xs text-clay truncate admin-table-camp-desc">{{ c.description }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="font-semibold">{{ campaignService.formatFullCurrency(c.targetAmount) }}</td>
+                    <td class="font-bold text-terra">{{ campaignService.formatFullCurrency(c.amountCollected) }}</td>
+                    <td class="admin-progress-cell">
+                      <div class="progress-track admin-progress-track-sm">
+                        <div class="progress-fill" [style.width.%]="c.porcentaje"></div>
+                      </div>
+                      <span class="text-xs text-clay">{{ c.porcentaje }}%</span>
+                    </td>
+                    <td>
+                      <select
+                        class="input admin-status-select"
+                        [value]="c.status"
+                        (change)="changeCampaignStatus(c.id, $event)"
+                      >
+                        <option value="ACTIVE">ACTIVE (Activa)</option>
+                        <option value="DRAFT">DRAFT (Borrador)</option>
+                        <option value="COMPLETED">COMPLETED (Completada)</option>
+                        <option value="CANCELLED">CANCELLED (Cancelada)</option>
+                      </select>
+                    </td>
+                    <td class="cell-right cell-nowrap">
+                      <button
+                        type="button"
+                        class="btn btn-outline btn-sm admin-action-btn"
+                        (click)="openEditCampaignModal(c)"
+                      >
+                        ✏️ Editar
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-ghost btn-sm admin-delete-btn"
+                        (click)="deleteCampaign(c)"
+                      >
+                        🗑️
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    }
+
+    @if (activeTab() === 'donaciones') {
+      <section id="admin-sec-donaciones" class="admin-section">
+        <div class="bg-white rounded-2xl border p-6">
+          <div class="flex justify-between items-center mb-5 admin-top-bar">
+            <div>
+              <h2 class="admin-section-heading">💸 Control y Auditoría de Donaciones</h2>
+              <p class="text-xs text-clay">Supervisa las donaciones recibidas y actualiza su estado de pago. El monto recaudado de la campaña se ajusta automáticamente.</p>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Recibo</th>
+                  <th>Fecha</th>
+                  <th>Donante</th>
+                  <th>Campaña</th>
+                  <th>Método</th>
+                  <th>Monto</th>
+                  <th>Estado de Pago</th>
+                </tr>
+              </thead>
+              <tbody id="admin-donations-tbody">
+                @for (d of donaciones(); track d.id) {
+                  <tr>
+                    <td>
+                      <code class="font-semibold text-terra">{{ d.voucherNumber || ('REC-2026-' + d.id) }}</code>
+                      <div class="text-xs text-clay">{{ d.codeReferential }}</div>
+                    </td>
+                    <td class="cell-nowrap text-clay">{{ d.donationDate | customDate }}</td>
+                    <td>
+                      <p class="font-semibold text-bark text-sm">{{ d.donorName }}</p>
+                      <p class="text-xs text-clay">{{ d.donorEmail }}</p>
+                    </td>
+                    <td class="font-medium">{{ d.campaignTitle }}</td>
+                    <td><span class="badge badge-edu">{{ d.methodPay }}</span></td>
+                    <td class="font-bold text-bark">{{ campaignService.formatFullCurrency(d.amount) }}</td>
+                    <td>
+                      <select
+                        class="input admin-status-select"
+                        [value]="d.status"
+                        (change)="changeDonationStatus(d.id, $event)"
+                      >
+                        <option value="COMPLETED">COMPLETED (Confirmada)</option>
+                        <option value="PENDING">PENDING (Pendiente)</option>
+                        <option value="REFUNDED">REFUNDED (Reembolsada)</option>
+                        <option value="FAILED">FAILED (Fallida)</option>
+                      </select>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="7" class="text-center py-5 text-clay">No existen donaciones registradas aún.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    }
+
+    @if (activeTab() === 'usuarios') {
+      <section id="admin-sec-usuarios" class="admin-section">
+        <div class="bg-white rounded-2xl border p-6">
+          <div class="flex justify-between items-center mb-5 admin-top-bar">
+            <div>
+              <h2 class="admin-section-heading">👥 Administración de Usuarios y Roles</h2>
+              <p class="text-xs text-clay">Gestiona cuentas de clientes y administradores registradas en la base de datos.</p>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" (click)="openCreateUserModal()">+ Crear Usuario</button>
+          </div>
+
+          <div class="table-scroll">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Correo electrónico</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th>Fecha registro</th>
+                  <th class="cell-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-tbody">
+                @for (u of usuarios(); track u.id) {
+                  <tr>
+                    <td class="text-clay font-semibold">#{{ u.id }}</td>
+                    <td class="font-semibold text-bark">{{ u.name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>
+                      <span
+                        class="badge"
+                        [ngClass]="u.rolName === 'ADMINISTRADOR' ? 'badge-sal' : 'badge-edu'"
+                      >
+                        {{ u.rolName === 'ADMINISTRADOR' ? 'ADMINISTRADOR' : 'CLIENTE (USUARIO)' }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="u.active ? 'badge-edu' : 'badge-viv'">
+                        {{ u.active ? 'Activo' : 'Inactivo' }}
+                      </span>
+                    </td>
+                    <td class="text-xs text-clay">{{ u.createdAccount | customDate }}</td>
+                    <td class="cell-right cell-nowrap">
+                      @if (!auth.currentUser() || u.id !== auth.currentUser()?.id) {
+                        <button
+                          type="button"
+                          class="btn btn-outline btn-sm admin-user-toggle-btn"
+                          (click)="toggleUserActive(u)"
+                        >
+                          {{ u.active ? 'Desactivar' : 'Activar' }}
+                        </button>
+                      } @else {
+                        <span class="text-xs text-clay">Tu cuenta actual</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    }
+  </div>
+
+  @if (campaignModalOpen()) {
+    <div id="campaign-modal" class="modal-overlay" (click)="$event.target === $event.currentTarget && closeCampaignModal()">
+      <div class="modal-box admin-modal-box">
+        <div class="flex justify-between items-center mb-4">
+          <h2 id="campaign-modal-title" class="admin-modal-title">
+            {{ editingCampaignId() ? ('Editar Campaña #' + editingCampaignId()) : 'Nueva Campaña Social' }}
+          </h2>
+          <button type="button" class="admin-modal-close" (click)="closeCampaignModal()">✕</button>
+        </div>
+        @if (campaignModalError()) {
+          <div id="campaign-modal-err" class="auth-alert error mb-3">{{ campaignModalError() }}</div>
+        }
+        <form id="campaign-form" [formGroup]="campaignForm" (ngSubmit)="handleSaveCampaign()" novalidate>
+          <div class="grid gap-3 mb-4">
+            <div>
+              <label class="label" for="camp-title">Título de la campaña *</label>
+              <input
+                type="text"
+                id="camp-title"
+                formControlName="title"
+                class="input"
+                [class.error]="campaignForm.controls.title.invalid && campaignForm.controls.title.touched"
+                placeholder="Ej. Aulas Digitales en Puno"
+                maxlength="100"
+              />
+              @if (campaignForm.controls.title.invalid && campaignForm.controls.title.touched) {
+                <p class="error-msg">⚠ El título debe tener entre 3 y 100 caracteres</p>
+              }
+            </div>
+            <div class="grid grid-2 gap-3">
+              <div>
+                <label class="label" for="camp-target">Meta de recaudación (S/) *</label>
+                <input
+                  type="number"
+                  id="camp-target"
+                  formControlName="targetAmount"
+                  class="input"
+                  [class.error]="campaignForm.controls.targetAmount.invalid && campaignForm.controls.targetAmount.touched"
+                  placeholder="25000"
+                  min="100"
+                  step="0.01"
+                />
+                @if (campaignForm.controls.targetAmount.invalid && campaignForm.controls.targetAmount.touched) {
+                  <p class="error-msg">⚠ Meta mínima S/ 100.00</p>
+                }
+              </div>
+              <div>
+                <label class="label" for="camp-status">Estado *</label>
+                <select id="camp-status" formControlName="status" class="input">
+                  <option value="ACTIVE">ACTIVE (Activa y pública)</option>
+                  <option value="DRAFT">DRAFT (Borrador)</option>
+                  <option value="COMPLETED">COMPLETED (Completada)</option>
+                  <option value="CANCELLED">CANCELLED (Cancelada)</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="label" for="camp-image">URL de Imagen</label>
+              <input
+                type="url"
+                id="camp-image"
+                formControlName="imageUrl"
+                class="input"
+                placeholder="https://images.unsplash.com/..."
+              />
+            </div>
+            <div>
+              <label class="label" for="camp-desc">Descripción corta (máx. 255 caracteres) *</label>
+              <textarea
+                id="camp-desc"
+                formControlName="description"
+                class="input admin-textarea"
+                [class.error]="campaignForm.controls.description.invalid && campaignForm.controls.description.touched"
+                rows="2"
+                maxlength="255"
+                placeholder="Resumen del impacto directo del proyecto..."
+              ></textarea>
+              @if (campaignForm.controls.description.invalid && campaignForm.controls.description.touched) {
+                <p class="error-msg">⚠ La descripción es obligatoria (máx. 255 caracteres)</p>
+              }
+            </div>
+            <div>
+              <label class="label" for="camp-history">Historia / Detalle (máx. 255 caracteres)</label>
+              <textarea
+                id="camp-history"
+                formControlName="history"
+                class="input admin-textarea"
+                rows="2"
+                maxlength="255"
+                placeholder="Contexto de la comunidad beneficiada..."
+              ></textarea>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <button type="button" class="btn btn-ghost flex-1" (click)="closeCampaignModal()">Cancelar</button>
+            <button
+              type="button"
+              id="btn-save-campaign"
+              class="btn btn-primary flex-1"
+              [disabled]="savingCampaign()"
+              (click)="handleSaveCampaign()"
+            >
+              {{ savingCampaign() ? 'Guardando...' : 'Guardar campaña' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (createUserModalOpen()) {
+    <div id="create-user-modal" class="modal-overlay" (click)="$event.target === $event.currentTarget && closeCreateUserModal()">
+      <div class="modal-box admin-modal-user">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="admin-modal-title">Registrar Usuario</h2>
+          <button type="button" class="admin-modal-close" (click)="closeCreateUserModal()">✕</button>
+        </div>
+        @if (createUserError()) {
+          <div id="create-user-err" class="auth-alert error mb-3">{{ createUserError() }}</div>
+        }
+        <form id="create-user-form" [formGroup]="createUserForm" (ngSubmit)="handleAdminCreateUser()" novalidate>
+          <div class="grid gap-3 mb-4">
+            <div>
+              <label class="label" for="admin-user-name">Nombre completo *</label>
+              <input
+                type="text"
+                id="admin-user-name"
+                formControlName="name"
+                class="input"
+                [class.error]="createUserForm.controls.name.invalid && createUserForm.controls.name.touched"
+                placeholder="Ej. Carlos Mendoza"
+                maxlength="50"
+              />
+              @if (createUserForm.controls.name.invalid && createUserForm.controls.name.touched) {
+                <p class="error-msg">⚠ El nombre debe tener entre 2 y 50 caracteres</p>
+              }
+            </div>
+            <div>
+              <label class="label" for="admin-user-email">Correo electrónico *</label>
+              <input
+                type="email"
+                id="admin-user-email"
+                formControlName="email"
+                class="input"
+                [class.error]="createUserForm.controls.email.invalid && createUserForm.controls.email.touched"
+                placeholder="carlos@semillas.org"
+              />
+              @if (createUserForm.controls.email.invalid && createUserForm.controls.email.touched) {
+                <p class="error-msg">⚠ Ingresa un correo electrónico válido</p>
+              }
+            </div>
+            <div>
+              <label class="label" for="admin-user-role">Rol asignado *</label>
+              <select id="admin-user-role" formControlName="rol" class="input">
+                <option value="USUARIO">CLIENTE (USUARIO)</option>
+                <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+              </select>
+            </div>
+            <div>
+              <label class="label" for="admin-user-pw">Contraseña *</label>
+              <div class="pw-input-wrap">
+                <input
+                  [type]="showAdminUserPw() ? 'text' : 'password'"
+                  id="admin-user-pw"
+                  formControlName="password"
+                  class="input input-pw"
+                  [class.error]="createUserForm.controls.password.invalid && createUserForm.controls.password.touched"
+                  placeholder="Mín. 8 caracteres, Mayús, Minús y Número"
+                />
+                <button
+                  type="button"
+                  class="pw-toggle-btn"
+                  (click)="showAdminUserPw.set(!showAdminUserPw())"
+                  aria-label="Mostrar u ocultar contraseña"
+                >
+                  {{ showAdminUserPw() ? '🙈' : '👁️' }}
+                </button>
+              </div>
+              <p class="text-xs text-clay mt-1">Requisitos: entre 8 y 72 caracteres, 1 mayúscula, 1 minúscula y 1 número.</p>
+              @if (createUserForm.controls.password.invalid && createUserForm.controls.password.touched) {
+                <p class="error-msg">⚠ La contraseña no cumple los requisitos</p>
+              }
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <button type="button" class="btn btn-ghost flex-1" (click)="closeCreateUserModal()">Cancelar</button>
+            <button
+              type="button"
+              id="btn-admin-create-user"
+              class="btn btn-primary flex-1"
+              [disabled]="savingUser()"
+              (click)="handleAdminCreateUser()"
+            >
+              {{ savingUser() ? 'Creando...' : 'Crear usuario' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <app-confirm-modal
+    [open]="!!campaignToDelete()"
+    title="¿Eliminar campaña?"
+    [description]="'Estás por eliminar la campaña <strong>' + (campaignToDelete()?.title || '') + '</strong>.'"
+    subDescription="Esta acción no se puede deshacer."
+    confirmText="Sí, eliminar"
+    cancelText="Cancelar"
+    (confirmed)="confirmDeleteCampaign()"
+    (cancelled)="cancelDeleteCampaign()"
+  ></app-confirm-modal>
+</main>

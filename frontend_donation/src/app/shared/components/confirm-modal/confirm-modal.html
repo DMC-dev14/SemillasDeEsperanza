@@ -1,0 +1,22 @@
+@if (open()) {
+  <div id="donate-modal" class="modal-overlay" (click)="onOverlayClick($event)">
+    <div class="modal-box">
+      <div class="modal-icon-badge">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+      </div>
+      <h2 class="modal-title">{{ title() }}</h2>
+      @if (description()) {
+        <p class="text-sm text-clay mb-2" id="modal-desc" [innerHTML]="description()"></p>
+      }
+      @if (subDescription()) {
+        <p class="text-sm text-clay mb-6" id="modal-email-desc" [innerHTML]="subDescription()"></p>
+      }
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost modal-btn" (click)="cancelled.emit()">{{ cancelText() }}</button>
+        <button type="button" class="btn btn-primary modal-btn" (click)="confirmed.emit()">{{ confirmText() }}</button>
+      </div>
+    </div>
+  </div>
+}

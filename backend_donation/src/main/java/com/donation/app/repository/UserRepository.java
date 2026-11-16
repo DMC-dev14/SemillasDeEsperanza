@@ -7,9 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.donation.app.model.User;
 
-public interface UserRepository extends JpaRepository<User, Long>{
+public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
+    Optional<User> findByName(String name);
+    Optional<User> findByNameOrEmail(String name, String email);
     Boolean existsByEmail(String email);
     long countByRol_NameAndActiveTrue(String rolName);
-    Optional<User> findByEmailAndResetTokenAndTokenExpirationAfter(String email, String resetToken, LocalDateTime tokenExpiration);
+    Optional<User> findByEmailAndResetTokenAndTokenExpirationAfter(String email, String resetToken,
+            LocalDateTime tokenExpiration);
+    Optional<User> findByResetTokenAndTokenExpirationAfter(String resetToken, LocalDateTime tokenExpiration);
 }

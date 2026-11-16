@@ -1,0 +1,48 @@
+.profile-top-bar {
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.profile-sub-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.profile-title {
+  font-size: 2rem;
+  color: #fff;
+}
+
+.profile-back-btn {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+.profile-container {
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
+  max-width: 42rem;
+}
+
+.profile-avatar {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background: var(--grad135);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: #fff;
+  margin: 0 auto 0.5rem;
+}
+
+.profile-user-name {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--bark);
+}
+

@@ -1,6 +1,7 @@
 package com.donation.app.dto.request;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record UpdateUserRequest(
@@ -9,10 +10,11 @@ public record UpdateUserRequest(
     String name,
 
     @Email(message = "El formato de correo es invalido")
+    @Size(max = 100, message = "El email no puede superar los 100 caracteres")
     String email,
 
-    @Size(max = 255, message = "La URL de la imagen es demasiado larga")
-    String imageUrl,
+    @Pattern(regexp = "^(USUARIO|ADMINISTRADOR)$", message = "El rol debe ser USUARIO o ADMINISTRADOR")
+    String rol,
 
     Boolean active
 

@@ -16,7 +16,10 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:4200", "http://127.0.0.1:4200"));
+        config.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "http://127.0.0.1:4200",
+                "https://semillas-de-esperanza-frontend-dona.vercel.app"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin",
                 "Access-Control-Request-Method", "Access-Control-Request-Headers"));

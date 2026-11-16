@@ -1,0 +1,73 @@
+<main>
+  <div class="dash-header user-list-header">
+    <div class="container">
+      <div class="flex justify-between items-center user-list-top-bar">
+        <div>
+          <p class="user-list-sub-label">Administración del Sistema</p>
+          <h1 class="user-list-title">Gestión de Usuarios</h1>
+        </div>
+        <div class="flex gap-3 user-list-actions">
+          <a routerLink="/usuarios/nuevo" class="hero-white-btn user-list-hero-btn">+ Nuevo Usuario</a>
+          <a routerLink="/admin" class="hero-ghost-btn user-list-hero-btn">← Volver al Panel Admin</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container user-list-container">
+    <div class="bg-white rounded-2xl border p-6">
+      <div class="table-scroll">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Correo electrónico</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Fecha registro</th>
+              <th class="cell-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of usuarios(); track u.id) {
+              <tr>
+                <td class="font-semibold text-clay">#{{ u.id }}</td>
+                <td class="font-semibold text-bark">{{ u.name }}</td>
+                <td>{{ u.email }}</td>
+                <td>
+                  <span class="badge" [ngClass]="u.rolName === 'ADMINISTRADOR' ? 'badge-sal' : 'badge-edu'">
+                    {{ u.rolName === 'ADMINISTRADOR' ? 'ADMINISTRADOR' : 'CLIENTE (USUARIO)' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="u.active ? 'badge-edu' : 'badge-viv'">
+                    {{ u.active ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                <td class="text-xs text-clay">{{ u.createdAccount | customDate }}</td>
+                <td class="cell-right cell-nowrap">
+                  @if (!auth.currentUser() || u.id !== auth.currentUser()?.id) {
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-sm user-toggle-btn"
+                      (click)="toggleUserActive(u)"
+                    >
+                      {{ u.active ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  } @else {
+                    <span class="text-xs text-clay">Tu cuenta actual</span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="text-center py-5 text-clay">No hay usuarios disponibles para mostrar.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>

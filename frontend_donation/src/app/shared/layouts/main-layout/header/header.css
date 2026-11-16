@@ -1,0 +1,10 @@
+.mobile-logout-btn {
+  color: var(--brick);
+  font-weight: 600;
+}
+
+.mobile-register-link {
+  color: var(--terra);
+  font-weight: 600;
+}
+

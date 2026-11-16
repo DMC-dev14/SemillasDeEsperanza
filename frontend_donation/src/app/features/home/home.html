@@ -1,0 +1,168 @@
+<main>
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-chip">🌱 Más de 12,000 niños beneficiados</div>
+      <h1>Cada semilla de apoyo<br><em>construye un futuro</em></h1>
+      <p>Conectamos donantes con fundaciones que transforman la vida de niños y adolescentes en riesgo en Latinoamérica.</p>
+      <div class="hero-btns">
+        <a class="hero-white-btn" routerLink="/donar">Donar ahora</a>
+        <a class="hero-ghost-btn" routerLink="/proyectos">Ver proyectos</a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <p>Explora</p>
+      <div class="hero-scroll-line"></div>
+    </div>
+  </section>
+
+  <section class="section bg-parchment">
+    <div class="container">
+      <div class="text-center mb-12">
+        <p class="section-label">Nuestra misión</p>
+        <h2 class="section-title text-3xl">¿Qué hacemos?</h2>
+        <p class="section-sub home-sub-centered">Trabajamos en tres ejes fundamentales para el desarrollo integral de la infancia en situación de riesgo.</p>
+      </div>
+      <div class="grid grid-3 gap-6">
+        <div class="what-card">
+          <div class="what-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          </div>
+          <h3 class="what-card-title">Educación</h3>
+          <p class="text-sm text-clay what-card-desc">Equipamos aulas, formamos docentes y garantizamos que ningún niño deje la escuela por falta de recursos.</p>
+        </div>
+        <div class="what-card">
+          <div class="what-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          </div>
+          <h3 class="what-card-title">Salud</h3>
+          <p class="text-sm text-clay what-card-desc">Llevamos brigadas médicas, nutrición y atención odontológica a comunidades sin acceso a salud básica.</p>
+        </div>
+        <div class="what-card">
+          <div class="what-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          </div>
+          <h3 class="what-card-title">Hogar</h3>
+          <p class="text-sm text-clay what-card-desc">Rehabilitamos viviendas en zonas de riesgo para que las familias tengan un entorno seguro y digno.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-sand">
+    <div class="container">
+      <div class="text-center mb-12">
+        <p class="section-label">Campaña destacada</p>
+        <h2 class="section-title text-3xl">¡Estamos muy cerca de la meta!</h2>
+      </div>
+      @if (featuredCampaign(); as dest) {
+        <div class="featured-card">
+          <div class="featured-img">
+            <img [src]="dest.imageUrl" [alt]="dest.title" loading="lazy" (error)="onImageError($event)"/>
+            <div class="featured-img-overlay"></div>
+          </div>
+          <div class="featured-body">
+            <span class="badge mb-4 featured-badge" [ngClass]="dest.badgeClass || 'badge-ali'">{{ dest.category || 'Alimentación' }}</span>
+            <h3 class="featured-title">{{ dest.title }}</h3>
+            <p class="text-sm text-clay mt-2 mb-6 what-card-desc">{{ dest.description }}</p>
+            <div class="progress-wrap mb-4">
+              <div class="progress-labels">
+                <strong>S/{{ formatIntegerWithCommas(dest.amountCollected) }} recaudados</strong>
+                <span>Meta: S/{{ formatIntegerWithCommas(dest.targetAmount) }}</span>
+              </div>
+              <div class="progress-track featured-track">
+                <div class="progress-fill" [style.width.%]="dest.porcentaje"></div>
+              </div>
+              <p class="progress-pct">{{ dest.porcentaje }}%</p>
+            </div>
+            <div class="flex items-center gap-6 mt-4 featured-stats-row">
+              <div>
+                <p class="featured-stat-val">{{ campaignService.formatShortCurrency(dest.amountCollected) }}</p>
+                <p class="text-xs text-clay">recaudados</p>
+              </div>
+              <div class="featured-stat-divider"></div>
+              <div>
+                <p class="featured-stat-val">{{ dest.donorsCount }}</p>
+                <p class="text-xs text-clay">donantes</p>
+              </div>
+              <a class="btn btn-primary featured-donate-btn" [routerLink]="['/donar']" [queryParams]="{ proyecto: dest.id }">Donar ahora</a>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="bg-white rounded-2xl border p-8 text-center">
+          <p class="text-clay mb-4">
+            {{ loadingFeatured() ? 'Cargando campaña destacada...' : 'Explora todas nuestras campañas activas y haz tu donación hoy.' }}
+          </p>
+          <a class="btn btn-primary" routerLink="/proyectos">Ver proyectos activos</a>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="section bg-parchment">
+    <div class="container home-testimonials-container">
+      <div class="text-center mb-12">
+        <p class="section-label">Historias reales</p>
+        <h2 class="section-title text-3xl">Lo que dicen las familias</h2>
+      </div>
+      <div class="testimonial-card text-center" id="testimonial-card">
+        <div class="quote-icon">"</div>
+        <p class="testimonial-text" id="testimonial-text">{{ currentTestimonial.quote }}</p>
+        <div class="testimonial-author">
+          <img id="testimonial-img" [src]="currentTestimonial.image" [alt]="currentTestimonial.name" (error)="onImageError($event)"/>
+          <div>
+            <p class="testimonial-name" id="testimonial-name">{{ currentTestimonial.name }}</p>
+            <p class="testimonial-role text-xs" id="testimonial-role">{{ currentTestimonial.role }}</p>
+          </div>
+        </div>
+        <div class="dots" id="testimonial-dots">
+          @for (t of testimonials; track t.name; let i = $index) {
+            <div class="dot" [class.active]="i === currentTestimonialIdx()" (click)="setTestimonial(i)"></div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-sm home-seals-section">
+    <div class="container">
+      <p class="text-center text-xs text-clay mb-8 home-seals-title">Certificaciones y reconocimientos</p>
+      <div class="flex home-seals-row">
+        <span class="seal-pill">✓ SUNAT Donativos</span>
+        <span class="seal-pill">✓ GuideStar Platinum</span>
+        <span class="seal-pill">✓ ISO 9001:2015</span>
+        <span class="seal-pill">✓ Charity Navigator 4★</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-parchment">
+    <div class="container text-center home-newsletter-container">
+      <h2 class="section-title text-3xl mb-3">Sé parte del cambio</h2>
+      <p class="text-clay mb-8 what-card-desc">Recibe historias de impacto, actualizaciones de proyectos y novedades directamente en tu bandeja.</p>
+      <form class="flex gap-3 home-newsletter-form" [formGroup]="newsletterForm" (ngSubmit)="handleNewsletter()">
+        <input
+          type="email"
+          formControlName="email"
+          class="input home-newsletter-input"
+          [class.error]="newsletterForm.controls.email.invalid && newsletterForm.controls.email.touched"
+          placeholder="tu@correo.com"
+          id="newsletter-email"
+        />
+        <button type="submit" class="btn btn-primary">Suscribirme</button>
+      </form>
+      @if (newsletterForm.controls.email.invalid && newsletterForm.controls.email.touched) {
+        <p class="error-msg mt-2">
+          @if (newsletterForm.controls.email.errors?.['required']) {
+            ⚠ El correo electrónico es obligatorio
+          } @else {
+            ⚠ Ingresa un formato de correo electrónico válido
+          }
+        </p>
+      }
+      <p class="text-xs text-clay mt-3">Sin spam. Puedes darte de baja cuando quieras.</p>
+    </div>
+  </section>
+</main>

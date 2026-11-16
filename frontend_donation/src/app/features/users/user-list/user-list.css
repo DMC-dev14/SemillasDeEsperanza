@@ -1,0 +1,51 @@
+.user-list-header {
+  background: linear-gradient(135deg, #2d5428 0%, #3d6b35 60%, #7c9a3e 100%);
+}
+
+.user-list-top-bar {
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.user-list-sub-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.user-list-title {
+  font-size: 2rem;
+  color: #fff;
+}
+
+.user-list-actions {
+  flex-wrap: wrap;
+}
+
+.user-list-hero-btn {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+.user-list-container {
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.cell-right {
+  text-align: right;
+}
+
+.cell-nowrap {
+  white-space: nowrap;
+}
+
+.user-toggle-btn {
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+}
+

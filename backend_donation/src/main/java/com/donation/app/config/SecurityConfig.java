@@ -1,5 +1,9 @@
 package com.donation.app.config;
 
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,15 +14,15 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.donation.app.security.CustomUserDetailsService;
 import com.donation.app.security.JwtAuthenticationFilter;
 import com.donation.app.service.JwtService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -29,6 +33,7 @@ public class SecurityConfig {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
+    private final ObjectMapper objectMapper;
 
     @Bean
     @SuppressWarnings("null")
@@ -36,62 +41,115 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtService, userDetailsService);
 
         http
-            .csrf(csrf -> csrf.disable())
-            .cors(Customizer.withDefaults())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/error").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers(
-                        "/", "/index",
-                        "/login", "/registro",
-                        "/proyectos", "/proyectos/**",
-                        "/nosotros", "/contacto", "/donar",
-                        "/css/**", "/js/**", "/images/**", "/favicon.ico"
-                ).permitAll()
-                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/campaigns", "/api/campaigns/*").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/donations").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/donations/public-feed").permitAll()
-                .requestMatchers("/dashboard", "/dashboard/**").hasRole("USUARIO")
-                .requestMatchers("/admin", "/admin/**").hasRole("ADMINISTRADOR")
-                .requestMatchers("/api/users/**").hasRole("ADMINISTRADOR")
-                .anyRequest().authenticated())
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint((request, response, authException) -> {
-                    if (request.getRequestURI().startsWith("/api/")) {
-                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                        response.setCharacterEncoding("UTF-8");
-                        response.getWriter().write("{\"title\":\"Unauthorized\",\"status\":401,\"detail\":\"No autenticado. Inicia sesión para continuar.\"}");
-                    } else {
-                        response.sendRedirect("/login");
-                    }
-                })
-                .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    if (request.getRequestURI().startsWith("/api/")) {
-                        response.setStatus(HttpStatus.FORBIDDEN.value());
-                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                        response.setCharacterEncoding("UTF-8");
-                        response.getWriter().write("{\"title\":\"Forbidden\",\"status\":403,\"detail\":\"No tienes permisos para acceder a este recurso.\"}");
-                    } else {
-                        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-                        if (auth != null && auth.getAuthorities().stream()
-                                .anyMatch(a -> "ROLE_ADMINISTRADOR".equals(a.getAuthority()))) {
-                            response.sendRedirect("/admin");
-                        } else if (auth != null && auth.getAuthorities().stream()
-                                .anyMatch(a -> "ROLE_USUARIO".equals(a.getAuthority()))) {
-                            response.sendRedirect("/dashboard");
-                        } else {
-                            response.sendRedirect("/login");
-                        }
-                    }
-                }))
-            .httpBasic(basic -> basic.disable())
-            .formLogin(form -> form.disable())
-            .logout(logout -> logout.disable())
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
+                // IF_REQUIRED mantiene la sesión para las vistas Thymeleaf (form login).
+                // La API REST funciona con JWT y no depende de la sesión.
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(
+                                "/", "/index",
+                                "/login", "/registro",
+                                "/proyectos", "/proyectos/**",
+                                "/nosotros", "/contacto", "/donar",
+                                "/css/**", "/js/**", "/images/**", "/favicon.ico")
+                        .permitAll()
+                        // Las donaciones pueden ser anónimas; los endpoints de campañas activas
+                        // y el feed público son visibles sin autenticación.
+                        .requestMatchers(HttpMethod.GET, "/api/campaigns/active").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/campaigns/{id:\\d+}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/campaigns/admin").hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/campaigns", "/api/campaigns/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/donations/public-feed").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/donations").permitAll()
+
+                        // PÚBLICO - Iniciar pago con Yape
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/payment-gateway/charge-payment",
+                                "/api/payment-gateway/yape/token")
+                        .permitAll()
+                        // Registro, login, logout y recuperación de contraseña son públicos.
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/auth/register", "/api/auth/login", "/api/auth/logout",
+                                "/api/auth/forgot-password", "/api/auth/reset-password")
+                        .permitAll()
+                        // Mercado Pago - Recibir notificaciones
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/payment-gateway/webhook")
+                        .permitAll()
+                        // PayPal - Checkout API (público, protegido por checkoutToken)
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/paypal/orders",
+                                "/api/paypal/orders/*/capture",
+                                "/api/paypal/webhook")
+                        .permitAll()
+                        // Datos y acciones del propio usuario autenticado.
+                        .requestMatchers("/api/auth/me", "/api/auth/me/**",
+                                "/api/auth/profile", "/api/auth/change-password")
+                        .authenticated()
+                        // Campañas: creación exclusiva de administradores
+                        .requestMatchers(HttpMethod.POST, "/api/campaigns").hasRole("ADMINISTRADOR")
+                        // Usuarios: gestión exclusiva de administradores
+                        .requestMatchers("/api/users", "/api/users/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                        .anyRequest().authenticated())
+                .httpBasic(basic -> basic.disable())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/dashboard", true)
+                        .failureUrl("/login?error")
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                        .permitAll())
+                .exceptionHandling(ex -> ex
+                        // Para la API siempre devolvemos JSON (401/403), nunca una redirección al
+                        // login.
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            if (esRutaApi(request)) {
+                                escribirErrorApi(response, HttpStatus.UNAUTHORIZED, "No autenticado",
+                                        "Debes enviar un token JWT válido en el header Authorization: Bearer <token>");
+                            } else {
+                                response.sendRedirect("/login");
+                            }
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            if (esRutaApi(request)) {
+                                escribirErrorApi(response, HttpStatus.FORBIDDEN, "Acceso denegado",
+                                        "No tienes permisos para realizar esta operación");
+                            } else {
+                                response.sendError(HttpStatus.FORBIDDEN.value(),
+                                        "No tienes permisos para realizar esta operación");
+                            }
+                        }))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    private boolean esRutaApi(jakarta.servlet.http.HttpServletRequest request) {
+        return request.getRequestURI().startsWith("/api/");
+    }
+
+    private void escribirErrorApi(HttpServletResponse response, HttpStatus status, String title, String detail)
+            throws IOException {
+        response.setStatus(status.value());
+        response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("type", "about:blank");
+        body.put("title", title);
+        body.put("status", status.value());
+        body.put("detail", detail);
+
+        objectMapper.writeValue(response.getWriter(), body);
     }
 }

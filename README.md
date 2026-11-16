@@ -1,27 +1,26 @@
-# SemillasDeEsperanza
 # 🌱 Semillas de Esperanza
 
 Sistema web desarrollado con **Angular**, **Spring Boot** y **MySQL**.
 
 ## 📋 Descripción
 
-Semillas de Esperanza es una aplicación web de donaciones enfocada en la ayuda social
+Semillas de Esperanza es una plataforma web de donaciones orientada al apoyo social y comunitario, facilitando la recaudación de fondos y el seguimiento transparente de campañas y proyectos.
 
 ## 🛠️ Tecnologías utilizadas
 
-- **Frontend:** Angular
-- **Backend:** Spring Boot (Java)
-- **Base de datos:** MySQL
-- **Otras herramientas:** Maven / npm
+- **Frontend:** Angular 18+ (Standalone Components, Signals, Reactive Forms, Tailwind CSS)
+- **Backend:** Spring Boot (Java 17+, Spring Security, Spring Data JPA, JWT)
+- **Base de datos:** MySQL 8.0+
+- **Gestión de dependencias:** Maven / npm
 
 ## 📁 Estructura del proyecto
 
 ```
 semillas-de-esperanza/
-├── backend/          # API REST con Spring Boot
+├── backend_donation/     # API REST con Spring Boot
 │   ├── src/
 │   └── pom.xml
-├── frontend/         # Aplicación Angular
+├── frontend_donation/    # Aplicación cliente Angular
 │   ├── src/
 │   └── package.json
 └── README.md
@@ -49,7 +48,7 @@ cd semillas-de-esperanza
 CREATE DATABASE semillas_esperanza;
 ```
 
-Configura las credenciales en `backend/src/main/resources/application.properties`:
+Configura las credenciales en `backend_donation/src/main/resources/application.properties`:
 
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/semillas_esperanza
@@ -61,39 +60,31 @@ spring.jpa.hibernate.ddl-auto=update
 ### 3. Levantar el backend (Spring Boot)
 
 ```bash
-cd backend
+cd backend_donation
 mvn clean install
 mvn spring-boot:run
 ```
 
-El backend quedará disponible en `http://localhost:8080`
+El backend quedará disponible en `http://localhost:8080`.
 
 ### 4. Levantar el frontend (Angular)
 
 ```bash
-cd frontend
+cd frontend_donation
 npm install
-ng serve
+npm start
 ```
 
-El frontend quedará disponible en `http://localhost:4200`
+El frontend quedará disponible en `http://localhost:4200`.
 
 ## 📌 Funcionalidades principales
 
-- Creación de usuarios
-- Pasarela de pagos para las donaciones
-- Métodos de seguridad como recuperación de contraseña e encriptación de contraseña
-
-## 🤝 Contribuir
-
-Las contribuciones son bienvenidas. Para contribuir:
-
-1. Haz un fork del proyecto
-2. Crea una rama para tu funcionalidad (`git checkout -b feature/nueva-funcionalidad`)
-3. Haz commit de tus cambios (`git commit -m 'Agrega nueva funcionalidad'`)
-4. Sube tus cambios (`git push origin feature/nueva-funcionalidad`)
-5. Abre un Pull Request
+- Gestión y autenticación segura de usuarios (JWT, roles de Administrador y Donante).
+- Visualización de campañas sociales con cálculo dinámico de metas y donantes.
+- Pasarela de donaciones con métodos de pago (Tarjeta, Transferencia, Yape y PayPal).
+- Panel de donante con historial de aportes y generación de comprobantes.
+- Consola administrativa para control y gestión de campañas, donaciones y usuarios.
 
 ## 👥 Autores
 
-- DMC-dev14 - [tu-usuario](https://github.com/tu-usuario)
+- Semillas de Esperanza — Equipo de Desarrollo

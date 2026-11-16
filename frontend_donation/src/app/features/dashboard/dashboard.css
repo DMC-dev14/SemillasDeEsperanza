@@ -1,0 +1,27 @@
+.dash-top-bar { flex-wrap: wrap; gap: 1rem; }
+.dash-welcome-label { color: rgba(255, 255, 255, 0.85); font-size: 0.875rem; margin-bottom: 0.25rem; }
+.dash-greeting { font-size: 2rem; color: #fff; }
+.dash-sub-label { color: rgba(255, 255, 255, 0.78); font-size: 0.875rem; margin-top: 0.25rem; }
+.dash-cta-btn { padding: 0.7rem 1.4rem; font-size: 0.9rem; }
+.dash-body-container { padding-top: 2rem; padding-bottom: 4rem; }
+.dash-grid-top { grid-template-columns: 1fr 2fr; }
+.dash-grid-bottom { grid-template-columns: 2fr 1fr; }
+.dash-card-title { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.95rem; color: var(--bark); }
+.dash-section-heading { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1.05rem; color: var(--bark); }
+.donor-badge-icon { width: 1.5rem; text-align: center; font-size: 0.875rem; }
+.flex-1 { flex: 1; }
+.donor-row-name { font-size: 0.875rem; font-weight: 600; color: var(--bark); }
+.donor-row-total { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--terra); font-size: 0.875rem; }
+.dash-card-footer { border-top: 1px solid var(--sand); margin-top: 1rem; padding-top: 0.875rem; text-align: center; }
+.feed-info-col { flex: 1; min-width: 0; }
+.feed-date { white-space: nowrap; flex-shrink: 0; }
+.table-scroll { overflow-x: auto; }
+.cell-nowrap { white-space: nowrap; }
+.receipt-link-btn { color: var(--terra); text-decoration: underline; }
+.dash-profile-avatar { width: 4rem; height: 4rem; border-radius: 50%; background: var(--grad135); display: flex; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem; color: #fff; margin: 0 auto 0.5rem; }
+.dash-compact-input { padding: 0.6rem 0.875rem; font-size: 0.875rem; }
+.dash-pw-box { border-top: 1px solid var(--sand); padding-top: 1rem; }
+.dash-pw-input { padding: 0.6rem 2.5rem 0.6rem 0.875rem; font-size: 0.875rem; }
+.receipt-modal-box { text-align: left; max-width: 26rem; }
+.receipt-modal-header { border-bottom: 1px solid var(--dune); padding-bottom: 0.75rem; }
+

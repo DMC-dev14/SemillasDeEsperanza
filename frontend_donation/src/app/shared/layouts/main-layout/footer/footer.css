@@ -1,0 +1,69 @@
+.footer-grid-admin {
+  grid-template-columns: 1.6fr 1fr 1fr;
+  padding: 2.5rem 0;
+}
+
+.footer-logo {
+  margin-bottom: 0.75rem;
+}
+
+.footer-logo-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.footer-session-user {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 0.5rem;
+}
+
+.footer-session-strong {
+  color: #fff;
+}
+
+.footer-session-email {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 1rem;
+}
+
+.footer-donor-active {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 0.75rem;
+}
+
+.footer-logout-btn {
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+
+.footer-logout-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.footer-divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-db-status {
+  font-size: 0.75rem;
+  color: #7c9a3e;
+}
+
+.footer-newsletter-desc {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .footer-grid-admin {
+    grid-template-columns: 1fr;
+  }
+}
+

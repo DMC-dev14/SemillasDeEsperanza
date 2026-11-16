@@ -1,0 +1,60 @@
+<main>
+  <div class="py-14 text-center campaigns-hero">
+    <p class="section-label">Donde tu apoyo llega</p>
+    <h1 class="section-title text-4xl mt-2 mb-3">Proyectos activos</h1>
+    <p class="text-clay campaigns-hero-sub">Elige la causa que mueve tu corazón y dona directamente al proyecto que quieras apoyar.</p>
+  </div>
+  <div class="container campaigns-container">
+    <div class="filter-pills" id="filter-pills">
+      @for (cat of categories; track cat) {
+        <button
+          type="button"
+          class="pill"
+          [class.active]="selectedCategory() === cat"
+          (click)="filterProjects(cat)"
+        >
+          {{ cat }}
+        </button>
+      }
+    </div>
+
+    <div class="grid grid-3 gap-6" id="projects-grid">
+      @for (p of filteredCampaigns(); track p.id) {
+        <div
+          class="project-card"
+          [attr.data-category]="p.category"
+          (click)="openDetail(p.id)"
+        >
+          <div class="project-card-img">
+            <img [src]="p.imageUrl" [alt]="p.title" loading="lazy" (error)="onImageError($event)"/>
+            <span class="badge project-card-badge" [ngClass]="p.badgeClass || 'badge-edu'">{{ p.category }}</span>
+          </div>
+          <div class="project-card-body">
+            <p class="card-location">📍 {{ p.location }}</p>
+            <h3 class="card-title">{{ p.title }}</h3>
+            <p class="card-desc">{{ p.description }}</p>
+            <div class="progress-wrap">
+              <div class="progress-labels">
+                <strong>{{ campaignService.formatShortCurrency(p.amountCollected) }} recaudados</strong>
+                <span>Meta: {{ campaignService.formatShortCurrency(p.targetAmount) }}</span>
+              </div>
+              <div class="progress-track campaigns-track">
+                <div class="progress-fill" [style.width.%]="p.porcentaje"></div>
+              </div>
+              <p class="progress-pct">{{ p.porcentaje }}%</p>
+            </div>
+            <div class="card-footer">
+              <span class="donors-label"><strong>{{ p.donorsCount }}</strong> donantes</span>
+              <a
+                class="btn btn-primary btn-sm"
+                [routerLink]="['/donar']"
+                [queryParams]="{ proyecto: p.id }"
+                (click)="donateToProject(p.id, $event)"
+              >Donar</a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</main>

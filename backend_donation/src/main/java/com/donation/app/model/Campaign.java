@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.donation.app.enums.CampaignStatus;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,6 +19,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,8 +49,9 @@ public class Campaign {
     @Column(name = "history", length = 255)
     private String history;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_id", referencedColumnName = "id")
+    private Image image;
 
     @Column(name = "target_amount", precision = 10, scale = 2)
     private BigDecimal targetAmount;
@@ -82,20 +85,43 @@ public class Campaign {
 
     @jakarta.persistence.Transient
     @Builder.Default
+    @Column(name = "donors_count", nullable = false)
     private Long donorsCount = 0L;
 
-    public String getImage() {
-        return (imageUrl != null && !imageUrl.isBlank())
-                ? imageUrl
-                : "https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&h=450&fit=crop&auto=format";
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location location;
+
+    public String getImageUrl() {
+        if (image != null && image.getImageUrl() != null && !image.getImageUrl().isBlank()) {
+            return image.getImageUrl();
+        }
+        return "https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&h=450&fit=crop&auto=format";
+    }
+
+    public void setImageUrl(String url) {
+        if (url == null || url.isBlank()) {
+            return;
+        }
+        if (image == null) {
+            image = Image.builder().imageUrl(url).build();
+        } else {
+            image.setImageUrl(url);
+        }
     }
 
     public String getCategory() {
         String text = ((title != null ? title : "") + " " + (description != null ? description : "")).toLowerCase();
-        if (text.contains("mesa") || text.contains("almuerzo") || text.contains("nutrici") || text.contains("aliment")) {
+        if (text.contains("mesa") || text.contains("almuerzo") || text.contains("nutrici")
+                || text.contains("aliment")) {
             return "Alimentación";
         }
-        if (text.contains("agua") || text.contains("salud") || text.contains("médic") || text.contains("medic") || text.contains("sonrisa")) {
+        if (text.contains("agua") || text.contains("salud") || text.contains("médic") || text.contains("medic")
+                || text.contains("sonrisa")) {
             return "Salud";
         }
         if (text.contains("techo") || text.contains("vivienda") || text.contains("hogar") || text.contains("casa")) {
@@ -115,11 +141,16 @@ public class Campaign {
 
     public String getLocation() {
         String text = (description != null ? description : "") + " " + (history != null ? history : "");
-        if (text.contains("Villa El Salvador")) return "Villa El Salvador, Lima";
-        if (text.contains("Trujillo")) return "El Porvenir, Trujillo";
-        if (text.contains("Piura") || text.contains("Sechura")) return "Sechura, Piura";
-        if (text.contains("Cusco")) return "San Sebastián, Cusco";
-        if (text.contains("Iquitos")) return "Belén, Iquitos";
+        if (text.contains("Villa El Salvador"))
+            return "Villa El Salvador, Lima";
+        if (text.contains("Trujillo"))
+            return "El Porvenir, Trujillo";
+        if (text.contains("Piura") || text.contains("Sechura"))
+            return "Sechura, Piura";
+        if (text.contains("Cusco"))
+            return "San Sebastián, Cusco";
+        if (text.contains("Iquitos"))
+            return "Belén, Iquitos";
         return "Lima, Perú";
     }
 
@@ -167,7 +198,8 @@ public class Campaign {
     }
 
     private String formatCurrency(BigDecimal val) {
-        if (val == null) return "S/0";
+        if (val == null)
+            return "S/0";
         if (val.compareTo(BigDecimal.valueOf(1000)) >= 0) {
             return String.format(java.util.Locale.US, "S/%.1fk", val.doubleValue() / 1000.0);
         }

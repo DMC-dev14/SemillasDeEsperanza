@@ -1,0 +1,68 @@
+<main>
+  <div class="dash-header">
+    <div class="container">
+      <div class="flex justify-between items-center profile-top-bar">
+        <div>
+          <p class="profile-sub-label">Configuración de Cuenta</p>
+          <h1 class="profile-title">Mi Perfil Personal</h1>
+        </div>
+        <a [routerLink]="auth.currentRole() === 'ADMINISTRADOR' ? '/admin' : '/dashboard'" class="hero-ghost-btn profile-back-btn">
+          ← {{ auth.currentRole() === 'ADMINISTRADOR' ? 'Volver al Panel Admin' : 'Volver al Dashboard' }}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container profile-container">
+    <div class="bg-white rounded-2xl border p-8">
+      <div class="text-center mb-6">
+        <div class="profile-avatar">
+          {{ userInitial }}
+        </div>
+        <p class="profile-user-name">{{ auth.currentUser()?.name || 'Donante' }}</p>
+        <span class="badge badge-edu mt-1">{{ auth.currentUser()?.rolName || 'USUARIO' }}</span>
+        @if (auth.currentUser()?.createdAccount; as createdAt) {
+          <p class="text-xs text-clay mt-2">Miembro desde: {{ createdAt | customDate:false }}</p>
+        }
+      </div>
+
+      @if (errorMsg()) {
+        <div class="auth-alert error mb-4">{{ errorMsg() }}</div>
+      }
+
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+        <div class="grid gap-4 mb-6">
+          <div>
+            <label class="label" for="prof-name">Nombre completo *</label>
+            <input
+              id="prof-name"
+              type="text"
+              formControlName="name"
+              class="input"
+              [class.error]="profileForm.controls.name.invalid && profileForm.controls.name.touched"
+            />
+            @if (profileForm.controls.name.invalid && profileForm.controls.name.touched) {
+              <p class="error-msg">⚠ El nombre debe tener entre 2 y 50 caracteres</p>
+            }
+          </div>
+          <div>
+            <label class="label" for="prof-email">Correo electrónico *</label>
+            <input
+              id="prof-email"
+              type="email"
+              formControlName="email"
+              class="input"
+              [class.error]="profileForm.controls.email.invalid && profileForm.controls.email.touched"
+            />
+            @if (profileForm.controls.email.invalid && profileForm.controls.email.touched) {
+              <p class="error-msg">⚠ El correo electrónico no es válido</p>
+            }
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-full" [disabled]="saving()">
+          {{ saving() ? 'Guardando cambios...' : 'Guardar cambios' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</main>

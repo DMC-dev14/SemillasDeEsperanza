@@ -1,0 +1,97 @@
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-side">
+      <svg class="auth-side-art" width="120" height="120" viewBox="0 0 200 200" fill="none" stroke="white" stroke-width="1.5">
+        <circle cx="100" cy="80" r="30"/><path d="M100 110 Q80 130 70 160 M100 110 Q120 130 130 160"/><path d="M70 160 Q100 150 130 160"/><path d="M100 50 Q90 30 80 20 M100 50 Q110 30 120 20"/>
+      </svg>
+      <a class="auth-side-logo" routerLink="/">
+        <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/></svg></div>
+        <span>Semillas de Esperanza</span>
+      </a>
+      <p class="auth-quote">"Cada donación es una semilla que germina en el futuro de un niño."</p>
+      <small>— Valentina Ríos, Directora Ejecutiva</small>
+      <div class="auth-side-footer">
+        <a routerLink="/" class="auth-back-link">← Volver al sitio público</a>
+      </div>
+    </div>
+    <div class="auth-form">
+      <div class="auth-form-inner">
+        <h1 class="auth-title">Iniciar sesión</h1>
+        <p class="text-sm text-clay mb-6">Accede a tu cuenta de donante o panel administrativo.</p>
+
+        @if (serverError()) {
+          <div class="auth-alert error mb-4" id="login-server-alert" role="alert">
+            {{ serverError() }}
+          </div>
+        }
+
+        <form id="login-spring-form" [formGroup]="loginForm" (ngSubmit)="handleLogin()" novalidate>
+          <div class="mb-4">
+            <label class="label" for="login-email">Correo electrónico</label>
+            <input
+              type="email"
+              formControlName="email"
+              class="input"
+              [class.error]="loginForm.controls.email.invalid && loginForm.controls.email.touched"
+              id="login-email"
+              placeholder="maria@correo.com"
+              autocomplete="email"
+              (input)="clearServerError()"
+            />
+            @if (loginForm.controls.email.invalid && loginForm.controls.email.touched) {
+              <p class="error-msg" id="login-email-err">
+                @if (loginForm.controls.email.errors?.['required']) {
+                  ⚠ El correo electrónico no puede estar vacío
+                } @else {
+                  ⚠ Ingresa un correo electrónico válido
+                }
+              </p>
+            }
+          </div>
+          <div class="mb-4">
+            <label class="label" for="login-pw">Contraseña</label>
+            <div class="pw-input-wrap">
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                class="input input-pw"
+                [class.error]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
+                id="login-pw"
+                placeholder="••••••••"
+                autocomplete="current-password"
+                (input)="clearServerError()"
+              />
+              <button
+                type="button"
+                class="pw-toggle-btn"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                title="Mostrar/ocultar contraseña"
+              >
+                {{ showPassword() ? '🙈' : '👁️' }}
+              </button>
+            </div>
+            @if (loginForm.controls.password.invalid && loginForm.controls.password.touched) {
+              <p class="error-msg" id="login-pw-err">⚠ La contraseña no puede estar vacía</p>
+            }
+          </div>
+          <div class="flex justify-end items-center mb-6">
+            <a routerLink="/recuperar-password" class="forgot-link">¿Olvidaste tu contraseña?</a>
+          </div>
+          <button
+            type="submit"
+            id="login-submit-btn"
+            class="btn btn-primary w-full auth-submit-btn"
+            [disabled]="loading()"
+          >
+            {{ loading() ? 'Verificando credenciales...' : 'Iniciar sesión' }}
+          </button>
+        </form>
+        <p class="text-center text-sm text-clay mt-6">
+          ¿Aún no tienes cuenta?
+          <a class="auth-link" routerLink="/registro">Regístrate aquí</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

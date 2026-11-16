@@ -1,0 +1,56 @@
+.payments-header-row {
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.payments-header-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.payments-header-title {
+  font-size: 2rem;
+  color: #fff;
+}
+
+.payments-back-btn {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+.payments-container {
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
+  max-width: 42rem;
+}
+
+.payments-card-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--bark);
+  margin-bottom: 1rem;
+}
+
+.payments-summary-box {
+  background: var(--parchment);
+  border: 1px solid var(--dune);
+  border-radius: 0.875rem;
+  padding: 0.875rem 1rem;
+}
+
+.payments-success-badge {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: var(--grad135);
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+

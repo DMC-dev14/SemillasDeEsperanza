@@ -9,6 +9,7 @@ public record CreateUserRequest(
 
     @NotBlank(message = "El email no puede estar vacio")
     @Email(message = "El formato de correo es invalido")
+    @Size(max = 100, message = "El email no puede superar los 100 caracteres")
     String email,
 
     @NotBlank(message = "El nombre no puede estar vacio")
@@ -16,9 +17,9 @@ public record CreateUserRequest(
     String name,
 
     @NotBlank(message = "La contraseña no puede estar vacia")
-    @Size(min = 8, max = 100, message = "La contraseña debe tener entre 8 a 100 caracteres")
+    @Size(min = 8, max = 72, message = "La contraseña debe tener entre 8 a 72 caracteres")
     @Pattern(
-        regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).*$",
+        regexp = "\\A(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).*\\z",
         message = "La contraseña debe contener al menos una letra mayúscula, una minúscula y un número"
     )
     String password,

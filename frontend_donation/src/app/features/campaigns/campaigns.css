@@ -1,0 +1,20 @@
+.campaigns-hero {
+  background: var(--sand);
+  border-bottom: 1px solid var(--dune);
+}
+
+.campaigns-hero-sub {
+  max-width: 38rem;
+  margin: 0 auto;
+  font-size: 0.925rem;
+}
+
+.campaigns-container {
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
+}
+
+.campaigns-track {
+  height: 0.625rem;
+}
+
