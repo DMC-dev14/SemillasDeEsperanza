@@ -28,7 +28,6 @@ public class DonationController {
 
     private final DonationService donationService;
 
-    // CREAR DONACIÓN PENDIENTE
     @PostMapping
     public ResponseEntity<DonationCreatedResponse> create(
             @Valid @RequestBody DonationRequest request,
@@ -45,7 +44,6 @@ public class DonationController {
                 .body(response);
     }
 
-    // DONACIONES DEL USUARIO
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getMyDonations(
             @AuthenticationPrincipal CustomUserDetails principal) {
@@ -67,7 +65,6 @@ public class DonationController {
         ));
     }
 
-    // DONACIONES PÚBLICAS
     @GetMapping("/public-feed")
     public ResponseEntity<Map<String, Object>> getPublicFeed() {
 
@@ -77,7 +74,6 @@ public class DonationController {
         ));
     }
 
-    // ADMIN - TODAS LAS DONACIONES
     @GetMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<List<DonationResponse>> getAll() {
@@ -87,7 +83,6 @@ public class DonationController {
         );
     }
 
-    // ADMIN - CAMBIAR ESTADO
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<DonationResponse> updateStatus(

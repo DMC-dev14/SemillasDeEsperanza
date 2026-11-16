@@ -44,7 +44,6 @@ public class YapeServiceImpl implements YapeService {
         @Value("${mercadopago.public-key:}")
         private String publicKey;
 
-        // ==================== 1. TOKENIZAR YAPE ====================
         @Override
         public Mono<YapeTokenResponse> tokenize(YapeTokenRequestDTO body) {
 
@@ -128,7 +127,6 @@ public class YapeServiceImpl implements YapeService {
         private record TokenData(String phoneNumber, String otp) {
         }
 
-        // ==================== 2. COBRAR ====================
         @Override
         public Mono<ChargePaymentResponse> chargePayment(
                         ChargePaymentRequestDTO body) {

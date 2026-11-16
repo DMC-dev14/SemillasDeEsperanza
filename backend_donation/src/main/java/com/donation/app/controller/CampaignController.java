@@ -34,32 +34,27 @@ public class CampaignController {
     private final CampaignService campaignService;
 
     
-    // PÚBLICO - Listar campañas activas
     @GetMapping
     public ResponseEntity<List<CampaignResponse>> getAllPublic() {
         return ResponseEntity.ok(campaignService.getActive());
     }
 
-    // PÚBLICO - Listar campañas activas
     @GetMapping("/active")
     public ResponseEntity<List<CampaignResponse>> getActive() {
         return ResponseEntity.ok(campaignService.getActive());
     }
 
-    // PÚBLICO - Ver detalle de campaña
     @GetMapping("/{id}")
     public ResponseEntity<CampaignResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(campaignService.getById(id));
     }
 
-    // SOLO ADMIN - Ver TODAS (incluidas DRAFT/CANCELLED/COMPLETED)
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<List<CampaignResponse>> getAllForAdmin() {
         return ResponseEntity.ok(campaignService.getAll());
     }
 
-    // SOLO ADMIN - Crear
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<CampaignResponse> create(@Valid @RequestBody CampaignRequest request,
@@ -68,7 +63,6 @@ public class CampaignController {
                 .body(campaignService.create(request, principal != null ? principal.getUser() : null));
     }
 
-    // SOLO ADMIN - Editar completo
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<CampaignResponse> update(@PathVariable Long id,
@@ -76,7 +70,6 @@ public class CampaignController {
         return ResponseEntity.ok(campaignService.update(id, request));
     }
 
-    // SOLO ADMIN - Cambiar solo estado
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<CampaignResponse> updateStatus(@PathVariable Long id,
@@ -89,7 +82,6 @@ public class CampaignController {
         return ResponseEntity.ok(campaignService.updateStatus(id, status));
     }
 
-    // SOLO ADMIN - Eliminar
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

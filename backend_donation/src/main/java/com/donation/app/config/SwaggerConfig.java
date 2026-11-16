@@ -8,9 +8,17 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 
+/**
+ * Define la documentación OpenAPI expuesta por Springdoc.
+ */
 @Configuration
 public class SwaggerConfig {
 
+    /**
+     * Construye la especificación OpenAPI con los metadatos, el contacto y la licencia de la API.
+     *
+     * @return modelo OpenAPI personalizado
+     */
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()

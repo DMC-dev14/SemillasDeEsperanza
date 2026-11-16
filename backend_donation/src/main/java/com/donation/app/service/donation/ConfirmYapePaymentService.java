@@ -114,7 +114,6 @@ public class ConfirmYapePaymentService {
         voucherRepository.save(voucher);
     }
 
-    // Método para verificación reactiva (usado por YapeServiceImpl)
     public Mono<Void> verifyAndConfirmReactive(Long donationId, String token, String checkoutToken) {
         return Mono.fromCallable(() -> {
                     Donation donation = donationRepository

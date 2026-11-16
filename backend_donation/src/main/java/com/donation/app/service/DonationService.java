@@ -35,13 +35,11 @@ public class DonationService {
     private final ConfirmPayPalPaymentService confirmPayPalPaymentService;
     private final DonationMapperService donationMapperService;
 
-    // ==================== CREATE ====================
     @Transactional
     public DonationCreatedResponse createDonation(DonationRequest request, User authenticatedUser) {
         return createDonationService.createDonation(request, authenticatedUser);
     }
 
-    // ==================== QUERIES ====================
     public List<DonationResponse> getMyDonations(Long userId) {
         return getDonationsDBService.getMyDonations(userId);
     }
@@ -62,29 +60,24 @@ public class DonationService {
         return getDonationsDBService.getTopDonors();
     }
 
-    // ==================== UPDATE STATUS ====================
     @Transactional
     public DonationResponse updateStatus(Long donationId, PaymentStatus newStatus) {
         return updateDonationStatusService.updateStatus(donationId, newStatus);
     }
 
-    // ==================== MAPPER (delegado) ====================
     public DonationResponse mapToResponse(com.donation.app.model.Donation d) {
         return donationMapperService.mapToResponse(d);
     }
 
-    // ==================== YAPE ====================
     @Transactional
     public void confirmYapePayment(Long donationId, String paymentId, BigDecimal paidAmount, String currency) {
         confirmYapePaymentService.confirmYapePayment(donationId, paymentId, paidAmount, currency);
     }
 
-    // Para uso reactivo desde YapeServiceImpl
     public reactor.core.publisher.Mono<Void> verifyAndConfirmYapeReactive(Long donationId, String token, String checkoutToken) {
         return confirmYapePaymentService.verifyAndConfirmReactive(donationId, token, checkoutToken);
     }
 
-    // ==================== PAYPAL ====================
     @Transactional
     public void attachPayPalOrder(Long donationId, String orderId, BigDecimal amountUsd, BigDecimal rate) {
         confirmPayPalPaymentService.attachPayPalOrder(donationId, orderId, amountUsd, rate);

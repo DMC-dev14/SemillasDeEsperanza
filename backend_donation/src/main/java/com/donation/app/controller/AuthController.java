@@ -76,31 +76,18 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Inicia el flujo de recuperación de contraseña. Responde 200 siempre, exista
-     * o no el correo, para no revelar qué emails están registrados.
-     */
     @PostMapping("/forgot-password")
     public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         authService.forgotPassword(request);
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * Restablece la contraseña usando el token de un solo uso enviado por correo.
-     */
     @PostMapping("/reset-password")
     public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordResponse request) {
         authService.resetPassword(request);
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * El JWT es stateless: no hay sesión que invalidar en el servidor. Se limpia
-     * la cookie jwt_token (usada por las vistas Thymeleaf) y el cliente debe
-     * descartar el token. En Fase 5 se puede añadir una blacklist si se requiere
-     * invalidación real.
-     */
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from(JwtAuthenticationFilter.JWT_COOKIE_NAME, "")

@@ -67,7 +67,6 @@ public class MercadoPagoWebhookController {
             return Mono.just(ok);
         }
 
-        // Consultar directamente a Mercado Pago
         return mercadoPagoWebClient.get()
                 .uri("/v1/payments/{id}", paymentId)
                 .headers(h -> h.setBearerAuth(accessToken))
@@ -85,7 +84,6 @@ public class MercadoPagoWebhookController {
                     String currency = payment.path("currency_id").asText();
                     String reference = payment.path("external_reference").asText();
 
-                    // Solo confirmar pagos Yape aprobados
                     if (!"approved".equals(status) ||
                             !"yape".equals(method)) {
                         return Mono.just(ok);
@@ -105,7 +103,6 @@ public class MercadoPagoWebhookController {
                             .path("transaction_amount")
                             .decimalValue();
 
-                    // Actualizar donación, campaña y comprobante
                     return Mono.fromRunnable(() -> donationService.confirmYapePayment(
                             donationId,
                             paymentId,

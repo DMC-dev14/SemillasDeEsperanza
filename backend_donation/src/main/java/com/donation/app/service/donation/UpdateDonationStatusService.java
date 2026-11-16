@@ -50,7 +50,6 @@ public class UpdateDonationStatusService {
                 .findFirstByDonation_IdOrderByTransactionDateDesc(donationId)
                 .orElse(null);
 
-        // Impedir cambios manuales en pagos gestionados por pasarela
         if (transaction != null &&
                 (transaction.getMethodPay() == Method.YAPE
                         || transaction.getMethodPay() == Method.PAYPAL)) {
@@ -102,7 +101,6 @@ public class UpdateDonationStatusService {
                 transactionRepository.save(transaction);
             }
 
-            // Crear voucher si se completa
             if (newStatus == PaymentStatus.COMPLETED && transaction != null) {
                 Voucher voucher = new Voucher();
                 voucher.setNumber(

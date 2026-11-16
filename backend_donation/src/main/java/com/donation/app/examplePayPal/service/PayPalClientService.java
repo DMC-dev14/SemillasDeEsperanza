@@ -61,8 +61,6 @@ public class PayPalClientService {
     @Value("${paypal.cancel-url:}")
     private String cancelUrl;
 
-    // ==================== 1. CREAR ORDEN ====================
-
     public CreateOrderPayPalResponse createOrder(CreateOrderPayPalRequest request) {
 
         Donation donation = loadDonation(request.donationId(), request.checkoutToken());
@@ -136,8 +134,6 @@ public class PayPalClientService {
                 .build();
     }
 
-    // ==================== 2. CAPTURAR ====================
-
     public DonationResponse captureOrder(String orderId, Long donationId, String checkoutToken) {
 
         Donation donation = loadDonation(donationId, checkoutToken);
@@ -174,8 +170,6 @@ public class PayPalClientService {
         return donationService.mapToResponse(updated);
     }
 
-    // ==================== 3. WEBHOOK ====================
-
     public void handleWebhook(JsonNode body) {
 
         String eventType = body.path("event_type").asText("");
@@ -204,8 +198,6 @@ public class PayPalClientService {
 
         confirmFromOrder(order, donation);
     }
-
-    // ==================== VERIFICACIÓN ====================
 
     private void confirmFromOrder(Order order, Donation donation) {
 
@@ -262,8 +254,6 @@ public class PayPalClientService {
         donationService.confirmPayPalPayment(
                 donation.getId(), order.id(), capture.id(), paid, currency);
     }
-
-    // ==================== HELPERS ====================
 
     private Donation loadDonation(Long donationId, String checkoutToken) {
 

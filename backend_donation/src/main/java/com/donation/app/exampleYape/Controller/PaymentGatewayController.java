@@ -21,7 +21,6 @@ public class PaymentGatewayController {
 
     private final YapeService yapeService;
 
-    // 1) Teléfono + OTP -> token de Yape
     @PostMapping("/yape/token")
     public Mono<ResponseEntity<YapeTokenResponse>> yapeToken(
             @Valid @RequestBody YapeTokenRequestDTO body) {
@@ -31,7 +30,6 @@ public class PaymentGatewayController {
                 .map(ResponseEntity::ok);
     }
 
-    // 2) Token -> cobro
     @PostMapping("/charge-payment")
     public Mono<ResponseEntity<ChargePaymentResponse>> chargePayment(
             @Valid @RequestBody ChargePaymentRequestDTO body) {

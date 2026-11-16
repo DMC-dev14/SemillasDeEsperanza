@@ -5,9 +5,17 @@ import org.springframework.context.annotation.Configuration;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
+/**
+ * Configura el resolver de plantillas Thymeleaf para las vistas HTML servidas desde el classpath.
+ */
 @Configuration
 public class ThymeleafTemplateConfig {
     
+    /**
+     * Define el resolver que busca plantillas en {@code templates/} con extensión {@code .html}.
+     *
+     * @return resolver de plantillas Thymeleaf
+     */
     @Bean
     public ClassLoaderTemplateResolver templateResolver(){
         ClassLoaderTemplateResolver resolver=new ClassLoaderTemplateResolver();

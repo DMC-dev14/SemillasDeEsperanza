@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class YapeGenerateTokenRequest {
     private String phoneNumber;
     private String otp;
-    private String requestId;   // ✅ antes: request_id
+    private String requestId;
 }

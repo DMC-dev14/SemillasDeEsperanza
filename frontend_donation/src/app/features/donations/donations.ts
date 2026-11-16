@@ -51,10 +51,7 @@ export class DonationsComponent implements OnInit {
       this.auth.currentUser()?.name || '',
       [Validators.required, Validators.minLength(2), Validators.maxLength(100)],
     ],
-    donorEmail: [
-      this.auth.currentUser()?.email || '',
-      [Validators.required, Validators.email],
-    ],
+    donorEmail: [this.auth.currentUser()?.email || '', [Validators.required, Validators.email]],
     donorPhone: ['', [Validators.maxLength(30)]],
     cardNumber: [''],
     cardExpiry: [''],
@@ -67,7 +64,7 @@ export class DonationsComponent implements OnInit {
   });
 
   readonly amountInvalid = computed(() => {
-    return !this.selectedAmount() || this.selectedAmount() < 5;
+    return !this.selectedAmount() || this.selectedAmount() < 1.24; // Era 5
   });
 
   ngOnInit(): void {
@@ -224,18 +221,17 @@ export class DonationsComponent implements OnInit {
             return;
           }
 
-          const voucher =
-            don?.voucherNumber || `REC-2026-${String(don?.id || 1).padStart(5, '0')}`;
+          const voucher = don?.voucherNumber || `REC-2026-${String(don?.id || 1).padStart(5, '0')}`;
           const txCode = don?.codeReferential || 'TX-CONFIRMADO';
 
           this.toast.success(
-            `¡Gracias ${name.split(' ')[0]}! Donación registrada con recibo ${voucher} 🌱`
+            `¡Gracias ${name.split(' ')[0]}! Donación registrada con recibo ${voucher} 🌱`,
           );
           this.alertType.set('success');
           this.alertMessage.set(
             `¡Donación confirmada! Recibo N° ${voucher} · Transacción ${txCode} por S/${amount.toFixed(
-              2
-            )} para "${campTitle}".`
+              2,
+            )} para "${campTitle}".`,
           );
 
           if (this.auth.currentRole() === 'USUARIO') {

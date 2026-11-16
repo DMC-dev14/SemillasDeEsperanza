@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true) // Por defecto, todas las operaciones son de lectura
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
@@ -41,20 +41,16 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
 
-    @Transactional // Escritura
+    @Transactional
     public UserResponse register(RegisterRequest request) {
         return crearUsuario(request.name(), request.email(), request.password(), RolNombre.USUARIO.name());
     }
 
-    @Transactional // Escritura
+    @Transactional
     public UserResponse createUser(CreateUserRequest request) {
         return crearUsuario(request.name(), request.email(), request.password(), request.rol());
     }
 
-    /**
-     * Punto único de creación de cuentas (tanto para el registro público como
-     * para la creación desde el panel de administración).
-     */
     private UserResponse crearUsuario(String name, String emailRaw, String password, String rolNombre) {
         String email = normalizarEmail(emailRaw);
 
@@ -84,7 +80,7 @@ public class UserService {
         return mapToUserResponse(obtenerEntidad(id));
     }
 
-    @Transactional // Escritura
+    @Transactional
     public UserResponse update(Long id, UpdateUserRequest request) {
         User user = obtenerEntidad(id);
 
@@ -101,12 +97,10 @@ public class UserService {
         }
 
         if (request.rol() != null && !request.rol().equals(nombreRolActual(user))) {
-            // Un administrador no puede quitarse a sí mismo el rol (perdería el acceso).
             if (esUsuarioAutenticado(id)) {
                 throw new BusinessException(HttpStatus.CONFLICT, "No puedes cambiar tu propio rol");
             }
 
-            // Si es el último administrador activo, tampoco puede dejar de serlo.
             verificarNoEsUltimoAdmin(user);
 
             user.setRol(obtenerRol(request.rol().trim()));
@@ -123,7 +117,7 @@ public class UserService {
         return mapToUserResponse(userRepository.save(user));
     }
 
-    @Transactional // Escritura
+    @Transactional
     public UserResponse updateOwnProfile(Long userId, UpdateProfileRequest request) {
         User user = obtenerEntidad(userId);
 
@@ -138,7 +132,7 @@ public class UserService {
         return mapToUserResponse(userRepository.save(user));
     }
 
-    @Transactional // Escritura
+    @Transactional
     public void changePassword(Long userId, ChangePasswordRequest request) {
         User user = obtenerEntidad(userId);
 
@@ -155,7 +149,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    @Transactional // Escritura
+    @Transactional
     public void delete(Long id) {
         User user = obtenerEntidad(id);
 

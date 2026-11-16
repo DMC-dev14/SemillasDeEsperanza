@@ -64,11 +64,6 @@ public class AuthService {
         return issueForUser(savedUser);
     }
 
-    /**
-     * Actualiza el perfil del usuario autenticado y emite un token nuevo.
-     * Es necesario un token nuevo porque el subject del JWT es el email: si el
-     * usuario cambia su correo, el token anterior deja de ser válido.
-     */
     public AuthResponse updateProfile(Long userId, UpdateProfileRequest request) {
         UserResponse updated = userService.updateOwnProfile(userId, request);
         User user = userRepository.findByEmail(updated.email())
@@ -80,11 +75,6 @@ public class AuthService {
         userService.changePassword(userId, request);
     }
 
-    /**
-     * Genera un token de recuperación de un solo uso y envía el enlace por correo.
-     * Si el correo no existe o la cuenta está inactiva no se revela información:
-     * el método termina sin hacer nada y el controller responde igualmente 200.
-     */
     @Transactional
     public void forgotPassword(ForgotPasswordRequest request) {
         String email = request.email().trim().toLowerCase(Locale.ROOT);
@@ -114,10 +104,6 @@ public class AuthService {
         emailService.sendEmailTemplate(emailRequest);
     }
 
-    /**
-     * Valida el token de recuperación, actualiza la contraseña y lo invalida
-     * para que no pueda reutilizarse.
-     */
     @Transactional
     public void resetPassword(ResetPasswordResponse request) {
         String token = request.token().trim();

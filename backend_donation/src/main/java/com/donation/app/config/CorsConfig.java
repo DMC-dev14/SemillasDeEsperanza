@@ -9,9 +9,18 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+/**
+ * Configura la política CORS de la API para permitir el acceso desde el frontend Angular local
+ * y desde el despliegue en Vercel.
+ */
 @Configuration
 public class CorsConfig {
 
+    /**
+     * Define los orígenes, métodos, cabeceras y credenciales permitidos para todas las rutas.
+     *
+     * @return la fuente de configuración CORS aplicada a todas las rutas
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();

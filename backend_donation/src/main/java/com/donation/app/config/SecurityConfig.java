@@ -25,6 +25,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Configuración central de Spring Security: reglas de autorización, autenticación con JWT, login
+ * por formulario para las vistas Thymeleaf y manejo de errores de la API.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -35,6 +39,18 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Define la cadena de filtros de seguridad. La sesión se mantiene para el login de las vistas
+     * Thymeleaf, mientras que la API REST funciona con JWT. Las donaciones y los endpoints públicos
+     * (campañas activas, feed público, registro/login y webhooks de pago) son accesibles sin
+     * autenticación; el checkout de PayPal queda protegido por {@code checkoutToken}. Para las rutas
+     * {@code /api/**} los errores de autenticación y autorización se devuelven como JSON (401/403)
+     * en lugar de redirigir al login.
+     *
+     * @param http configuración de seguridad HTTP de Spring
+     * @return la cadena de filtros de seguridad construida
+     * @throws Exception si falla la construcción de la cadena de filtros
+     */
     @Bean
     @SuppressWarnings("null")
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -43,8 +59,6 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
-                // IF_REQUIRED mantiene la sesión para las vistas Thymeleaf (form login).
-                // La API REST funciona con JWT y no depende de la sesión.
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error").permitAll()
@@ -56,8 +70,6 @@ public class SecurityConfig {
                                 "/nosotros", "/contacto", "/donar",
                                 "/css/**", "/js/**", "/images/**", "/favicon.ico")
                         .permitAll()
-                        // Las donaciones pueden ser anónimas; los endpoints de campañas activas
-                        // y el feed público son visibles sin autenticación.
                         .requestMatchers(HttpMethod.GET, "/api/campaigns/active").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/campaigns/{id:\\d+}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/campaigns/admin").hasRole("ADMINISTRADOR")
@@ -65,30 +77,25 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/donations/public-feed").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/donations").permitAll()
 
-                        // PÚBLICO - Iniciar pago con Yape
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/payment-gateway/charge-payment",
                                 "/api/payment-gateway/yape/token")
                         .permitAll()
-                        // Registro, login, logout y recuperación de contraseña son públicos.
                         .requestMatchers(HttpMethod.POST,
                                 "/api/auth/register", "/api/auth/login", "/api/auth/logout",
                                 "/api/auth/forgot-password", "/api/auth/reset-password")
                         .permitAll()
-                        // Mercado Pago - Recibir notificaciones
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/payment-gateway/webhook")
                         .permitAll()
-                        // PayPal - Checkout API (público, protegido por checkoutToken)
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/paypal/orders",
                                 "/api/paypal/orders/*/capture",
                                 "/api/paypal/webhook")
                         .permitAll()
-                        // Datos y acciones del propio usuario autenticado.
                         .requestMatchers("/api/auth/me", "/api/auth/me/**",
                                 "/api/auth/profile", "/api/auth/change-password")
                         .authenticated()
@@ -107,8 +114,6 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/")
                         .permitAll())
                 .exceptionHandling(ex -> ex
-                        // Para la API siempre devolvemos JSON (401/403), nunca una redirección al
-                        // login.
                         .authenticationEntryPoint((request, response, authException) -> {
                             if (esRutaApi(request)) {
                                 escribirErrorApi(response, HttpStatus.UNAUTHORIZED, "No autenticado",

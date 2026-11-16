@@ -28,11 +28,29 @@ import com.donation.app.repository.TransactionRepository;
 import com.donation.app.repository.UserRepository;
 import com.donation.app.repository.VoucherRepository;
 
+/**
+ * Inicializa datos base al arrancar la aplicación: roles, usuario administrador, cliente de
+ * demostración y campañas de ejemplo.
+ */
 @Configuration
 public class DataInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
 
+    /**
+     * Crea los roles, el administrador, el cliente demo y las campañas iniciales si aún no existen.
+     *
+     * @param rolRepository repositorio de roles
+     * @param userRepository repositorio de usuarios
+     * @param campaignRepository repositorio de campañas
+     * @param donationRepository repositorio de donaciones
+     * @param transactionRepository repositorio de transacciones
+     * @param voucherRepository repositorio de comprobantes
+     * @param passwordEncoder codificador de contraseñas
+     * @param adminEmail correo del administrador configurado
+     * @param adminPassword contraseña del administrador configurado
+     * @return runner que ejecuta la carga inicial al arrancar la aplicación
+     */
     @Bean
     public CommandLineRunner initData(
             RolRepository rolRepository,
@@ -64,6 +82,17 @@ public class DataInitializer {
         });
     }
 
+    /**
+     * Crea el administrador si el correo configurado no existe. Si ya existe, garantiza que tenga
+     * el rol {@code ADMINISTRADOR} y esté activo, sin sobrescribir la contraseña para no pisar
+     * cambios hechos por el usuario.
+     *
+     * @param userRepository repositorio de usuarios
+     * @param passwordEncoder codificador de contraseñas
+     * @param rolAdmin rol de administrador
+     * @param email correo del administrador
+     * @param password contraseña inicial del administrador
+     */
     private void crearAdminSiNoExiste(UserRepository userRepository, PasswordEncoder passwordEncoder,
             Rol rolAdmin, String email, String password) {
 
@@ -72,8 +101,6 @@ public class DataInitializer {
         Optional<User> existente = userRepository.findByEmail(emailNormalizado);
 
         if (existente.isPresent()) {
-            // Si el correo configurado ya existe, garantizamos que sea un administrador activo.
-            // No se sobrescribe la contraseña para no pisar cambios hechos por el usuario.
             User admin = existente.get();
             boolean cambios = false;
 
