@@ -92,4 +92,17 @@ export class CampaignService {
       publicId?: string;
     }>(`${environment.apiBaseUrl}/api/images`, formData);
   }
+  uploadCampaignImage(id: number, file: File): Observable<{ url: string; publicId?: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http
+      .post<{ url: string; publicId?: string }>(`${this.apiUrl}/${id}/image`, formData)
+      .pipe(catchError((err) => throwError(() => err)));
+  }
+
+  deleteCampaignImage(id: number): Observable<void> {
+    return this.http
+      .delete<void>(`${this.apiUrl}/${id}/image`)
+      .pipe(catchError((err) => throwError(() => err)));
+  }
 }

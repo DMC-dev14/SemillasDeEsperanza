@@ -208,41 +208,42 @@ export class AdminComponent implements OnInit, OnDestroy {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-
     if (!file) return;
 
     this.imageUploadError.set(null);
 
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-
     if (!validTypes.includes(file.type)) {
-      this.imageUploadError.set('Solo se permiten imágenes JPG, PNG o WEBP.');
+      this.imageUploadError.set('Solo JPG, PNG o WEBP');
       input.value = '';
       return;
     }
-
     if (file.size > 5 * 1024 * 1024) {
-      this.imageUploadError.set('La imagen no puede superar 5 MB.');
+      this.imageUploadError.set('Máximo 5 MB');
       input.value = '';
       return;
     }
 
-    this.clearSelectedCampaignImage();
-
-    this.previewUrl.set(URL.createObjectURL(file));
     this.uploadingImage.set(true);
+    this.previewUrl.set(URL.createObjectURL(file));
 
-    this.campaignService.uploadImage(file).subscribe({
+    const id = this.editingCampaignId();
+    const request$ =
+      id !== null
+        ? this.campaignService.uploadCampaignImage(id, file) // ← USA NUEVO ENDPOINT
+        : this.campaignService.uploadImage(file); // ← Para creación, usa genérico temporal
+
+    request$.subscribe({
       next: (res) => {
         this.campaignForm.patchValue({ imageUrl: res.url });
         this.uploadingImage.set(false);
         this.previewUrl.set(null);
-        this.toast.success('Imagen subida.');
+        this.toast.success('Imagen subida a Cloudinary');
       },
       error: (err) => {
         this.uploadingImage.set(false);
         this.previewUrl.set(null);
-        const msg = extractApiErrorMessage(err, 'No se pudo subir la imagen.');
+        const msg = extractApiErrorMessage(err, 'No se pudo subir la imagen');
         this.imageUploadError.set(msg);
         this.toast.error(msg);
       },
@@ -286,9 +287,8 @@ export class AdminComponent implements OnInit, OnDestroy {
 
     const id = this.editingCampaignId();
 
-    const request$ = id !== null
-      ? this.campaignService.update(id, payload)
-      : this.campaignService.create(payload);
+    const request$ =
+      id !== null ? this.campaignService.update(id, payload) : this.campaignService.create(payload);
 
     this.savingCampaign.set(true);
 

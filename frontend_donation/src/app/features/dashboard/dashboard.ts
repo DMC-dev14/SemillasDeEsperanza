@@ -76,7 +76,7 @@ export class DashboardComponent implements OnInit {
       ],
       confirmPassword: ['', [Validators.required]],
     },
-    { validators: createPasswordMatchValidator('newPassword', 'confirmPassword') }
+    { validators: createPasswordMatchValidator('newPassword', 'confirmPassword') },
   );
 
   ngOnInit(): void {
@@ -156,6 +156,34 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  onAvatarSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      this.toast.error('Solo JPG, PNG o WEBP');
+      input.value = '';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.toast.error('Máximo 5 MB');
+      input.value = '';
+      return;
+    }
+
+    this.auth.uploadAvatar(file).subscribe({
+      next: (user) => {
+        this.toast.success('Foto de perfil actualizada');
+        input.value = '';
+      },
+      error: (err) => {
+        this.toast.error('Error subiendo la foto');
+        input.value = '';
+      },
+    });
+  }
+
   togglePwChange(): void {
     const next = !this.changingPw();
     this.changingPw.set(next);
@@ -173,7 +201,7 @@ export class DashboardComponent implements OnInit {
         this.pwError.set('La confirmación de contraseña no coincide.');
       } else {
         this.pwError.set(
-          'La nueva contraseña debe tener entre 8 y 72 caracteres, una mayúscula, una minúscula y un número.'
+          'La nueva contraseña debe tener entre 8 y 72 caracteres, una mayúscula, una minúscula y un número.',
         );
       }
       return;
