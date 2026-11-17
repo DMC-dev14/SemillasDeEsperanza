@@ -1,30 +1,79 @@
 <header id="header" [attr.data-role]="auth.currentRole()">
-
   <ng-container *appHasRole="'ADMINISTRADOR'">
     <div class="header-inner">
       <a class="logo" routerLink="/admin" (click)="closeMenu()">
         <div class="logo-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6" />
           </svg>
         </div>
         <div class="logo-text">Semillas<span>Panel Administrador</span></div>
       </a>
       <nav class="nav-links" id="desktop-nav-admin">
-        <a href="#resumen" class="admin-nav-link" [class.active]="activeAdminTab() === 'resumen'" (click)="switchAdminTab('resumen', $event)">📊 Resumen</a>
-        <a href="#campanas" class="admin-nav-link" [class.active]="activeAdminTab() === 'campanas'" (click)="switchAdminTab('campanas', $event)">🌱 Campañas</a>
-        <a href="#donaciones" class="admin-nav-link" [class.active]="activeAdminTab() === 'donaciones'" (click)="switchAdminTab('donaciones', $event)">💸 Donaciones</a>
-        <a href="#usuarios" class="admin-nav-link" [class.active]="activeAdminTab() === 'usuarios'" (click)="switchAdminTab('usuarios', $event)">👥 Usuarios</a>
+        <a
+          href="#resumen"
+          class="admin-nav-link"
+          [class.active]="activeAdminTab() === 'resumen'"
+          (click)="switchAdminTab('resumen', $event)"
+          >📊 Resumen</a
+        >
+        <a
+          href="#campanas"
+          class="admin-nav-link"
+          [class.active]="activeAdminTab() === 'campanas'"
+          (click)="switchAdminTab('campanas', $event)"
+          >🌱 Campañas</a
+        >
+        <a
+          href="#donaciones"
+          class="admin-nav-link"
+          [class.active]="activeAdminTab() === 'donaciones'"
+          (click)="switchAdminTab('donaciones', $event)"
+          >💸 Donaciones</a
+        >
+        <a
+          href="#usuarios"
+          class="admin-nav-link"
+          [class.active]="activeAdminTab() === 'usuarios'"
+          (click)="switchAdminTab('usuarios', $event)"
+          >👥 Usuarios</a
+        >
       </nav>
       <div class="header-right" id="header-actions-admin">
         <a routerLink="/perfil" class="user-pill" title="Mi perfil">
-          <span class="user-pill-avatar">{{ userInitial }}</span>
+          @if (auth.currentUser()?.imageUrl) {
+            <img
+              [src]="auth.currentUser()!.imageUrl"
+              class="dash-profile-avatar"
+              alt="Foto de perfil"
+            />
+          } @else {
+            <div id="profile-avatar-circle" class="dash-profile-avatar">
+              {{ userInitial }}
+            </div>
+          }
           <div class="user-pill-info">
             <span class="user-pill-name">{{ auth.currentUser()?.name || 'Administrador' }}</span>
             <span class="user-pill-role role-admin">Administrador</span>
           </div>
         </a>
-        <button type="button" class="btn btn-ghost btn-sm" (click)="handleLogout()" title="Cerrar sesión">Cerrar sesión</button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          (click)="handleLogout()"
+          title="Cerrar sesión"
+        >
+          Cerrar sesión
+        </button>
         <div class="hamburger" (click)="toggleMenu()" id="hamburger-admin">
           <span></span><span></span><span></span>
         </div>
@@ -33,10 +82,14 @@
     <div class="mobile-menu" [class.open]="mobileMenuOpen()" id="mobile-menu-admin">
       <a href="#resumen" (click)="switchAdminTab('resumen', $event)">📊 Resumen General</a>
       <a href="#campanas" (click)="switchAdminTab('campanas', $event)">🌱 Gestión de Campañas</a>
-      <a href="#donaciones" (click)="switchAdminTab('donaciones', $event)">💸 Gestión de Donaciones</a>
+      <a href="#donaciones" (click)="switchAdminTab('donaciones', $event)"
+        >💸 Gestión de Donaciones</a
+      >
       <a href="#usuarios" (click)="switchAdminTab('usuarios', $event)">👥 Gestión de Usuarios</a>
       <a routerLink="/perfil" (click)="closeMenu()">👤 Mi Perfil</a>
-      <button type="button" class="mobile-logout-btn" (click)="handleLogout()">🚪 Cerrar sesión</button>
+      <button type="button" class="mobile-logout-btn" (click)="handleLogout()">
+        🚪 Cerrar sesión
+      </button>
     </div>
   </ng-container>
 
@@ -44,29 +97,57 @@
     <div class="header-inner">
       <a class="logo" routerLink="/dashboard" (click)="closeMenu()">
         <div class="logo-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6" />
           </svg>
         </div>
         <div class="logo-text">Semillas<span>de Esperanza</span></div>
       </a>
       <nav class="nav-links" id="desktop-nav-user">
-        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mi Dashboard</a>
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          >Mi Dashboard</a
+        >
         <a routerLink="/donar" routerLinkActive="active">Donar</a>
-        <a href="#mis-donaciones" (click)="goToSection('/dashboard', 'mis-donaciones', $event)">Mis Donaciones</a>
+        <a href="#mis-donaciones" (click)="goToSection('/dashboard', 'mis-donaciones', $event)"
+          >Mis Donaciones</a
+        >
         <a routerLink="/proyectos" routerLinkActive="active">Proyectos</a>
         <a href="#mi-perfil" (click)="goToSection('/dashboard', 'mi-perfil', $event)">Mi Perfil</a>
       </nav>
       <div class="header-right" id="header-actions-user">
         <a routerLink="/dashboard" class="user-pill" title="Ir a mi cuenta">
-          <span class="user-pill-avatar">{{ userInitial }}</span>
+          @if (auth.currentUser()?.imageUrl) {
+            <img
+              [src]="auth.currentUser()!.imageUrl"
+              class="dash-profile-avatar"
+              alt="Foto de perfil"
+            />
+          } @else {
+            <div id="profile-avatar-circle" class="dash-profile-avatar">
+              {{ userInitial }}
+            </div>
+          }
           <div class="user-pill-info">
             <span class="user-pill-name">{{ auth.currentUser()?.name || 'Cliente' }}</span>
             <span class="user-pill-role">Cliente</span>
           </div>
         </a>
         <a class="btn btn-primary btn-sm" routerLink="/donar">Donar ahora</a>
-        <button type="button" class="btn btn-ghost btn-sm" (click)="handleLogout()">Cerrar sesión</button>
+        <button type="button" class="btn btn-ghost btn-sm" (click)="handleLogout()">
+          Cerrar sesión
+        </button>
         <div class="hamburger" (click)="toggleMenu()" id="hamburger-user">
           <span></span><span></span><span></span>
         </div>
@@ -75,10 +156,14 @@
     <div class="mobile-menu" [class.open]="mobileMenuOpen()" id="mobile-menu-user">
       <a routerLink="/dashboard" (click)="closeMenu()">Mi Dashboard</a>
       <a routerLink="/donar" (click)="closeMenu()">Donar ahora</a>
-      <a href="#mis-donaciones" (click)="goToSection('/dashboard', 'mis-donaciones', $event)">Mis Donaciones</a>
+      <a href="#mis-donaciones" (click)="goToSection('/dashboard', 'mis-donaciones', $event)"
+        >Mis Donaciones</a
+      >
       <a routerLink="/proyectos" (click)="closeMenu()">Proyectos Activos</a>
       <a href="#mi-perfil" (click)="goToSection('/dashboard', 'mi-perfil', $event)">Mi Perfil</a>
-      <button type="button" class="mobile-logout-btn" (click)="handleLogout()">Cerrar sesión</button>
+      <button type="button" class="mobile-logout-btn" (click)="handleLogout()">
+        Cerrar sesión
+      </button>
     </div>
   </ng-container>
 
@@ -86,14 +171,25 @@
     <div class="header-inner">
       <a class="logo" routerLink="/" (click)="closeMenu()">
         <div class="logo-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6"/>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 22V12M12 12C12 7 7 4 3 6M12 12C12 7 17 4 21 6" />
           </svg>
         </div>
         <div class="logo-text">Semillas<span>de Esperanza</span></div>
       </a>
       <nav class="nav-links" id="desktop-nav-visitor">
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+          >Inicio</a
+        >
         <a routerLink="/proyectos" routerLinkActive="active">Proyectos</a>
         <a routerLink="/nosotros" routerLinkActive="active">Quiénes Somos</a>
         <a routerLink="/contacto" routerLinkActive="active">Contacto</a>
@@ -118,5 +214,4 @@
       <a routerLink="/registro" class="mobile-register-link" (click)="closeMenu()">Registrarse</a>
     </div>
   </ng-container>
-
 </header>
