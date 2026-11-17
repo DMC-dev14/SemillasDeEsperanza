@@ -101,9 +101,10 @@ export class AdminComponent implements OnInit, OnDestroy {
     ],
   });
 
-  selectedImageFile: File | null = null;
-  imagePreviewUrl: string | null = null;
-  imageUploadError = '';
+  // Image upload signals
+  readonly uploadingImage = signal(false);
+  readonly previewUrl = signal<string | null>(null);
+  readonly imageUploadError = signal<string | null>(null);
 
   ngOnInit(): void {
     this.route.fragment.subscribe((frag) => {
@@ -179,8 +180,6 @@ export class AdminComponent implements OnInit, OnDestroy {
   openEditCampaignModal(c: CampaignResponse): void {
     this.clearSelectedCampaignImage();
 
-    this.imagePreviewUrl = c.imageUrl || null;
-
     this.editingCampaignId.set(c.id);
     this.campaignModalError.set('');
 
@@ -203,42 +202,61 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.clearSelectedCampaignImage();
   }
 
+  // El método onFileSelected duplicado al final ya no es necesario
+  // (se usa el de arriba que sube directamente a Cloudinary)
+
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
 
     if (!file) return;
 
-    this.imageUploadError = '';
+    this.imageUploadError.set(null);
 
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
 
     if (!validTypes.includes(file.type)) {
-      this.imageUploadError = 'Solo se permiten imágenes JPG, PNG o WEBP.';
+      this.imageUploadError.set('Solo se permiten imágenes JPG, PNG o WEBP.');
       input.value = '';
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      this.imageUploadError = 'La imagen no puede superar 5 MB.';
+      this.imageUploadError.set('La imagen no puede superar 5 MB.');
       input.value = '';
       return;
     }
 
     this.clearSelectedCampaignImage();
 
-    this.selectedImageFile = file;
-    this.imagePreviewUrl = URL.createObjectURL(file);
+    this.previewUrl.set(URL.createObjectURL(file));
+    this.uploadingImage.set(true);
+
+    this.campaignService.uploadImage(file).subscribe({
+      next: (res) => {
+        this.campaignForm.patchValue({ imageUrl: res.url });
+        this.uploadingImage.set(false);
+        this.previewUrl.set(null);
+        this.toast.success('Imagen subida.');
+      },
+      error: (err) => {
+        this.uploadingImage.set(false);
+        this.previewUrl.set(null);
+        const msg = extractApiErrorMessage(err, 'No se pudo subir la imagen.');
+        this.imageUploadError.set(msg);
+        this.toast.error(msg);
+      },
+    });
   }
 
   private clearSelectedCampaignImage(): void {
-    if (this.imagePreviewUrl?.startsWith('blob:')) {
-      URL.revokeObjectURL(this.imagePreviewUrl);
+    const url = this.previewUrl();
+    if (url?.startsWith('blob:')) {
+      URL.revokeObjectURL(url);
     }
 
-    this.selectedImageFile = null;
-    this.imagePreviewUrl = null;
-    this.imageUploadError = '';
+    this.previewUrl.set(null);
+    this.imageUploadError.set(null);
   }
 
   handleSaveCampaign(): void {
@@ -268,21 +286,9 @@ export class AdminComponent implements OnInit, OnDestroy {
 
     const id = this.editingCampaignId();
 
-    const saveWithImageUrl = (imageUrl: string) => {
-      const request = {
-        ...payload,
-        imageUrl,
-      };
-
-      return id !== null
-        ? this.campaignService.update(id, request)
-        : this.campaignService.create(request);
-    };
-    const request$ = this.selectedImageFile
-      ? this.campaignService
-          .uploadImage(this.selectedImageFile)
-          .pipe(switchMap((image) => saveWithImageUrl(image.url)))
-      : saveWithImageUrl(payload.imageUrl);
+    const request$ = id !== null
+      ? this.campaignService.update(id, payload)
+      : this.campaignService.create(payload);
 
     this.savingCampaign.set(true);
 

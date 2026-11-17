@@ -249,6 +249,14 @@
   object-fit: cover;
 }
 
+.image-preview-img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--dune);
+}
+
 
 .admin-modal-box {
   max-height: calc(100dvh - 2rem);

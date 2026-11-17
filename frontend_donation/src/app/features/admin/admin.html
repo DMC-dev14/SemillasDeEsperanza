@@ -524,29 +524,32 @@
               <label class="label" for="campaign-image"> Subir imagen </label>
 
               <label class="image-upload-zone" for="campaign-image">
-                <span class="upload-icon">📷</span>
-                <strong>Seleccionar imagen</strong>
-                <span>Haz clic para elegir una imagen</span>
-                <small>JPG, PNG o WEBP · Máximo 5 MB</small>
+                @if (!previewUrl() && !campaignForm.controls.imageUrl.value) {
+                  <span class="upload-icon">📷</span>
+                  <strong>Seleccionar imagen</strong>
+                  <span>Haz clic para elegir una imagen</span>
+                  <small>JPG, PNG o WEBP · Máximo 5 MB</small>
+                }
+                @if (previewUrl() || campaignForm.controls.imageUrl.value) {
+                  <img [src]="previewUrl() || campaignForm.controls.imageUrl.value"
+                       alt="Vista previa de la campaña" class="image-preview-img" />
+                }
+                <input
+                  id="campaign-image"
+                  type="file"
+                  class="image-file-input"
+                  accept="image/jpeg,image/png,image/webp"
+                  (change)="onFileSelected($event)"
+                />
               </label>
 
-              <input
-                id="campaign-image"
-                type="file"
-                class="image-file-input"
-                accept="image/jpeg,image/png,image/webp"
-                (change)="onFileSelected($event)"
-              />
-
-              @if (imagePreviewUrl) {
-                <div class="image-preview">
-                  <img [src]="imagePreviewUrl" alt="Vista previa de la campaña" />
-                </div>
+              @if (uploadingImage()) {
+                <p class="text-xs text-clay mt-1">Subiendo imagen...</p>
               }
 
-              @if (imageUploadError) {
+              @if (imageUploadError()) {
                 <p class="error-msg">
-                  {{ imageUploadError }}
+                  {{ imageUploadError() }}
                 </p>
               }
             </div>
