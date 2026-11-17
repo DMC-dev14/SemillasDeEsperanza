@@ -1,3 +1,11 @@
+#camp-image-file.input {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  height: auto !important;
+  min-height: 2.5rem;
+  cursor: pointer;
+}
 .admin-header-bg {
   background: linear-gradient(135deg, #2d5428 0%, #3d6b35 60%, #7c9a3e 100%);
 }

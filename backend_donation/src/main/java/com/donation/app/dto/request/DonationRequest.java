@@ -17,8 +17,8 @@ public record DonationRequest(
 
     @NotNull(message = "El monto de la donación es obligatorio")
     @DecimalMin(
-        value = "1.00",
-        message = "El monto mínimo de donación es S/ 1.00"
+        value = "1.24",
+        message = "El monto mínimo de donación es S/ 1.24"
     )
     @Digits(
         integer = 8,
