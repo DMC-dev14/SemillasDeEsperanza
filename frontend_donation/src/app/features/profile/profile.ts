@@ -70,26 +70,29 @@ export class ProfileComponent implements OnInit {
 
   readonly uploadingAvatar = signal(false);
 
-  onFileSelected(event) {
-    this.selectedFile = event.target.files[0];
-    this.previewUrl = URL.createObjectURL(this.selectedFile);
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.selectedFile = file;
+    this.previewUrl = URL.createObjectURL(file);
   }
 
   upload() {
-  if (!this.selectedFile) return;
-  this.uploadingAvatar.set(true);
-  this.imageService.upload(this.selectedFile).subscribe({
-    next: (res) => {
-      this.imageUrl = res.url;
-      this.previewUrl = null;
-      this.selectedFile = null;
-      this.uploadingAvatar.set(false);
-      this.toast.success('Avatar actualizado');
-    },
-    error: (err) => {
-      this.uploadingAvatar.set(false);
-      this.toast.error(err.error?.message || 'Error subiendo');
-    },
-  });
-}
+    if (!this.selectedFile) return;
+    this.uploadingAvatar.set(true);
+    this.imageService.upload(this.selectedFile).subscribe({
+      next: (res) => {
+        this.imageUrl = res.url;
+        this.previewUrl = null;
+        this.selectedFile = null;
+        this.uploadingAvatar.set(false);
+        this.toast.success('Avatar actualizado');
+      },
+      error: (err) => {
+        this.uploadingAvatar.set(false);
+        this.toast.error(err.error?.message || 'Error subiendo');
+      },
+    });
+  }
 }
