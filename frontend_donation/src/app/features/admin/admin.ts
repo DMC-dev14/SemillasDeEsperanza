@@ -18,6 +18,8 @@ import {
 } from '../../core/utils/password-validators';
 import { ConfirmModal } from '../../shared/components/confirm-modal/confirm-modal';
 import { CustomDatePipe } from '../../shared/pipes/custom-date-pipe';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export type AdminTab = 'resumen' | 'campanas' | 'donaciones' | 'usuarios';
 
@@ -54,11 +56,11 @@ export class AdminComponent implements OnInit {
   readonly campaignToDelete = signal<CampaignResponse | null>(null);
 
   readonly totalRecaudadoGlobal = computed(() =>
-    this.campanas().reduce((acc, c) => acc + Number(c.amountCollected || 0), 0)
+    this.campanas().reduce((acc, c) => acc + Number(c.amountCollected || 0), 0),
   );
 
   readonly campanasActivas = computed(
-    () => this.campanas().filter((c) => c.status === 'ACTIVE').length
+    () => this.campanas().filter((c) => c.status === 'ACTIVE').length,
   );
 
   readonly totalCampanas = computed(() => this.campanas().length);
@@ -174,7 +176,7 @@ export class AdminComponent implements OnInit {
     if (this.campaignForm.invalid) {
       this.campaignForm.markAllAsTouched();
       this.campaignModalError.set(
-        'Verifica que el título tenga al menos 3 caracteres, la meta sea al menos S/ 100.00 y la descripción no esté vacía.'
+        'Verifica que el título tenga al menos 3 caracteres, la meta sea al menos S/ 100.00 y la descripción no esté vacía.',
       );
       return;
     }
@@ -201,7 +203,7 @@ export class AdminComponent implements OnInit {
         this.savingCampaign.set(false);
         this.closeCampaignModal();
         this.toast.success(
-          id ? 'Campaña actualizada correctamente.' : 'Campaña creada exitosamente.'
+          id ? 'Campaña actualizada correctamente.' : 'Campaña creada exitosamente.',
         );
         this.activeTab.set('campanas');
         this.loadAllAdminData();
@@ -222,10 +224,7 @@ export class AdminComponent implements OnInit {
         this.loadAllAdminData();
       },
       error: (err) => {
-        const msg = extractApiErrorMessage(
-          err,
-          'No se pudo actualizar el estado de la campaña.'
-        );
+        const msg = extractApiErrorMessage(err, 'No se pudo actualizar el estado de la campaña.');
         this.toast.error(msg);
         this.loadAllAdminData();
       },
@@ -265,10 +264,7 @@ export class AdminComponent implements OnInit {
         this.loadAllAdminData();
       },
       error: (err) => {
-        const msg = extractApiErrorMessage(
-          err,
-          'Error al actualizar el estado de la donación.'
-        );
+        const msg = extractApiErrorMessage(err, 'Error al actualizar el estado de la donación.');
         this.toast.error(msg);
         this.loadAllAdminData();
       },
@@ -296,7 +292,7 @@ export class AdminComponent implements OnInit {
     if (this.createUserForm.invalid) {
       this.createUserForm.markAllAsTouched();
       this.createUserError.set(
-        'Completa correctamente todos los campos. La contraseña requiere entre 8 y 72 caracteres, mayúscula, minúscula y número.'
+        'Completa correctamente todos los campos. La contraseña requiere entre 8 y 72 caracteres, mayúscula, minúscula y número.',
       );
       return;
     }
@@ -334,10 +330,7 @@ export class AdminComponent implements OnInit {
         this.loadAllAdminData();
       },
       error: (err) => {
-        const msg = extractApiErrorMessage(
-          err,
-          'No se pudo cambiar el estado del usuario.'
-        );
+        const msg = extractApiErrorMessage(err, 'No se pudo cambiar el estado del usuario.');
         this.toast.error(msg);
       },
     });

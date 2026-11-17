@@ -77,4 +77,12 @@ export class CampaignService {
       })
     );
   }
+  uploadImage(file: File): Observable<{ url: string; publicId: string }> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<{ url: string; publicId: string }>(
+      `${environment.apiBaseUrl}/api/images`,
+      fd,
+    );
+  }
 }

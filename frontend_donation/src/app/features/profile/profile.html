@@ -6,8 +6,14 @@
           <p class="profile-sub-label">Configuración de Cuenta</p>
           <h1 class="profile-title">Mi Perfil Personal</h1>
         </div>
-        <a [routerLink]="auth.currentRole() === 'ADMINISTRADOR' ? '/admin' : '/dashboard'" class="hero-ghost-btn profile-back-btn">
-          ← {{ auth.currentRole() === 'ADMINISTRADOR' ? 'Volver al Panel Admin' : 'Volver al Dashboard' }}
+        <a
+          [routerLink]="auth.currentRole() === 'ADMINISTRADOR' ? '/admin' : '/dashboard'"
+          class="hero-ghost-btn profile-back-btn"
+        >
+          ←
+          {{
+            auth.currentRole() === 'ADMINISTRADOR' ? 'Volver al Panel Admin' : 'Volver al Dashboard'
+          }}
         </a>
       </div>
     </div>
@@ -17,12 +23,20 @@
     <div class="bg-white rounded-2xl border p-8">
       <div class="text-center mb-6">
         <div class="profile-avatar">
-          {{ userInitial }}
+          @if (auth.currentUser()?.imageUrl) {
+            <img [src]="auth.currentUser()!.imageUrl" alt="Avatar" class="profile-avatar-img" />
+          } @else {
+            {{ userInitial }}
+          }
         </div>
+        <input type="file" accept="image/*" (change)="onAvatarSelected($event)" />
+        @if (auth.currentUser()?.imageUrl) {
+          <button type="button" (click)="onDeleteAvatar()">Quitar foto</button>
+        }
         <p class="profile-user-name">{{ auth.currentUser()?.name || 'Donante' }}</p>
         <span class="badge badge-edu mt-1">{{ auth.currentUser()?.rolName || 'USUARIO' }}</span>
         @if (auth.currentUser()?.createdAccount; as createdAt) {
-          <p class="text-xs text-clay mt-2">Miembro desde: {{ createdAt | customDate:false }}</p>
+          <p class="text-xs text-clay mt-2">Miembro desde: {{ createdAt | customDate: false }}</p>
         }
       </div>
 
@@ -52,7 +66,9 @@
               type="email"
               formControlName="email"
               class="input"
-              [class.error]="profileForm.controls.email.invalid && profileForm.controls.email.touched"
+              [class.error]="
+                profileForm.controls.email.invalid && profileForm.controls.email.touched
+              "
             />
             @if (profileForm.controls.email.invalid && profileForm.controls.email.touched) {
               <p class="error-msg">⚠ El correo electrónico no es válido</p>
