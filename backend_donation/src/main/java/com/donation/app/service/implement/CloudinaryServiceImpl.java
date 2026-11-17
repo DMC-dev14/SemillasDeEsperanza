@@ -63,6 +63,9 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         File file = new File(Objects.requireNonNull(multipartFile.getOriginalFilename()));
         try (FileOutputStream fo = new FileOutputStream(file)) {
             fo.write(multipartFile.getBytes());
+        } catch (IOException e) {
+            Files.deleteIfExists(file.toPath());
+            throw e;
         }
         return file;
     }

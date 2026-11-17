@@ -26,7 +26,7 @@ public class ImageController {
     private final ImageService imageService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, String>> upload(@RequestPart("file") MultipartFile file)
             throws IOException {
         Image img = imageService.uploadImage(file);
