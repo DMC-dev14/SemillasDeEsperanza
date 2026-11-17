@@ -1,8 +1,10 @@
 package com.donation.app.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.tomcat.util.http.parser.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,13 +17,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.donation.app.dto.request.CampaignRequest;
 import com.donation.app.dto.response.CampaignResponse;
 import com.donation.app.enums.CampaignStatus;
+import com.donation.app.model.Campaign;
+import com.donation.app.model.Image;
+import com.donation.app.repository.CampaignRepository;
 import com.donation.app.security.CustomUserDetailsService.CustomUserDetails;
 import com.donation.app.service.CampaignService;
+import com.donation.app.service.ImageService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +40,9 @@ import lombok.RequiredArgsConstructor;
 public class CampaignController {
 
     private final CampaignService campaignService;
+    private final ImageService imageService;
+    private final CampaignRepository campaignRepository;
 
-    
     @GetMapping
     public ResponseEntity<List<CampaignResponse>> getAllPublic() {
         return ResponseEntity.ok(campaignService.getActive());
@@ -86,6 +95,42 @@ public class CampaignController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         campaignService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<Map<String, String>> uploadCampaignImage(
+            @PathVariable Long id,
+            @RequestPart("file") MultipartFile file) throws IOException {
+
+        Campaign campaign = campaignService.getEntity(id);
+        Image newImage = imageService.uploadImage(file);
+
+        Image oldImage = campaign.getImage();
+        campaign.setImage(newImage);
+        campaignRepository.save(campaign);
+
+        if (oldImage != null) {
+            try {
+                imageService.deleteImage(oldImage);
+            } catch (IOException ignored) {
+            }
+        }
+
+        return ResponseEntity.ok(Map.of("url", newImage.getImageUrl(), "publicId", newImage.getImageId()));
+    }
+
+    @DeleteMapping("/{id}/image")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<Void> deleteCampaignImage(@PathVariable Long id) throws IOException {
+        Campaign campaign = campaignService.getEntity(id);
+        Image oldImage = campaign.getImage();
+        if (oldImage != null) {
+            campaign.setImage(null);
+            campaignRepository.save(campaign);
+            imageService.deleteImage(oldImage);
+        }
         return ResponseEntity.noContent().build();
     }
 }
