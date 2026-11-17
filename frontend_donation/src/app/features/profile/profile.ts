@@ -6,6 +6,7 @@ import { AuthService } from '../../core/services/auth';
 import { ToastService } from '../../core/services/toast.service';
 import { extractApiErrorMessage } from '../../core/utils/password-validators';
 import { CustomDatePipe } from '../../shared/pipes/custom-date-pipe';
+import { ImageService } from '../../core/services/image.service';
 
 @Component({
   selector: 'app-profile',
@@ -27,6 +28,10 @@ export class ProfileComponent implements OnInit {
     email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
   });
 
+  selectedFile: File | null = null;
+  previewUrl: string | null = null;
+  private imageService = inject(ImageService);
+  imageUrl: string | null = null;
   ngOnInit(): void {
     const u = this.auth.currentUser();
     if (u) {
@@ -65,36 +70,26 @@ export class ProfileComponent implements OnInit {
 
   readonly uploadingAvatar = signal(false);
 
-  onAvatarSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      this.toast.error('Solo imágenes.');
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      this.toast.error('Máximo 5 MB.');
-      return;
-    }
-
-    this.uploadingAvatar.set(true);
-    this.auth.uploadAvatar(file).subscribe({
-      next: () => {
-        this.uploadingAvatar.set(false);
-        this.toast.success('Avatar actualizado.');
-      },
-      error: (err) => {
-        this.uploadingAvatar.set(false);
-        this.toast.error(extractApiErrorMessage(err, 'No se pudo subir.'));
-      },
-    });
+  onFileSelected(event) {
+    this.selectedFile = event.target.files[0];
+    this.previewUrl = URL.createObjectURL(this.selectedFile);
   }
 
-  onDeleteAvatar(): void {
-    this.auth.deleteAvatar().subscribe({
-      next: () => this.toast.success('Avatar eliminado.'),
-      error: (err) => this.toast.error(extractApiErrorMessage(err, 'No se pudo eliminar.')),
-    });
-  }
+  upload() {
+  if (!this.selectedFile) return;
+  this.uploadingAvatar.set(true);
+  this.imageService.upload(this.selectedFile).subscribe({
+    next: (res) => {
+      this.imageUrl = res.url;
+      this.previewUrl = null;
+      this.selectedFile = null;
+      this.uploadingAvatar.set(false);
+      this.toast.success('Avatar actualizado');
+    },
+    error: (err) => {
+      this.uploadingAvatar.set(false);
+      this.toast.error(err.error?.message || 'Error subiendo');
+    },
+  });
+}
 }

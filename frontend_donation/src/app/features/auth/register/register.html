@@ -105,7 +105,7 @@
                     [attr.aria-label]="showPw() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
                     title="Mostrar/ocultar contraseña"
                   >
-                    {{ showPw() ? '🙈' : '👁️' }}
+                    {{ showPw() ? '🕳' : '👁️' }}
                   </button>
                 </div>
                 <div class="pw-bars mt-2" id="pw-bars">
@@ -150,7 +150,7 @@
                     [attr.aria-label]="showConfirmPw() ? 'Ocultar confirmación de contraseña' : 'Mostrar confirmación de contraseña'"
                     title="Mostrar/ocultar contraseña"
                   >
-                    {{ showConfirmPw() ? '🙈' : '👁️' }}
+                    {{ showConfirmPw() ? '🕳' : '👁️' }}
                   </button>
                 </div>
                 @if ((registerForm.get('confirmPassword')?.invalid || registerForm.errors?.['passwordMismatch']) && registerForm.get('confirmPassword')?.touched) {
