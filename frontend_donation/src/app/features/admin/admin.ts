@@ -18,8 +18,6 @@ import {
 } from '../../core/utils/password-validators';
 import { ConfirmModal } from '../../shared/components/confirm-modal/confirm-modal';
 import { CustomDatePipe } from '../../shared/pipes/custom-date-pipe';
-import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
 
 export type AdminTab = 'resumen' | 'campanas' | 'donaciones' | 'usuarios';
 
@@ -332,6 +330,34 @@ export class AdminComponent implements OnInit {
       error: (err) => {
         const msg = extractApiErrorMessage(err, 'No se pudo cambiar el estado del usuario.');
         this.toast.error(msg);
+      },
+    });
+  }
+  readonly uploadingImage = signal(false);
+
+  onCampaignImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      this.toast.error('Solo imágenes.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.toast.error('Máximo 5 MB.');
+      return;
+    }
+
+    this.uploadingImage.set(true);
+    this.campaignService.uploadImage(file).subscribe({
+      next: (res) => {
+        this.campaignForm.patchValue({ imageUrl: res.url });
+        this.uploadingImage.set(false);
+        this.toast.success('Imagen subida.');
+      },
+      error: (err) => {
+        this.uploadingImage.set(false);
+        this.toast.error(extractApiErrorMessage(err, 'No se pudo subir la imagen.'));
       },
     });
   }
