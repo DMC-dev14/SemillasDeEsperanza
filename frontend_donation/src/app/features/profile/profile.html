@@ -1,4 +1,6 @@
+
 <main>
+  <!-- ENCABEZADO DEL PERFIL -->
   <div class="dash-header">
     <div class="container">
       <div class="flex justify-between items-center profile-top-bar">
@@ -6,142 +8,208 @@
           <p class="profile-sub-label">Configuración de Cuenta</p>
           <h1 class="profile-title">Mi Perfil Personal</h1>
         </div>
+
         <a
           [routerLink]="auth.currentRole() === 'ADMINISTRADOR' ? '/admin' : '/dashboard'"
           class="hero-ghost-btn profile-back-btn"
         >
           ←
           {{
-            auth.currentRole() === 'ADMINISTRADOR' ? 'Volver al Panel Admin' : 'Volver al Dashboard'
+            auth.currentRole() === 'ADMINISTRADOR'
+              ? 'Volver al Panel Admin'
+              : 'Volver al Dashboard'
           }}
         </a>
       </div>
     </div>
   </div>
 
+  <!-- CONTENIDO PRINCIPAL -->
   <div class="container profile-container">
     <div class="bg-white rounded-2xl border p-8">
+
+      <!-- AVATAR Y DATOS DEL USUARIO -->
       <div class="text-center mb-6">
-        
-<div class="profile-avatar-editor">
 
-  <div class="profile-avatar-display">
+        <div class="profile-avatar-editor">
 
-    
-@if (previewUrl) {
-  <img
-    [src]="previewUrl"
-    alt="Vista previa de foto de perfil"
-    class="profile-avatar-img"
-  />
-} @else if (imageUrl || auth.currentUser()?.imageUrl; as avatarUrl) {
-  <img
-    [src]="avatarUrl"
-    alt="Foto de perfil"
-    class="profile-avatar-img"
-  />
-} @else {
-  <span class="profile-avatar-initial">
-    {{ userInitial }}
-  </span>
-}
+          <!-- FOTO DE PERFIL -->
+          <div class="profile-avatar-display">
+            @if (previewUrl) {
+              <img
+                [src]="previewUrl"
+                alt="Vista previa de foto de perfil"
+                class="profile-avatar-img"
+              />
+            } @else if (imageUrl || auth.currentUser()?.imageUrl; as avatarUrl) {
+              <img
+                [src]="avatarUrl"
+                alt="Foto de perfil"
+                class="profile-avatar-img"
+              />
+            } @else {
+              <span class="profile-avatar-initial">
+                {{ userInitial }}
+              </span>
+            }
+          </div>
 
+          <!-- SELECTOR DE IMAGEN OCULTO -->
+          <input
+            #fileInput
+            id="profile-image-input"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            (change)="onFileSelected($event)"
+            class="profile-file-input"
+          />
 
-  </div>
+          <!-- BOTÓN DE CÁMARA -->
+          <button
+            type="button"
+            class="profile-camera-btn"
+            (click)="fileInput.click()"
+            [disabled]="uploadingAvatar()"
+            title="Cambiar foto de perfil"
+            aria-label="Cambiar foto de perfil"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="19"
+              height="19"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"
+              />
+              <circle cx="12" cy="13" r="3" />
+            </svg>
+          </button>
+        </div>
 
-  <input
-    #fileInput
-    id="profile-image-input"
-    type="file"
-    accept="image/jpeg,image/png,image/webp"
-    (change)="onFileSelected($event)"
-    class="profile-file-input"
-  />
-
-  <button
-    type="button"
-    class="profile-camera-btn"
-    (click)="fileInput.click()"
-    [disabled]="uploadingAvatar()"
-    title="Cambiar foto de perfil"
-    aria-label="Cambiar foto de perfil"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="19"
-      height="19"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/>
-      <circle cx="12" cy="13" r="3"/>
-    </svg>
-  </button>
-
-</div>
-
-@if (previewUrl) {
-  <button
-    type="button"
-    class="profile-upload-btn"
-    (click)="upload()"
-    [disabled]="uploadingAvatar()"
-  >
-    {{ uploadingAvatar() ? 'Subiendo...' : 'Guardar foto' }}
-  </button>
-}
-
-        <p class="profile-user-name">{{ auth.currentUser()?.name || 'Donante' }}</p>
-        <span class="badge badge-edu mt-1">{{ auth.currentUser()?.rolName || 'USUARIO' }}</span>
-        @if (auth.currentUser()?.createdAccount; as createdAt) {
-          <p class="text-xs text-clay mt-2">Miembro desde: {{ createdAt | customDate: false }}</p>
+        <!-- BOTÓN PARA GUARDAR FOTO -->
+        @if (previewUrl) {
+          <button
+            type="button"
+            class="profile-upload-btn"
+            (click)="upload()"
+            [disabled]="uploadingAvatar()"
+          >
+            {{
+              uploadingAvatar()
+                ? 'Subiendo...'
+                : 'Guardar foto'
+            }}
+          </button>
         }
+
+        <!-- INFORMACIÓN DEL USUARIO -->
+        <p class="profile-user-name">
+          {{ auth.currentUser()?.name || 'Donante' }}
+        </p>
+
+        <span class="badge badge-edu mt-1">
+          {{ auth.currentUser()?.rolName || 'USUARIO' }}
+        </span>
+
+        @if (auth.currentUser()?.createdAccount; as createdAt) {
+          <p class="text-xs text-clay mt-2">
+            Miembro desde: {{ createdAt | customDate: false }}
+          </p>
+        }
+
       </div>
 
+      <!-- MENSAJE DE ERROR -->
       @if (errorMsg()) {
-        <div class="auth-alert error mb-4">{{ errorMsg() }}</div>
+        <div class="auth-alert error mb-4">
+          {{ errorMsg() }}
+        </div>
       }
 
-      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+      <!-- FORMULARIO DEL PERFIL -->
+      <form
+        [formGroup]="profileForm"
+        (ngSubmit)="saveProfile()"
+        novalidate
+      >
         <div class="grid gap-4 mb-6">
+
+          <!-- NOMBRE COMPLETO -->
           <div>
-            <label class="label" for="prof-name">Nombre completo *</label>
+            <label class="label" for="prof-name">
+              Nombre completo *
+            </label>
+
             <input
               id="prof-name"
               type="text"
               formControlName="name"
               class="input"
-              [class.error]="profileForm.controls.name.invalid && profileForm.controls.name.touched"
+              [class.error]="
+                profileForm.controls.name.invalid &&
+                profileForm.controls.name.touched
+              "
             />
-            @if (profileForm.controls.name.invalid && profileForm.controls.name.touched) {
-              <p class="error-msg">⚠ El nombre debe tener entre 2 y 50 caracteres</p>
+
+            @if (
+              profileForm.controls.name.invalid &&
+              profileForm.controls.name.touched
+            ) {
+              <p class="error-msg">
+                ⚠ El nombre debe tener entre 2 y 50 caracteres
+              </p>
             }
           </div>
+
+          <!-- CORREO ELECTRÓNICO -->
           <div>
-            <label class="label" for="prof-email">Correo electrónico *</label>
+            <label class="label" for="prof-email">
+              Correo electrónico *
+            </label>
+
             <input
               id="prof-email"
               type="email"
               formControlName="email"
               class="input"
               [class.error]="
-                profileForm.controls.email.invalid && profileForm.controls.email.touched
+                profileForm.controls.email.invalid &&
+                profileForm.controls.email.touched
               "
             />
-            @if (profileForm.controls.email.invalid && profileForm.controls.email.touched) {
-              <p class="error-msg">⚠ El correo electrónico no es válido</p>
+
+            @if (
+              profileForm.controls.email.invalid &&
+              profileForm.controls.email.touched
+            ) {
+              <p class="error-msg">
+                ⚠ El correo electrónico no es válido
+              </p>
             }
           </div>
         </div>
-        <button type="submit" class="btn btn-primary w-full" [disabled]="saving()">
-          {{ saving() ? 'Guardando cambios...' : 'Guardar cambios' }}
+
+        <!-- BOTÓN GUARDAR CAMBIOS -->
+        <button
+          type="submit"
+          class="btn btn-primary w-full"
+          [disabled]="saving()"
+        >
+          {{
+            saving()
+              ? 'Guardando cambios...'
+              : 'Guardar cambios'
+          }}
         </button>
       </form>
+
     </div>
   </div>
 </main>
