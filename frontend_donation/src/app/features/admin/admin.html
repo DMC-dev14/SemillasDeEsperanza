@@ -519,34 +519,55 @@
                 </select>
               </div>
             </div>
-            <div>
-              <label class="label" for="camp-image-file">Subir imagen</label>
+
+            <div class="image-upload-field">
+              <label class="label" for="campaign-image"> Subir imagen </label>
+
+              <label class="image-upload-zone" for="campaign-image">
+                <span class="upload-icon">📷</span>
+                <strong>Seleccionar imagen</strong>
+                <span>Haz clic para elegir una imagen</span>
+                <small>JPG, PNG o WEBP · Máximo 5 MB</small>
+              </label>
+
               <input
+                id="campaign-image"
                 type="file"
-                id="camp-image-file"
-                accept="image/*"
-                (change)="onCampaignImageSelected($event)"
-                class="input"
+                class="image-file-input"
+                accept="image/jpeg,image/png,image/webp"
+                (change)="onFileSelected($event)"
               />
-              @if (uploadingImage()) {
-                <p class="text-xs text-clay mt-1">Subiendo imagen...</p>
+
+              @if (imagePreviewUrl) {
+                <div class="image-preview">
+                  <img [src]="imagePreviewUrl" alt="Vista previa de la campaña" />
+                </div>
               }
-              <label class="label mt-3" for="camp-image">…o pega una URL</label>
-              <input
-                type="url"
-                id="camp-image"
-                formControlName="imageUrl"
-                class="input"
-                placeholder="https://images.unsplash.com/..."
-              />
-              @if (campaignForm.controls.imageUrl.value) {
-                <img
-                  [src]="campaignForm.controls.imageUrl.value"
-                  alt="preview"
-                  class="admin-thumb-img mt-2"
-                />
+
+              @if (imageUploadError) {
+                <p class="error-msg">
+                  {{ imageUploadError }}
+                </p>
               }
             </div>
+
+            <div>
+              <label class="label" for="camp-image-url"> ...o pega una URL </label>
+
+              <input
+                id="camp-image-url"
+                type="url"
+                formControlName="imageUrl"
+                class="input"
+                placeholder="https://res.cloudinary.com/..."
+                maxlength="255"
+              />
+
+              <p class="text-xs text-clay mt-1">
+                Si seleccionas un archivo, se utilizará en lugar de esta URL.
+              </p>
+            </div>
+
             <div>
               <label class="label" for="camp-desc">Descripción corta (máx. 255 caracteres) *</label>
               <textarea

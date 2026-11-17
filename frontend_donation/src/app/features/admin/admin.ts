@@ -1,21 +1,28 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { switchMap } from 'rxjs';
+
 import { RolNombre, UserResponse } from '../../core/models/auth.model';
+
 import { CampaignResponse, CampaignStatus } from '../../core/models/campaign.model';
+
 import { DonationResponse, PaymentStatus } from '../../core/models/donation.model';
+
 import { AuthService } from '../../core/services/auth';
 import { CampaignService } from '../../core/services/campaign.service';
 import { DonationService } from '../../core/services/donation.service';
 import { ToastService } from '../../core/services/toast.service';
 import { UserService } from '../../core/services/user.service';
+
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
   PASSWORD_REGEX,
   extractApiErrorMessage,
 } from '../../core/utils/password-validators';
+
 import { ConfirmModal } from '../../shared/components/confirm-modal/confirm-modal';
 import { CustomDatePipe } from '../../shared/pipes/custom-date-pipe';
 
@@ -28,7 +35,7 @@ export type AdminTab = 'resumen' | 'campanas' | 'donaciones' | 'usuarios';
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
-export class AdminComponent implements OnInit {
+export class AdminComponent implements OnInit, OnDestroy {
   readonly auth = inject(AuthService);
   readonly campaignService = inject(CampaignService);
   private readonly donationService = inject(DonationService);
@@ -51,6 +58,7 @@ export class AdminComponent implements OnInit {
   readonly savingUser = signal(false);
   readonly createUserError = signal('');
   readonly showAdminUserPw = signal(false);
+
   readonly campaignToDelete = signal<CampaignResponse | null>(null);
 
   readonly totalRecaudadoGlobal = computed(() =>
@@ -93,6 +101,10 @@ export class AdminComponent implements OnInit {
     ],
   });
 
+  selectedImageFile: File | null = null;
+  imagePreviewUrl: string | null = null;
+  imageUploadError = '';
+
   ngOnInit(): void {
     this.route.fragment.subscribe((frag) => {
       if (
@@ -108,9 +120,15 @@ export class AdminComponent implements OnInit {
     this.loadAllAdminData();
   }
 
+  ngOnDestroy(): void {
+    this.clearSelectedCampaignImage();
+  }
+
   loadAllAdminData(): void {
     this.campaignService.getAllForAdmin().subscribe({
-      next: (list) => this.campanas.set(list || []),
+      next: (list) => {
+        this.campanas.set(list || []);
+      },
       error: (err) => {
         this.campanas.set([]);
         this.toast.error(extractApiErrorMessage(err, 'No se pudieron cargar las campañas.'));
@@ -118,12 +136,16 @@ export class AdminComponent implements OnInit {
     });
 
     this.donationService.getAllDonations().subscribe({
-      next: (list) => this.donaciones.set(list || []),
+      next: (list) => {
+        this.donaciones.set(list || []);
+      },
       error: () => this.donaciones.set([]),
     });
 
     this.userService.getAll().subscribe({
-      next: (list) => this.usuarios.set(list || []),
+      next: (list) => {
+        this.usuarios.set(list || []);
+      },
       error: () => this.usuarios.set([]),
     });
   }
@@ -137,8 +159,11 @@ export class AdminComponent implements OnInit {
   }
 
   openCampaignModal(): void {
+    this.clearSelectedCampaignImage();
+
     this.editingCampaignId.set(null);
     this.campaignModalError.set('');
+
     this.campaignForm.reset({
       title: '',
       targetAmount: 25000,
@@ -147,12 +172,18 @@ export class AdminComponent implements OnInit {
       description: '',
       history: '',
     });
+
     this.campaignModalOpen.set(true);
   }
 
   openEditCampaignModal(c: CampaignResponse): void {
+    this.clearSelectedCampaignImage();
+
+    this.imagePreviewUrl = c.imageUrl || null;
+
     this.editingCampaignId.set(c.id);
     this.campaignModalError.set('');
+
     this.campaignForm.reset({
       title: c.title || '',
       targetAmount: Number(c.targetAmount || 100),
@@ -161,25 +192,71 @@ export class AdminComponent implements OnInit {
       description: c.description || '',
       history: c.history || '',
     });
+
     this.campaignModalOpen.set(true);
   }
 
   closeCampaignModal(): void {
+    if (this.savingCampaign()) return;
+
     this.campaignModalOpen.set(false);
+    this.clearSelectedCampaignImage();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    this.imageUploadError = '';
+
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+    if (!validTypes.includes(file.type)) {
+      this.imageUploadError = 'Solo se permiten imágenes JPG, PNG o WEBP.';
+      input.value = '';
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.imageUploadError = 'La imagen no puede superar 5 MB.';
+      input.value = '';
+      return;
+    }
+
+    this.clearSelectedCampaignImage();
+
+    this.selectedImageFile = file;
+    this.imagePreviewUrl = URL.createObjectURL(file);
+  }
+
+  private clearSelectedCampaignImage(): void {
+    if (this.imagePreviewUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(this.imagePreviewUrl);
+    }
+
+    this.selectedImageFile = null;
+    this.imagePreviewUrl = null;
+    this.imageUploadError = '';
   }
 
   handleSaveCampaign(): void {
     if (this.savingCampaign()) return;
+
     this.campaignModalError.set('');
+
     if (this.campaignForm.invalid) {
       this.campaignForm.markAllAsTouched();
+
       this.campaignModalError.set(
-        'Verifica que el título tenga al menos 3 caracteres, la meta sea al menos S/ 100.00 y la descripción no esté vacía.',
+        'Verifica el título, la meta mínima de S/ 100.00 y la descripción.',
       );
       return;
     }
 
     const raw = this.campaignForm.getRawValue();
+
     const payload = {
       title: raw.title.trim(),
       targetAmount: Number(raw.targetAmount),
@@ -189,33 +266,51 @@ export class AdminComponent implements OnInit {
       history: raw.history.trim() || raw.description.trim(),
     };
 
-    this.savingCampaign.set(true);
     const id = this.editingCampaignId();
 
-    const obs = id
-      ? this.campaignService.update(id, payload)
-      : this.campaignService.create(payload);
+    const saveWithImageUrl = (imageUrl: string) => {
+      const request = {
+        ...payload,
+        imageUrl,
+      };
 
-    obs.subscribe({
+      return id !== null
+        ? this.campaignService.update(id, request)
+        : this.campaignService.create(request);
+    };
+    const request$ = this.selectedImageFile
+      ? this.campaignService
+          .uploadImage(this.selectedImageFile)
+          .pipe(switchMap((image) => saveWithImageUrl(image.url)))
+      : saveWithImageUrl(payload.imageUrl);
+
+    this.savingCampaign.set(true);
+
+    request$.subscribe({
       next: () => {
         this.savingCampaign.set(false);
         this.closeCampaignModal();
+
         this.toast.success(
-          id ? 'Campaña actualizada correctamente.' : 'Campaña creada exitosamente.',
+          id !== null ? 'Campaña actualizada correctamente.' : 'Campaña creada exitosamente.',
         );
+
         this.activeTab.set('campanas');
         this.loadAllAdminData();
       },
       error: (err) => {
         this.savingCampaign.set(false);
-        const msg = extractApiErrorMessage(err, 'Error al guardar la campaña.');
-        this.campaignModalError.set(msg);
+
+        this.campaignModalError.set(
+          extractApiErrorMessage(err, 'No se pudo subir la imagen o guardar la campaña.'),
+        );
       },
     });
   }
 
   changeCampaignStatus(id: number, event: Event): void {
     const status = (event.target as HTMLSelectElement).value as CampaignStatus;
+
     this.campaignService.updateStatus(id, status).subscribe({
       next: () => {
         this.toast.success(`Estado de campaña #${id} actualizado a ${status}.`);
@@ -223,6 +318,7 @@ export class AdminComponent implements OnInit {
       },
       error: (err) => {
         const msg = extractApiErrorMessage(err, 'No se pudo actualizar el estado de la campaña.');
+
         this.toast.error(msg);
         this.loadAllAdminData();
       },
@@ -239,7 +335,9 @@ export class AdminComponent implements OnInit {
 
   confirmDeleteCampaign(): void {
     const c = this.campaignToDelete();
+
     if (!c) return;
+
     this.campaignToDelete.set(null);
 
     this.campaignService.delete(c.id).subscribe({
@@ -253,30 +351,38 @@ export class AdminComponent implements OnInit {
       },
     });
   }
-
   changeDonationStatus(id: number, event: Event): void {
     const status = (event.target as HTMLSelectElement).value as PaymentStatus;
+
     this.donationService.updateStatus(id, status).subscribe({
       next: () => {
         this.toast.success(`Estado de donación #${id} actualizado a ${status}.`);
+
         this.loadAllAdminData();
       },
       error: (err) => {
         const msg = extractApiErrorMessage(err, 'Error al actualizar el estado de la donación.');
+
         this.toast.error(msg);
         this.loadAllAdminData();
       },
     });
   }
 
+  // ======================================
+  // USUARIOS
+  // ======================================
+
   openCreateUserModal(): void {
     this.createUserError.set('');
+
     this.createUserForm.reset({
       name: '',
       email: '',
       rol: 'USUARIO',
       password: '',
     });
+
     this.createUserModalOpen.set(true);
   }
 
@@ -286,9 +392,12 @@ export class AdminComponent implements OnInit {
 
   handleAdminCreateUser(): void {
     if (this.savingUser()) return;
+
     this.createUserError.set('');
+
     if (this.createUserForm.invalid) {
       this.createUserForm.markAllAsTouched();
+
       this.createUserError.set(
         'Completa correctamente todos los campos. La contraseña requiere entre 8 y 72 caracteres, mayúscula, minúscula y número.',
       );
@@ -296,6 +405,7 @@ export class AdminComponent implements OnInit {
     }
 
     const { name, email, rol, password } = this.createUserForm.getRawValue();
+
     this.savingUser.set(true);
 
     this.userService
@@ -309,56 +419,38 @@ export class AdminComponent implements OnInit {
         next: () => {
           this.savingUser.set(false);
           this.closeCreateUserModal();
+
           this.toast.success('Usuario creado exitosamente en la base de datos.');
+
           this.activeTab.set('usuarios');
           this.loadAllAdminData();
         },
         error: (err) => {
           this.savingUser.set(false);
+
           const msg = extractApiErrorMessage(err, 'No se pudo crear el usuario.');
+
           this.createUserError.set(msg);
         },
       });
   }
 
   toggleUserActive(u: UserResponse): void {
-    this.userService.update(u.id, { active: !u.active }).subscribe({
-      next: () => {
-        this.toast.success(`Estado del usuario #${u.id} actualizado.`);
-        this.loadAllAdminData();
-      },
-      error: (err) => {
-        const msg = extractApiErrorMessage(err, 'No se pudo cambiar el estado del usuario.');
-        this.toast.error(msg);
-      },
-    });
-  }
-  readonly uploadingImage = signal(false);
+    this.userService
+      .update(u.id, {
+        active: !u.active,
+      })
+      .subscribe({
+        next: () => {
+          this.toast.success(`Estado del usuario #${u.id} actualizado.`);
 
-  onCampaignImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      this.toast.error('Solo imágenes.');
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      this.toast.error('Máximo 5 MB.');
-      return;
-    }
+          this.loadAllAdminData();
+        },
+        error: (err) => {
+          const msg = extractApiErrorMessage(err, 'No se pudo cambiar el estado del usuario.');
 
-    this.uploadingImage.set(true);
-    this.campaignService.uploadImage(file).subscribe({
-      next: (res) => {
-        this.campaignForm.patchValue({ imageUrl: res.url });
-        this.uploadingImage.set(false);
-        this.toast.success('Imagen subida.');
-      },
-      error: (err) => {
-        this.uploadingImage.set(false);
-        this.toast.error(extractApiErrorMessage(err, 'No se pudo subir la imagen.'));
-      },
-    });
+          this.toast.error(msg);
+        },
+      });
   }
 }
