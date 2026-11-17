@@ -369,10 +369,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ======================================
-  // USUARIOS
-  // ======================================
-
   openCreateUserModal(): void {
     this.createUserError.set('');
 

@@ -22,52 +22,80 @@
   <div class="container profile-container">
     <div class="bg-white rounded-2xl border p-8">
       <div class="text-center mb-6">
-        <div class="profile-avatar relative">
-          @if (previewUrl) {
-            <img [src]="previewUrl" alt="Preview" class="profile-avatar-img" />
-          } @else if (auth.currentUser()?.imageUrl) {
-            <img [src]="auth.currentUser()!.imageUrl" alt="Avatar" class="profile-avatar-img" />
-          } @else {
-            {{ userInitial }}
-          }
-          <input
-            #fileInput
-            type="file"
-            accept="image/*"
-            (change)="onFileSelected($event)"
-            class="hidden"
-          />
-          <button
-            type="button"
-            (click)="fileInput.click()"
-            class="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow border"
-          >
-            <svg class="w-5 h-5 text-terra" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0118.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-          </button>
-          @if (previewUrl) {
-            <button
-              type="button"
-              (click)="upload()"
-              class="absolute bottom-0 left-0 bg-terra text-white px-2 py-1 text-xs rounded-full shadow hover:bg-terra-dark"
-              [disabled]="uploadingAvatar()"
-            >
-              {{ uploadingAvatar() ? 'Subiendo...' : 'Guardar' }}
-            </button>
-          }
-        </div>
+        
+<div class="profile-avatar-editor">
+
+  <div class="profile-avatar-display">
+
+    
+@if (previewUrl) {
+  <img
+    [src]="previewUrl"
+    alt="Vista previa de foto de perfil"
+    class="profile-avatar-img"
+  />
+} @else if (imageUrl || auth.currentUser()?.imageUrl; as avatarUrl) {
+  <img
+    [src]="avatarUrl"
+    alt="Foto de perfil"
+    class="profile-avatar-img"
+  />
+} @else {
+  <span class="profile-avatar-initial">
+    {{ userInitial }}
+  </span>
+}
+
+
+  </div>
+
+  <input
+    #fileInput
+    id="profile-image-input"
+    type="file"
+    accept="image/jpeg,image/png,image/webp"
+    (change)="onFileSelected($event)"
+    class="profile-file-input"
+  />
+
+  <button
+    type="button"
+    class="profile-camera-btn"
+    (click)="fileInput.click()"
+    [disabled]="uploadingAvatar()"
+    title="Cambiar foto de perfil"
+    aria-label="Cambiar foto de perfil"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="19"
+      height="19"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/>
+      <circle cx="12" cy="13" r="3"/>
+    </svg>
+  </button>
+
+</div>
+
+@if (previewUrl) {
+  <button
+    type="button"
+    class="profile-upload-btn"
+    (click)="upload()"
+    [disabled]="uploadingAvatar()"
+  >
+    {{ uploadingAvatar() ? 'Subiendo...' : 'Guardar foto' }}
+  </button>
+}
+
         <p class="profile-user-name">{{ auth.currentUser()?.name || 'Donante' }}</p>
         <span class="badge badge-edu mt-1">{{ auth.currentUser()?.rolName || 'USUARIO' }}</span>
         @if (auth.currentUser()?.createdAccount; as createdAt) {
