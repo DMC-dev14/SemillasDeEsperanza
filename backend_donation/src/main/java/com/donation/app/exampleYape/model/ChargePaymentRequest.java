@@ -30,4 +30,7 @@ public class ChargePaymentRequest {
 
     @JsonProperty("external_reference")
     private String externalReference;
+
+    @JsonProperty("additional_info")
+    private ChargePaymentAdditionalInfo additionalInfo;
 }
