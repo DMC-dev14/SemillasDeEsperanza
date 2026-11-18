@@ -1,6 +1,8 @@
 package com.donation.app.examplePayPal.service;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -92,11 +94,18 @@ public class PayPalClientService {
                 .landingPage("LOGIN")
                 .userAction("PAY_NOW");
 
-        if (returnUrl != null && !returnUrl.isBlank()) {
-            context.returnUrl(returnUrl);
+        String effectiveReturnUrl = (request.returnUrl() != null && !request.returnUrl().isBlank())
+                ? request.returnUrl()
+                : returnUrl;
+        String effectiveCancelUrl = (request.cancelUrl() != null && !request.cancelUrl().isBlank())
+                ? request.cancelUrl()
+                : cancelUrl;
+
+        if (effectiveReturnUrl != null && !effectiveReturnUrl.isBlank()) {
+            context.returnUrl(withCheckoutContext(effectiveReturnUrl, donation, "paypalReturn"));
         }
-        if (cancelUrl != null && !cancelUrl.isBlank()) {
-            context.cancelUrl(cancelUrl);
+        if (effectiveCancelUrl != null && !effectiveCancelUrl.isBlank()) {
+            context.cancelUrl(withCheckoutContext(effectiveCancelUrl, donation, "paypalCancel"));
         }
 
         OrderRequest orderRequest = new OrderRequest()
@@ -286,6 +295,16 @@ public class PayPalClientService {
         }
 
         return donation;
+    }
+
+    private String withCheckoutContext(String url, Donation donation, String flag) {
+        String token = donation.getCheckoutToken() == null ? "" : donation.getCheckoutToken();
+        String separator = url.contains("?") ? "&" : "?";
+        return url + separator
+                + "donationId=" + donation.getId()
+                + "&checkoutToken=" + URLEncoder.encode(token, StandardCharsets.UTF_8)
+                + "&method=paypal"
+                + "&" + flag + "=true";
     }
 
     private String truncate(String value, int max) {
