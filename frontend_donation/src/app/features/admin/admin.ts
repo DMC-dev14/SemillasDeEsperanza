@@ -1,15 +1,11 @@
 import { Component, computed, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
-
 import { RolNombre, UserResponse } from '../../core/models/auth.model';
-
 import { CampaignResponse, CampaignStatus } from '../../core/models/campaign.model';
-
 import { DonationResponse, PaymentStatus } from '../../core/models/donation.model';
-
 import { AuthService } from '../../core/services/auth';
 import { CampaignService } from '../../core/services/campaign.service';
 import { DonationService } from '../../core/services/donation.service';
@@ -32,7 +28,14 @@ export type AdminTab = 'resumen' | 'campanas' | 'donaciones' | 'usuarios';
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CustomDatePipe, ConfirmModal, UserAvatarComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    CustomDatePipe,
+    ConfirmModal,
+    UserAvatarComponent,
+  ],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })

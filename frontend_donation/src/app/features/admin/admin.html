@@ -379,9 +379,12 @@
                 Gestiona cuentas de clientes y administradores registradas en la base de datos.
               </p>
             </div>
-            <button type="button" class="btn btn-primary btn-sm" (click)="openCreateUserModal()">
-              + Crear Usuario
-            </button>
+            <div class="flex items-center gap-3">
+              <button type="button" class="btn btn-primary btn-sm" (click)="openCreateUserModal()">
+                + Crear Usuario
+              </button>
+              <a routerLink="/usuarios" class="btn btn-outline btn-sm"> ⚙️ Administrar Usuarios </a>
+            </div>
           </div>
 
           <div class="table-scroll">
@@ -541,8 +544,11 @@
                   <small>JPG, PNG o WEBP · Máximo 5 MB</small>
                 }
                 @if (previewUrl() || campaignForm.controls.imageUrl.value) {
-                  <img [src]="previewUrl() || campaignForm.controls.imageUrl.value"
-                       alt="Vista previa de la campaña" class="image-preview-img" />
+                  <img
+                    [src]="previewUrl() || campaignForm.controls.imageUrl.value"
+                    alt="Vista previa de la campaña"
+                    class="image-preview-img"
+                  />
                 }
                 <input
                   id="campaign-image"
