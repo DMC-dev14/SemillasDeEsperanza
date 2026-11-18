@@ -1,3 +1,5 @@
+
+
 .mobile-logout-btn {
   color: var(--brick);
   font-weight: 600;
@@ -8,3 +10,122 @@
   font-weight: 600;
 }
 
+#header .user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 4px 10px 4px 5px;
+
+  border: 1px solid var(--dune);
+  border-radius: 50px;
+
+  background: #fff;
+
+  text-decoration: none;
+  flex-shrink: 0;
+
+  max-width: 230px;
+
+  transition: all 0.2s ease;
+}
+
+#header .user-pill:hover {
+  border-color: var(--terra);
+  background: var(--sand);
+}
+
+#header .user-pill .dash-profile-avatar {
+  width: 34px;
+  height: 34px;
+
+  min-width: 34px;
+  min-height: 34px;
+
+  max-width: 34px;
+  max-height: 34px;
+
+  flex: 0 0 34px;
+
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+#header .user-pill img.dash-profile-avatar {
+  display: block;
+
+  object-fit: cover;
+  object-position: center;
+
+  border: 2px solid var(--dune);
+}
+
+#header .user-pill div.dash-profile-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--grad135);
+  color: #fff;
+
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+#header .user-pill-info {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+  line-height: 1.2;
+}
+
+#header .user-pill-name {
+  display: block;
+
+  max-width: 125px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bark);
+}
+
+#header .user-pill-role {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--terra);
+}
+
+#header .user-pill-role.role-admin {
+  color: #8A5500;
+}
+
+@media (max-width: 768px) {
+
+  #header .user-pill {
+    padding: 4px;
+    gap: 0;
+  }
+
+  #header .user-pill-info {
+    display: none;
+  }
+
+  #header .user-pill .dash-profile-avatar {
+    width: 32px;
+    height: 32px;
+
+    min-width: 32px;
+    min-height: 32px;
+
+    max-width: 32px;
+    max-height: 32px;
+
+    flex-basis: 32px;
+  }
+}
