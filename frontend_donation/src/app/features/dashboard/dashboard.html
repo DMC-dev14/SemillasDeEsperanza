@@ -215,10 +215,11 @@
           <app-user-avatar
             [imageUrl]="auth.currentUser()?.imageUrl || null"
             [name]="auth.currentUser()?.name || 'Cliente'"
-            [size]="'xl'"
+            [size]="'lg'"
             [editable]="true"
             [alt]="'Foto de perfil'"
             (avatarChange)="onAvatarChange($event)"
+            class="dash-profile-avatar-wrapper"
           />
           <p id="profile-display-title" class="font-semibold text-bark mt-2">
             {{ auth.currentUser()?.name || 'Cliente' }}

@@ -19,6 +19,36 @@
 .cell-nowrap { white-space: nowrap; }
 .receipt-link-btn { color: var(--terra); text-decoration: underline; }
 .dash-profile-avatar { width: 4rem; height: 4rem; border-radius: 50%; background: var(--grad135); display: flex; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem; color: #fff; margin: 0 auto 0.5rem; }
+
+.dash-profile-avatar-wrapper {
+  display: block;
+  margin: 0 auto 0.5rem;
+}
+
+.dash-profile-avatar-wrapper .avatar-wrapper.avatar-lg {
+  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
+  border: 3px solid #fff;
+}
+
+.dash-profile-avatar-wrapper .avatar-overlay {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.dash-profile-avatar-wrapper .avatar-overlay .avatar-actions {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.2s ease;
+}
+
+.dash-profile-avatar-wrapper .avatar-wrapper:hover .avatar-overlay .avatar-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dash-profile-avatar-wrapper .avatar-action-btn {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
 .dash-compact-input { padding: 0.6rem 0.875rem; font-size: 0.875rem; }
 .dash-pw-box { border-top: 1px solid var(--sand); padding-top: 1rem; }
 .dash-pw-input { padding: 0.6rem 2.5rem 0.6rem 0.875rem; font-size: 0.875rem; }
