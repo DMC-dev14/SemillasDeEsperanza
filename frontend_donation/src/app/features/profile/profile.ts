@@ -6,7 +6,6 @@ import { AuthService } from '../../core/services/auth';
 import { ToastService } from '../../core/services/toast.service';
 import { extractApiErrorMessage } from '../../core/utils/password-validators';
 import { CustomDatePipe } from '../../shared/pipes/custom-date-pipe';
-import { ImageService } from '../../core/services/image.service';
 
 @Component({
   selector: 'app-profile',
@@ -30,7 +29,6 @@ export class ProfileComponent implements OnInit {
 
   selectedFile: File | null = null;
   previewUrl: string | null = null;
-  private imageService = inject(ImageService);
   imageUrl: string | null = null;
   ngOnInit(): void {
     const u = this.auth.currentUser();
@@ -78,20 +76,26 @@ export class ProfileComponent implements OnInit {
     this.previewUrl = URL.createObjectURL(file);
   }
 
-  upload() {
-    if (!this.selectedFile) return;
+  upload(): void {
+    if (!this.selectedFile || this.uploadingAvatar()) return;
+
     this.uploadingAvatar.set(true);
-    this.imageService.upload(this.selectedFile).subscribe({
-      next: (res) => {
-        this.imageUrl = res.url;
+
+    this.auth.uploadAvatar(this.selectedFile).subscribe({
+      next: (user) => {
+        this.imageUrl = user.imageUrl;
+        if (this.previewUrl) {
+          URL.revokeObjectURL(this.previewUrl);
+        }
         this.previewUrl = null;
         this.selectedFile = null;
         this.uploadingAvatar.set(false);
-        this.toast.success('Avatar actualizado');
+        this.toast.success('Foto de perfil actualizada correctamente');
       },
       error: (err) => {
         this.uploadingAvatar.set(false);
-        this.toast.error(err.error?.message || 'Error subiendo');
+        const msg = extractApiErrorMessage(err, 'No se pudo actualizar la foto de perfil');
+        this.toast.error(msg);
       },
     });
   }
