@@ -50,9 +50,8 @@
           @for (d of topDonors(); track d.rank) {
             <div class="top-donor-row">
               <span class="donor-badge-icon">{{ d.badge }}</span>
-              <div class="top-rank">{{ d.rank }}</div>
               <div class="flex-1">
-                <div class="d-flex align-items-center gap-2">
+                <div class="flex items-center gap-2">
                   <app-user-avatar
                     [imageUrl]="d.donorImageUrl || null"
                     [name]="d.name"
