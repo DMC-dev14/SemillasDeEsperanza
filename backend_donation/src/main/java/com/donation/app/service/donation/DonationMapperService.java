@@ -30,12 +30,13 @@ public class DonationMapperService {
         String donorEmail = d.getDonor() != null
                 ? d.getDonor().getEmail()
                 : d.getPayerEmail();
+        String donorImageUrl = d.getDonor() != null ? (d.getDonor().getImage() != null ? d.getDonor().getImage().getImageUrl() : null) : null;
 
-        return mapToResponse(d, tx, v, donorName, donorEmail);
+        return mapToResponse(d, tx, v, donorName, donorEmail, donorImageUrl);
     }
 
     public DonationResponse mapToResponse(Donation d, Transaction tx, Voucher v, String donorName,
-            String donorEmail) {
+            String donorEmail, String donorImageUrl) {
         return new DonationResponse(
                 d.getId(),
                 d.getAmount(),
@@ -46,6 +47,7 @@ public class DonationMapperService {
                 d.getDonor() != null ? d.getDonor().getId() : null,
                 donorName,
                 donorEmail,
+                donorImageUrl,
                 d.getCampaign() != null ? d.getCampaign().getId() : null,
                 d.getCampaign() != null ? d.getCampaign().getTitle() : "Campaña General",
                 tx != null ? tx.getMethodPay() : Method.CREDIT_CARD,

@@ -22,5 +22,7 @@ public record CampaignResponse(
     LocalDateTime startDate,
     LocalDateTime endDate,
     LocalDateTime createDate,
-    LocalDateTime updateDate
+    LocalDateTime updateDate,
+    String creatorImageUrl,
+    String creatorName
 ) {}

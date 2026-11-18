@@ -78,13 +78,16 @@ public class GetDonationsDBService {
         Map<String, BigDecimal> totalsByDonor = new LinkedHashMap<>();
         Map<String, Integer> countsByDonor = new LinkedHashMap<>();
         Map<String, String> displayNames = new LinkedHashMap<>();
+        Map<String, String> donorImageUrls = new LinkedHashMap<>();
 
         for (Donation d : allCompleted) {
             String key;
             String name;
+            String imageUrl = null;
             if (d.getDonor() != null) {
                 key = "USER_" + d.getDonor().getId();
                 name = formatShortName(d.getDonor().getName());
+                imageUrl = d.getDonor().getImage() != null ? d.getDonor().getImage().getImageUrl() : null;
             } else {
                 key = "ANON_" + d.getId();
                 name = extractDonorNameFromMessage(d.getMessage());
@@ -92,6 +95,9 @@ public class GetDonationsDBService {
             totalsByDonor.merge(key, d.getAmount(), BigDecimal::add);
             countsByDonor.merge(key, 1, Integer::sum);
             displayNames.putIfAbsent(key, name);
+            if (imageUrl != null) {
+                donorImageUrls.putIfAbsent(key, imageUrl);
+            }
         }
 
         List<Map.Entry<String, BigDecimal>> sorted = new ArrayList<>(totalsByDonor.entrySet());
@@ -108,6 +114,9 @@ public class GetDonationsDBService {
             row.put("name", displayNames.getOrDefault(key, "Donante Solidario"));
             row.put("donations", countsByDonor.getOrDefault(key, 1));
             row.put("total", sorted.get(i).getValue());
+            if (donorImageUrls.containsKey(key)) {
+                row.put("donorImageUrl", donorImageUrls.get(key));
+            }
             result.add(row);
         }
         return result;

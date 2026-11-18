@@ -16,6 +16,7 @@ public record DonationResponse(
     Long donorId,
     String donorName,
     String donorEmail,
+    String donorImageUrl,
     Long campaignId,
     String campaignTitle,
     Method methodPay,

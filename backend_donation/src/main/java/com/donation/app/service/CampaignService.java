@@ -156,7 +156,9 @@ public class CampaignService {
                 c.getStartDate(),
                 c.getEndDate(),
                 c.getCreateDate(),
-                c.getUpdateDate()
+                c.getUpdateDate(),
+                c.getCreator() != null ? (c.getCreator().getImage() != null ? c.getCreator().getImage().getImageUrl() : null) : null,
+                c.getCreator() != null ? c.getCreator().getName() : null
         );
     }
 }
