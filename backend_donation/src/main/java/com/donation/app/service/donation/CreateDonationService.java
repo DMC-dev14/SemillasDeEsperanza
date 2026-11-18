@@ -57,9 +57,9 @@ public class CreateDonationService {
         Method method = mapper.parseMethod(request.paymentMethod());
 
         if (method == Method.YAPE) {
-            if (request.amount().compareTo(new BigDecimal("1.24")) < 0) {
+            if (request.amount().compareTo(new BigDecimal("2.00")) < 0) {
                 throw new BusinessException(HttpStatus.BAD_REQUEST,
-                        "El monto mínimo para Yape es S/ 1.24");
+                        "El monto mínimo para Yape es S/ 2.00");
             }
             if (request.amount().compareTo(new BigDecimal("2000.00")) > 0) {
                 throw new BusinessException(HttpStatus.BAD_REQUEST,

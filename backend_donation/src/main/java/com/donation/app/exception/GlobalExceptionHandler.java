@@ -118,7 +118,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         private String traducir(String mp) {
                 return switch (mp) {
                         case "Invalid value for transaction_amount" ->
-                                "El monto no es válido para Yape (mínimo S/ 1.24)";
+                                "El monto no es válido para Yape (mínimo S/ 2.00)";
                         case "Invalid card token", "Invalid token" ->
                                 "El código de Yape venció. Genera uno nuevo e inténtalo otra vez.";
                         default -> mp;
