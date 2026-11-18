@@ -145,3 +145,51 @@
   object-position: center;
   border-radius: 50%;
 }
+
+.avatar-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.avatar-control-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+
+  border: 1px solid #3d6b35;
+  border-radius: 8px;
+
+  background: #f4f8f0;
+  color: #3d6b35;
+
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: background 0.2s;
+}
+
+.avatar-control-btn:hover {
+  background: #e8efdd;
+}
+
+.avatar-control-delete {
+  border-color: #c1462f;
+  background: #fff5f3;
+  color: #c1462f;
+}
+
+.avatar-control-delete:hover {
+  background: #fce5e0;
+}
+
+.avatar-control-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
