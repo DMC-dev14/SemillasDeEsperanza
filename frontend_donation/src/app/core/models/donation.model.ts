@@ -30,6 +30,7 @@ export interface DonationResponse {
   donorId: number | null;
   donorName: string;
   donorEmail: string;
+  donorImageUrl?: string;
   campaignId: number;
   campaignTitle: string;
   methodPay: PaymentMethod | string;
@@ -54,6 +55,7 @@ export interface TopDonor {
   name: string;
   donations: number;
   total: number;
+  donorImageUrl?: string;
 }
 
 export interface MyDonationsResponse {

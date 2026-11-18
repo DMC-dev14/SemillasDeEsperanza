@@ -25,13 +25,14 @@ import {
 
 import { ConfirmModal } from '../../shared/components/confirm-modal/confirm-modal';
 import { CustomDatePipe } from '../../shared/pipes/custom-date-pipe';
+import { UserAvatarComponent } from '../../shared/components/user-avatar';
 
 export type AdminTab = 'resumen' | 'campanas' | 'donaciones' | 'usuarios';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CustomDatePipe, ConfirmModal],
+  imports: [CommonModule, ReactiveFormsModule, CustomDatePipe, ConfirmModal, UserAvatarComponent],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })

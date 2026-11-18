@@ -389,6 +389,7 @@
               <thead>
                 <tr>
                   <th>ID</th>
+                  <th>Avatar</th>
                   <th>Nombre</th>
                   <th>Correo electrónico</th>
                   <th>Rol</th>
@@ -401,6 +402,15 @@
                 @for (u of usuarios(); track u.id) {
                   <tr>
                     <td class="text-clay font-semibold">#{{ u.id }}</td>
+                    <td>
+                      <app-user-avatar
+                        [imageUrl]="u.imageUrl || null"
+                        [name]="u.name"
+                        [size]="'sm'"
+                        [editable]="false"
+                        [alt]="'Avatar de ' + u.name"
+                      />
+                    </td>
                     <td class="font-semibold text-bark">{{ u.name }}</td>
                     <td>{{ u.email }}</td>
                     <td>

@@ -4,11 +4,12 @@ import { Router, RouterLink } from '@angular/router';
 import { CampaignResponse } from '../../core/models/campaign.model';
 import { CampaignService } from '../../core/services/campaign.service';
 import { FALLBACK_CAMPAIGN_IMAGE } from '../../core/utils/password-validators';
+import { UserAvatarComponent } from '../../shared/components/user-avatar';
 
 @Component({
   selector: 'app-campaigns',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, UserAvatarComponent],
   templateUrl: './campaigns.html',
   styleUrl: './campaigns.css',
 })

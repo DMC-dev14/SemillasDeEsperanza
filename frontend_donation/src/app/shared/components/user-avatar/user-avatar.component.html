@@ -1,0 +1,87 @@
+<div class="user-avatar-container" [class.editable]="editable()">
+  <!-- Avatar Display -->
+  <div class="avatar-wrapper" [class]="sizeClass">
+    @if (hasImage) {
+      <img
+        [src]="imageUrl()"
+        [alt]="alt()"
+        class="avatar-image"
+        loading="lazy"
+        (error)="onImageError($event)"
+      />
+    } @else {
+      <div class="avatar-placeholder" [attr.data-initials]="initials">
+        {{ initials }}
+      </div>
+    }
+
+    <!-- Upload/Remove overlay for editable avatars -->
+    @if (editable()) {
+      <div class="avatar-overlay">
+        <input
+          type="file"
+          #fileInput
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          (change)="onFileSelected($event)"
+          class="avatar-file-input"
+          hidden
+        />
+        @if (!hasImage) {
+          <button
+            type="button"
+            class="btn btn-primary btn-sm avatar-action-btn"
+            (click)="triggerFileInput(fileInput)"
+            [disabled]="isUploading()"
+          >
+            @if (isUploading()) {
+              <span class="spinner-border spinner-border-sm" role="status"></span>
+            } @else {
+              <i class="bi bi-upload"></i>
+            }
+            <span class="ms-1">Subir</span>
+          </button>
+        } @else {
+          <div class="avatar-actions">
+            <button
+              type="button"
+              class="btn btn-outline-light btn-sm avatar-action-btn"
+              (click)="triggerFileInput(fileInput)"
+              [disabled]="isUploading()"
+              title="Cambiar imagen"
+            >
+              @if (isUploading()) {
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+              } @else {
+                <i class="bi bi-pencil"></i>
+              }
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm avatar-action-btn"
+              (click)="removeAvatar()"
+              [disabled]="isUploading()"
+              title="Eliminar imagen"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Error Message -->
+  @if (uploadError()) {
+    <div class="avatar-error mt-2" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-1"></i>
+      {{ uploadError() }}
+    </div>
+  }
+
+  <!-- Name Label (optional) -->
+  @if (!editable() && name()) {
+    <div class="avatar-name mt-1 text-center" [class.text-truncate]="size() !== 'xl'">
+      {{ displayName }}
+    </div>
+  }
+</div>

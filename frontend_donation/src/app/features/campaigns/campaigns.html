@@ -33,6 +33,22 @@
             <p class="card-location">📍 {{ p.location }}</p>
             <h3 class="card-title">{{ p.title }}</h3>
             <p class="card-desc">{{ p.description }}</p>
+
+            @if (p.creatorName || p.creatorImageUrl) {
+              <div class="campaign-creator mb-3 d-flex align-items-center gap-2">
+                <app-user-avatar
+                  [imageUrl]="p.creatorImageUrl || null"
+                  [name]="p.creatorName || 'Creador'"
+                  [size]="'xs'"
+                  [editable]="false"
+                  [alt]="'Avatar de ' + (p.creatorName || 'Creador')"
+                />
+                <span class="text-xs text-clay">
+                  Creado por {{ p.creatorName || 'Semillas de Esperanza' }}
+                </span>
+              </div>
+            }
+
             <div class="progress-wrap">
               <div class="progress-labels">
                 <strong>{{ campaignService.formatShortCurrency(p.amountCollected) }} recaudados</strong>

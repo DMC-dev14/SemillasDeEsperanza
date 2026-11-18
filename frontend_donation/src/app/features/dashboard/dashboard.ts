@@ -19,11 +19,12 @@ import {
   extractApiErrorMessage,
 } from '../../core/utils/password-validators';
 import { CustomDatePipe } from '../../shared/pipes/custom-date-pipe';
+import { UserAvatarComponent } from '../../shared/components/user-avatar';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, CustomDatePipe],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, CustomDatePipe, UserAvatarComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -154,6 +155,15 @@ export class DashboardComponent implements OnInit {
         this.toast.error(msg);
       },
     });
+  }
+
+  onAvatarChange(imageUrl: string | null): void {
+    if (imageUrl) {
+      this.toast.success('Foto de perfil actualizada');
+    } else {
+      this.toast.success('Foto de perfil eliminada');
+    }
+    // The auth service already updates the currentUser signal internally
   }
 
   onAvatarSelected(event: Event): void {

@@ -13,6 +13,22 @@
       <div id="detail-content">
         <p id="detail-location" class="detail-location">📍 {{ proyecto.location }}</p>
         <h1 id="detail-title" class="detail-title">{{ proyecto.title }}</h1>
+
+        @if (proyecto.creatorName || proyecto.creatorImageUrl) {
+          <div class="campaign-creator mb-4 d-flex align-items-center gap-2">
+            <app-user-avatar
+              [imageUrl]="proyecto.creatorImageUrl || null"
+              [name]="proyecto.creatorName || 'Creador'"
+              [size]="'sm'"
+              [editable]="false"
+              [alt]="'Avatar de ' + (proyecto.creatorName || 'Creador')"
+            />
+            <span class="text-sm text-clay">
+              Creado por {{ proyecto.creatorName || 'Semillas de Esperanza' }}
+            </span>
+          </div>
+        }
+
         <div class="grid gap-8 detail-grid">
           <div>
             <p id="detail-description" class="detail-description">{{ proyecto.history || proyecto.description }}</p>

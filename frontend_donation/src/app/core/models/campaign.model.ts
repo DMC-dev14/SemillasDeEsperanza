@@ -18,6 +18,8 @@ export interface CampaignResponse {
   endDate?: string;
   createDate?: string;
   updateDate?: string;
+  creatorImageUrl?: string;
+  creatorName?: string;
 }
 
 export interface CampaignRequest {

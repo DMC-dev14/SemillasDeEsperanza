@@ -52,10 +52,21 @@
               <span class="donor-badge-icon">{{ d.badge }}</span>
               <div class="top-rank">{{ d.rank }}</div>
               <div class="flex-1">
-                <p class="donor-row-name">{{ d.name }}</p>
-                <p class="text-xs text-clay">
-                  {{ d.donations }} {{ d.donations === 1 ? 'donación' : 'donaciones' }}
-                </p>
+                <div class="d-flex align-items-center gap-2">
+                  <app-user-avatar
+                    [imageUrl]="d.donorImageUrl || null"
+                    [name]="d.name"
+                    [size]="'sm'"
+                    [editable]="false"
+                    [alt]="'Avatar de ' + d.name"
+                  />
+                  <span>
+                    <p class="donor-row-name mb-0">{{ d.name }}</p>
+                    <p class="text-xs text-clay mb-0">
+                      {{ d.donations }} {{ d.donations === 1 ? 'donación' : 'donaciones' }}
+                    </p>
+                  </span>
+                </div>
               </div>
               <span class="donor-row-total">{{ campaignService.formatFullCurrency(d.total) }}</span>
             </div>
@@ -81,7 +92,13 @@
         <div id="live-feed">
           @for (r of recentFeed(); track r.id) {
             <div class="feed-item">
-              <div class="feed-avatar">{{ donorInitial(r.donorName) }}</div>
+              <app-user-avatar
+                [imageUrl]="r.donorImageUrl || null"
+                [name]="r.donorName"
+                [size]="'sm'"
+                [editable]="false"
+                [alt]="'Avatar de ' + r.donorName"
+              />
               <div class="feed-info-col">
                 <p class="text-sm truncate text-bark">
                   <strong>{{ r.donorName }}</strong> donó
@@ -195,33 +212,14 @@
           </button>
         </div>
         <div class="text-center mb-5">
-          <div class="relative inline-block">
-            @if (auth.currentUser()?.imageUrl) {
-              <img
-                [src]="auth.currentUser()!.imageUrl"
-                class="dash-profile-avatar"
-                alt="Foto de perfil"
-              />
-            } @else {
-              <div id="profile-avatar-circle" class="dash-profile-avatar">
-                {{ userInitial }}
-              </div>
-            }
-            <!-- Botón cámara para subir -->
-            <label
-              class="absolute bottom-0 right-0 cursor-pointer p-1 bg-white rounded-full shadow hover:bg-gray-100"
-              title="Cambiar foto"
-            >
-              <input
-                type="file"
-                #avatarInput
-                accept="image/*"
-                hidden
-                (change)="onAvatarSelected($event)"
-              />
-              <span class="text-lg">📷</span>
-            </label>
-          </div>
+          <app-user-avatar
+            [imageUrl]="auth.currentUser()?.imageUrl || null"
+            [name]="auth.currentUser()?.name || 'Cliente'"
+            [size]="'xl'"
+            [editable]="true"
+            [alt]="'Foto de perfil'"
+            (avatarChange)="onAvatarChange($event)"
+          />
           <p id="profile-display-title" class="font-semibold text-bark mt-2">
             {{ auth.currentUser()?.name || 'Cliente' }}
           </p>

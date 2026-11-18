@@ -5,11 +5,12 @@ import { CampaignResponse } from '../../../core/models/campaign.model';
 import { CampaignService } from '../../../core/services/campaign.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { FALLBACK_CAMPAIGN_IMAGE } from '../../../core/utils/password-validators';
+import { UserAvatarComponent } from '../../../shared/components/user-avatar';
 
 @Component({
   selector: 'app-campaign-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, UserAvatarComponent],
   templateUrl: './campaign-detail.html',
   styleUrl: './campaign-detail.css',
 })
