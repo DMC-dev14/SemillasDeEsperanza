@@ -77,11 +77,4 @@
       {{ uploadError() }}
     </div>
   }
-
-  <!-- Name Label (optional) -->
-  @if (!editable() && name()) {
-    <div class="avatar-name mt-1 text-center" [class.text-truncate]="size() !== 'xl'">
-      {{ displayName }}
-    </div>
-  }
 </div>
