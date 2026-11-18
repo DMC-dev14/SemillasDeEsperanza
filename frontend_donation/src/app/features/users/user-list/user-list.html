@@ -53,9 +53,17 @@
                   </span>
                 </td>
                 <td class="text-xs text-clay">{{ u.createdAccount | customDate }}</td>
+
                 <td class="cell-right cell-nowrap">
-                  <ng-container>
-                    @if (!auth.currentUser() || u.id !== auth.currentUser()?.id) {
+                  @if (u.id !== auth.currentUser()?.id) {
+                    <div class="flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        class="btn btn-outline btn-sm"
+                        (click)="openEditUser(u)"
+                      >
+                        ✏️ Editar
+                      </button>
                       <button
                         type="button"
                         class="btn btn-outline btn-sm user-toggle-btn"
@@ -64,16 +72,17 @@
                         {{ u.active ? 'Desactivar' : 'Activar' }}
                       </button>
                       <button
+                        type="button"
                         class="btn-danger btn-icon"
                         (click)="deleteUser(u.id)"
                         title="Eliminar usuario"
                       >
                         🗑️
                       </button>
-                    } @else {
-                      <span class="text-xs text-clay">Tu cuenta actual</span>
-                    }
-                  </ng-container>
+                    </div>
+                  } @else {
+                    <span class="text-xs text-clay"> Tu cuenta actual </span>
+                  }
                 </td>
               </tr>
             } @empty {
@@ -88,4 +97,57 @@
       </div>
     </div>
   </div>
+  @if (editUserModalOpen()) {
+    <div class="modal-overlay" (click)="$event.target === $event.currentTarget && closeEditUser()">
+      <div class="modal-box">
+        <h2 class="modal-title mb-4">✏️ Editar Usuario</h2>
+        @if (editUserError()) {
+          <p class="error-msg mb-3">
+            {{ editUserError() }}
+          </p>
+        }
+        <form [formGroup]="editUserForm" (ngSubmit)="saveEditUser()">
+          <div class="grid gap-4 mb-6">
+            <div>
+              <label class="label" for="edit-name"> Nombre completo </label>
+              <input
+                id="edit-name"
+                type="text"
+                class="input"
+                formControlName="name"
+                maxlength="50"
+              />
+            </div>
+            <div>
+              <label class="label" for="edit-email"> Correo electrónico </label>
+              <input
+                id="edit-email"
+                type="email"
+                class="input"
+                formControlName="email"
+                maxlength="100"
+              />
+            </div>
+            <div>
+              <label class="label" for="edit-role"> Rol del usuario </label>
+
+              <select id="edit-role" class="input" formControlName="rol">
+                <option value="USUARIO">Cliente (Usuario)</option>
+
+                <option value="ADMINISTRADOR">Administrador</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <button type="button" class="btn btn-ghost flex-1" (click)="closeEditUser()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary flex-1" [disabled]="savingEditUser()">
+              {{ savingEditUser() ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
 </main>
