@@ -45,4 +45,14 @@ export class UserListComponent implements OnInit {
       },
     });
   }
+  deleteUser(id: number): void {
+    if (!confirm('¿Eliminar usuario?')) return;
+    this.userService.delete(id).subscribe({
+      next: () => {
+        this.toast.success('Usuario eliminado');
+        this.loadUsers();
+      },
+      error: (err) => this.toast.error(extractApiErrorMessage(err, 'No se pudo eliminar')),
+    });
+  }
 }

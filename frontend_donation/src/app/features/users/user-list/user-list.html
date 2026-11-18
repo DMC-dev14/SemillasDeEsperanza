@@ -7,8 +7,12 @@
           <h1 class="user-list-title">Gestión de Usuarios</h1>
         </div>
         <div class="flex gap-3 user-list-actions">
-          <a routerLink="/usuarios/nuevo" class="hero-white-btn user-list-hero-btn">+ Nuevo Usuario</a>
-          <a routerLink="/admin" class="hero-ghost-btn user-list-hero-btn">← Volver al Panel Admin</a>
+          <a routerLink="/usuarios/nuevo" class="hero-white-btn user-list-hero-btn"
+            >+ Nuevo Usuario</a
+          >
+          <a routerLink="/admin" class="hero-ghost-btn user-list-hero-btn"
+            >← Volver al Panel Admin</a
+          >
         </div>
       </div>
     </div>
@@ -36,7 +40,10 @@
                 <td class="font-semibold text-bark">{{ u.name }}</td>
                 <td>{{ u.email }}</td>
                 <td>
-                  <span class="badge" [ngClass]="u.rolName === 'ADMINISTRADOR' ? 'badge-sal' : 'badge-edu'">
+                  <span
+                    class="badge"
+                    [ngClass]="u.rolName === 'ADMINISTRADOR' ? 'badge-sal' : 'badge-edu'"
+                  >
                     {{ u.rolName === 'ADMINISTRADOR' ? 'ADMINISTRADOR' : 'CLIENTE (USUARIO)' }}
                   </span>
                 </td>
@@ -47,22 +54,33 @@
                 </td>
                 <td class="text-xs text-clay">{{ u.createdAccount | customDate }}</td>
                 <td class="cell-right cell-nowrap">
-                  @if (!auth.currentUser() || u.id !== auth.currentUser()?.id) {
-                    <button
-                      type="button"
-                      class="btn btn-outline btn-sm user-toggle-btn"
-                      (click)="toggleUserActive(u)"
-                    >
-                      {{ u.active ? 'Desactivar' : 'Activar' }}
-                    </button>
-                  } @else {
-                    <span class="text-xs text-clay">Tu cuenta actual</span>
-                  }
+                  <ng-container>
+                    @if (!auth.currentUser() || u.id !== auth.currentUser()?.id) {
+                      <button
+                        type="button"
+                        class="btn btn-outline btn-sm user-toggle-btn"
+                        (click)="toggleUserActive(u)"
+                      >
+                        {{ u.active ? 'Desactivar' : 'Activar' }}
+                      </button>
+                      <button
+                        class="btn-danger btn-icon"
+                        (click)="deleteUser(u.id)"
+                        title="Eliminar usuario"
+                      >
+                        🗑️
+                      </button>
+                    } @else {
+                      <span class="text-xs text-clay">Tu cuenta actual</span>
+                    }
+                  </ng-container>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="7" class="text-center py-5 text-clay">No hay usuarios disponibles para mostrar.</td>
+                <td colspan="7" class="text-center py-5 text-clay">
+                  No hay usuarios disponibles para mostrar.
+                </td>
               </tr>
             }
           </tbody>
