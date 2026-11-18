@@ -85,6 +85,7 @@ export interface ChargePaymentRequestDTO {
   donationId: number;
   token: string;
   checkoutToken: string;
+  phoneNumber?: string;
 }
 
 export interface ChargePaymentResponse {

@@ -145,6 +145,7 @@ export class PaymentsComponent implements OnInit {
               donationId,
               checkoutToken,
               token: tokenRes.token,
+              phoneNumber,
             })
             .subscribe({
               next: () => {
