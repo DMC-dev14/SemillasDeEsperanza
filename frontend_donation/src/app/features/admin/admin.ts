@@ -4,7 +4,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { RolNombre, UserResponse } from '../../core/models/auth.model';
-import { CampaignResponse, CampaignStatus } from '../../core/models/campaign.model';
+import {
+  CampaignResponse,
+  CampaignStatus,
+  CampaignCategory,
+} from '../../core/models/campaign.model';
 import { DonationResponse, PaymentStatus } from '../../core/models/donation.model';
 import { AuthService } from '../../core/services/auth';
 import { CampaignService } from '../../core/services/campaign.service';
@@ -76,19 +80,15 @@ export class AdminComponent implements OnInit, OnDestroy {
   readonly campanasActivas = computed(
     () => this.campanas().filter((c) => c.status === 'ACTIVE').length,
   );
-
   readonly totalCampanas = computed(() => this.campanas().length);
-
   readonly totalDonacionesGlobal = computed(() => this.donaciones().length);
-
   readonly totalUsuariosGlobal = computed(() => this.usuarios().length);
-
   readonly recentDonationsPreview = computed(() => this.donaciones().slice(0, 6));
-
   readonly campaignForm = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
     targetAmount: [1000, [Validators.required, Validators.min(100)]],
     status: ['ACTIVE' as CampaignStatus, [Validators.required]],
+    category: ['Educación' as CampaignCategory, [Validators.required]],
     imageUrl: ['', [Validators.maxLength(255)]],
     description: ['', [Validators.required, Validators.maxLength(255)]],
     history: ['', [Validators.maxLength(255)]],
@@ -182,6 +182,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       title: '',
       targetAmount: 25000,
       status: 'ACTIVE',
+      category: 'Educación',
       imageUrl: '',
       description: '',
       history: '',
@@ -200,6 +201,9 @@ export class AdminComponent implements OnInit, OnDestroy {
       title: c.title || '',
       targetAmount: Number(c.targetAmount || 100),
       status: c.status || 'ACTIVE',
+      category: (['Educación', 'Salud', 'Vivienda', 'Alimentación'].includes(c.category)
+        ? c.category
+        : 'Educación') as CampaignCategory,
       imageUrl: c.imageUrl || '',
       description: c.description || '',
       history: c.history || '',
@@ -214,9 +218,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.campaignModalOpen.set(false);
     this.clearSelectedCampaignImage();
   }
-
-  // El método onFileSelected duplicado al final ya no es necesario
-  // (se usa el de arriba que sube directamente a Cloudinary)
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -293,6 +294,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       title: raw.title.trim(),
       targetAmount: Number(raw.targetAmount),
       status: raw.status,
+      category: raw.category,
       imageUrl: raw.imageUrl.trim(),
       description: raw.description.trim(),
       history: raw.history.trim() || raw.description.trim(),
@@ -468,11 +470,6 @@ export class AdminComponent implements OnInit, OnDestroy {
         },
       });
   }
-
-  /* ====================================
-   EDITAR USUARIOS
-==================================== */
-
   openEditUser(u: UserResponse): void {
     if (u.id === this.auth.currentUser()?.id) return;
 

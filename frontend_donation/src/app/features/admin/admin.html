@@ -551,48 +551,56 @@
                   <option value="CANCELLED">CANCELLED (Cancelada)</option>
                 </select>
               </div>
+              <div>
+                <label class="label" for="camp-category"> Categoría de campaña * </label>
+                <select id="camp-category" formControlName="category" class="input">
+                  <option value="Educación">Educación</option>
+                  <option value="Salud">Salud</option>
+                  <option value="Vivienda">Vivienda</option>
+                  <option value="Alimentación">Alimentación</option>
+                </select>
+              </div>
             </div>
-
             <div class="image-upload-field">
-              <label class="label" for="campaign-image"> Subir imagen </label>
-
-              <label class="image-upload-zone" for="campaign-image">
-                @if (!previewUrl() && !campaignForm.controls.imageUrl.value) {
+              <label class="label"> Subir imagen </label>
+              <input
+                #campaignFileInput
+                id="campaign-image"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                (change)="onFileSelected($event)"
+                hidden
+              />
+              <button
+                type="button"
+                class="image-upload-zone"
+                (click)="campaignFileInput.click()"
+                [disabled]="uploadingImage()"
+              >
+                @if (previewUrl() || campaignForm.controls.imageUrl.value) {
+                  <img
+                    [src]="previewUrl() || campaignForm.controls.imageUrl.value"
+                    alt="Vista previa de campaña"
+                    class="image-preview-img"
+                  />
+                } @else {
                   <span class="upload-icon">📷</span>
                   <strong>Seleccionar imagen</strong>
                   <span>Haz clic para elegir una imagen</span>
                   <small>JPG, PNG o WEBP · Máximo 5 MB</small>
                 }
-                @if (previewUrl() || campaignForm.controls.imageUrl.value) {
-                  <img
-                    [src]="previewUrl() || campaignForm.controls.imageUrl.value"
-                    alt="Vista previa de la campaña"
-                    class="image-preview-img"
-                  />
-                }
-                <input
-                  id="campaign-image"
-                  type="file"
-                  class="image-file-input"
-                  accept="image/jpeg,image/png,image/webp"
-                  (change)="onFileSelected($event)"
-                />
-              </label>
-
+              </button>
               @if (uploadingImage()) {
-                <p class="text-xs text-clay mt-1">Subiendo imagen...</p>
+                <p class="text-xs text-clay mt-1">Subiendo imagen a Cloudinary...</p>
               }
-
               @if (imageUploadError()) {
                 <p class="error-msg">
                   {{ imageUploadError() }}
                 </p>
               }
             </div>
-
             <div>
               <label class="label" for="camp-image-url"> ...o pega una URL </label>
-
               <input
                 id="camp-image-url"
                 type="url"
@@ -601,12 +609,10 @@
                 placeholder="https://res.cloudinary.com/..."
                 maxlength="255"
               />
-
               <p class="text-xs text-clay mt-1">
                 Si seleccionas un archivo, se utilizará en lugar de esta URL.
               </p>
             </div>
-
             <div>
               <label class="label" for="camp-desc">Descripción corta (máx. 255 caracteres) *</label>
               <textarea

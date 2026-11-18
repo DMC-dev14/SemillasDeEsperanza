@@ -1,3 +1,4 @@
+export type CampaignCategory = 'Educación' | 'Salud' | 'Vivienda' | 'Alimentación';
 export type CampaignStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
 
 export interface CampaignResponse {
@@ -31,4 +32,5 @@ export interface CampaignRequest {
   status?: CampaignStatus;
   startDate?: string;
   endDate?: string;
+  category?: CampaignCategory;
 }
