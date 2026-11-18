@@ -64,7 +64,9 @@ export class DonationsComponent implements OnInit {
   });
 
   readonly amountInvalid = computed(() => {
-    return !this.selectedAmount() || this.selectedAmount() < 1.24; // Era 5
+    const amount = this.selectedAmount();
+    const minimum = this.selectedPay() === 'wallet' ? 2 : 1.24;
+    return !Number.isFinite(amount) || amount < minimum;
   });
 
   ngOnInit(): void {
