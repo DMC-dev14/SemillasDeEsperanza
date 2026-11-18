@@ -269,3 +269,31 @@
   max-height: 220px;
   object-fit: cover;
 }
+/*acciones de admin*/
+.admin-user-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.admin-user-icon-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-user-actions .admin-user-toggle-btn {
+  white-space: nowrap;
+}
+
+.admin-user-actions .admin-delete-btn {
+  color: #c1462f;
+  border-color: #c1462f;
+}
+

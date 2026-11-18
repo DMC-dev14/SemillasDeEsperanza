@@ -383,7 +383,6 @@
               <button type="button" class="btn btn-primary btn-sm" (click)="openCreateUserModal()">
                 + Crear Usuario
               </button>
-              <a routerLink="/usuarios" class="btn btn-outline btn-sm"> ⚙️ Administrar Usuarios </a>
             </div>
           </div>
 
@@ -430,17 +429,38 @@
                       </span>
                     </td>
                     <td class="text-xs text-clay">{{ u.createdAccount | customDate }}</td>
+
                     <td class="cell-right cell-nowrap">
-                      @if (!auth.currentUser() || u.id !== auth.currentUser()?.id) {
-                        <button
-                          type="button"
-                          class="btn btn-outline btn-sm admin-user-toggle-btn"
-                          (click)="toggleUserActive(u)"
-                        >
-                          {{ u.active ? 'Desactivar' : 'Activar' }}
-                        </button>
+                      @if (u.id !== auth.currentUser()?.id) {
+                        <div class="admin-user-actions">
+                          <button
+                            type="button"
+                            class="btn btn-outline btn-sm admin-user-icon-btn"
+                            (click)="openEditUser(u)"
+                            title="Editar usuario"
+                            [attr.aria-label]="'Editar a ' + u.name"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-outline btn-sm admin-user-toggle-btn"
+                            (click)="toggleUserActive(u)"
+                          >
+                            {{ u.active ? 'Desactivar' : 'Activar' }}
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-outline btn-sm admin-delete-btn admin-user-icon-btn"
+                            (click)="deleteUser(u)"
+                            title="Eliminar usuario"
+                            [attr.aria-label]="'Eliminar a ' + u.name"
+                          >
+                            🗑️
+                          </button>
+                        </div>
                       } @else {
-                        <span class="text-xs text-clay">Tu cuenta actual</span>
+                        <span class="text-xs text-clay"> Tu cuenta actual </span>
                       }
                     </td>
                   </tr>
@@ -755,7 +775,61 @@
       </div>
     </div>
   }
+  @if (editUserModalOpen()) {
+    <div class="modal-overlay" (click)="$event.target === $event.currentTarget && closeEditUser()">
+      <div class="modal-box admin-modal-user">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="admin-modal-title">✏️ Editar Usuario</h2>
+          <button type="button" class="admin-modal-close" (click)="closeEditUser()">✕</button>
+        </div>
+        @if (editUserError()) {
+          <div class="auth-alert error mb-3">
+            {{ editUserError() }}
+          </div>
+        }
+        <form [formGroup]="editUserForm" (ngSubmit)="saveEditUser()">
+          <div class="grid gap-4 mb-6">
+            <div>
+              <label class="label" for="edit-user-name"> Nombre completo </label>
+              <input
+                id="edit-user-name"
+                type="text"
+                class="input"
+                formControlName="name"
+                maxlength="50"
+              />
+            </div>
+            <div>
+              <label class="label" for="edit-user-email"> Correo electrónico </label>
 
+              <input
+                id="edit-user-email"
+                type="email"
+                class="input"
+                formControlName="email"
+                maxlength="100"
+              />
+            </div>
+            <div>
+              <label class="label" for="edit-user-role"> Rol del usuario </label>
+              <select id="edit-user-role" class="input" formControlName="rol">
+                <option value="USUARIO">Cliente (Usuario)</option>
+                <option value="ADMINISTRADOR">Administrador</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <button type="button" class="btn btn-ghost flex-1" (click)="closeEditUser()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary flex-1" [disabled]="savingEditUser()">
+              {{ savingEditUser() ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
   <app-confirm-modal
     [open]="!!campaignToDelete()"
     title="¿Eliminar campaña?"
@@ -767,5 +841,16 @@
     cancelText="Cancelar"
     (confirmed)="confirmDeleteCampaign()"
     (cancelled)="cancelDeleteCampaign()"
+  ></app-confirm-modal>
+
+  <app-confirm-modal
+    [open]="!!userToDelete()"
+    title="¿Eliminar usuario?"
+    description="¿Deseas eliminar permanentemente esta cuenta?"
+    subDescription="Esta acción no se puede deshacer. Los usuarios con donaciones registradas no pueden eliminarse."
+    confirmText="Sí, eliminar"
+    cancelText="Cancelar"
+    (confirmed)="confirmDeleteUser()"
+    (cancelled)="cancelDeleteUser()"
   ></app-confirm-modal>
 </main>

@@ -40,6 +40,15 @@ export type AdminTab = 'resumen' | 'campanas' | 'donaciones' | 'usuarios';
   styleUrl: './admin.css',
 })
 export class AdminComponent implements OnInit, OnDestroy {
+  readonly createUserModalOpen = signal(false);
+  readonly savingUser = signal(false);
+  readonly createUserError = signal('');
+  readonly showAdminUserPw = signal(false);
+  readonly editUserModalOpen = signal(false);
+  readonly selectedUser = signal<UserResponse | null>(null);
+  readonly savingEditUser = signal(false);
+  readonly editUserError = signal('');
+  readonly userToDelete = signal<UserResponse | null>(null);
   readonly auth = inject(AuthService);
   readonly campaignService = inject(CampaignService);
   private readonly donationService = inject(DonationService);
@@ -57,11 +66,6 @@ export class AdminComponent implements OnInit, OnDestroy {
   readonly editingCampaignId = signal<number | null>(null);
   readonly savingCampaign = signal(false);
   readonly campaignModalError = signal('');
-
-  readonly createUserModalOpen = signal(false);
-  readonly savingUser = signal(false);
-  readonly createUserError = signal('');
-  readonly showAdminUserPw = signal(false);
 
   readonly campaignToDelete = signal<CampaignResponse | null>(null);
 
@@ -104,8 +108,13 @@ export class AdminComponent implements OnInit, OnDestroy {
       ],
     ],
   });
+  readonly editUserForm = this.fb.nonNullable.group({
+    name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
 
-  // Image upload signals
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
+
+    rol: ['USUARIO' as RolNombre, [Validators.required]],
+  });
   readonly uploadingImage = signal(false);
   readonly previewUrl = signal<string | null>(null);
   readonly imageUploadError = signal<string | null>(null);
@@ -458,5 +467,107 @@ export class AdminComponent implements OnInit, OnDestroy {
           this.toast.error(msg);
         },
       });
+  }
+
+  /* ====================================
+   EDITAR USUARIOS
+==================================== */
+
+  openEditUser(u: UserResponse): void {
+    if (u.id === this.auth.currentUser()?.id) return;
+
+    this.selectedUser.set(u);
+    this.editUserError.set('');
+
+    this.editUserForm.reset({
+      name: u.name,
+      email: u.email,
+      rol: u.rolName === 'ADMINISTRADOR' ? 'ADMINISTRADOR' : 'USUARIO',
+    });
+
+    this.editUserModalOpen.set(true);
+  }
+
+  closeEditUser(): void {
+    if (this.savingEditUser()) return;
+
+    this.editUserModalOpen.set(false);
+    this.selectedUser.set(null);
+    this.editUserError.set('');
+  }
+
+  saveEditUser(): void {
+    const user = this.selectedUser();
+
+    if (!user || this.savingEditUser()) return;
+
+    this.editUserError.set('');
+
+    if (this.editUserForm.invalid) {
+      this.editUserForm.markAllAsTouched();
+      this.editUserError.set('Verifica los datos ingresados.');
+      return;
+    }
+
+    const { name, email, rol } = this.editUserForm.getRawValue();
+
+    this.savingEditUser.set(true);
+
+    this.userService
+      .update(user.id, {
+        name: name.trim(),
+        email: email.trim(),
+        rol,
+      })
+      .subscribe({
+        next: () => {
+          this.savingEditUser.set(false);
+          this.closeEditUser();
+
+          this.toast.success('Usuario actualizado correctamente.');
+
+          this.loadAllAdminData();
+        },
+
+        error: (err) => {
+          this.savingEditUser.set(false);
+
+          const msg = extractApiErrorMessage(err, 'No se pudo actualizar el usuario.');
+
+          this.editUserError.set(msg);
+          this.toast.error(msg);
+        },
+      });
+  }
+  deleteUser(u: UserResponse): void {
+    if (u.id === this.auth.currentUser()?.id) return;
+
+    this.userToDelete.set(u);
+  }
+
+  cancelDeleteUser(): void {
+    this.userToDelete.set(null);
+  }
+
+  confirmDeleteUser(): void {
+    const user = this.userToDelete();
+
+    if (!user) return;
+
+    this.userToDelete.set(null);
+
+    this.userService.delete(user.id).subscribe({
+      next: () => {
+        this.toast.success('Usuario eliminado correctamente.');
+
+        this.loadAllAdminData();
+      },
+
+      error: (err) => {
+        const msg = extractApiErrorMessage(err, 'No se pudo eliminar el usuario.');
+
+        this.toast.error(msg);
+      },
+    });
   }
 }
