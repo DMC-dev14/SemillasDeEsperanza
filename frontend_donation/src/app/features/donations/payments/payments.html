@@ -52,26 +52,6 @@
             </p>
           </div>
         }
-
-        <div class="type-toggle mb-6">
-          <button
-            type="button"
-            class="type-btn"
-            [class.active]="paymentMethod() === 'wallet'"
-            (click)="selectGateway('wallet')"
-          >
-            📱 Yape (Billetera Digital)
-          </button>
-          <button
-            type="button"
-            class="type-btn"
-            [class.active]="paymentMethod() === 'paypal'"
-            (click)="selectGateway('paypal')"
-          >
-            🌐 PayPal Checkout
-          </button>
-        </div>
-
         @if (errorMsg()) {
           <div class="auth-alert error mb-4">{{ errorMsg() }}</div>
         }

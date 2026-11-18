@@ -103,12 +103,6 @@ export class PaymentsComponent implements OnInit {
       }
     });
   }
-
-  selectGateway(method: 'wallet' | 'paypal'): void {
-    this.errorMsg.set('');
-    this.paymentMethod.set(method);
-  }
-
   processYape(): void {
     this.errorMsg.set('');
     if (this.yapeForm.invalid) {
