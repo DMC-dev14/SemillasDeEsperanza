@@ -59,11 +59,11 @@
                 id="custom-amount"
                 placeholder="Monto personalizado"
                 (input)="onCustomAmount($event)"
-                min="1.24"
+                min="2.00"
               />
             </div>
             @if (amountInvalid()) {
-              <p class="error-msg" id="amount-error">⚠ El monto mínimo es S/1.24</p>
+              <p class="error-msg" id="amount-error">⚠ El monto mínimo es S/2.00</p>
             }
           </div>
 

@@ -97,6 +97,8 @@ export interface ChargePaymentResponse {
 export interface CreateOrderPayPalRequest {
   donationId: number;
   checkoutToken: string;
+  returnUrl?: string;
+  cancelUrl?: string;
 }
 
 export interface CreateOrderPayPalResponse {

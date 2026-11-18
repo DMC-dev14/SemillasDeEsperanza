@@ -65,7 +65,7 @@ export class DonationsComponent implements OnInit {
 
   readonly amountInvalid = computed(() => {
     const amount = this.selectedAmount();
-    const minimum = this.selectedPay() === 'wallet' ? 2 : 1.24;
+    const minimum = 2;
     return !Number.isFinite(amount) || amount < minimum;
   });
 

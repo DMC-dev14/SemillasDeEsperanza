@@ -98,7 +98,7 @@
         } @else {
           <h3 class="payments-card-title">🌐 Autorización con PayPal</h3>
           <p class="text-sm text-clay mb-4">
-            Se generará y capturará la orden de pago segura asociada a tu donación #{{ effectiveDonationId() }}.
+            Serás redirigido a PayPal para autorizar el pago de tu donación #{{ effectiveDonationId() }}. Al regresar se confirmará automáticamente.
           </p>
           <button
             type="button"
@@ -106,7 +106,7 @@
             [disabled]="loading()"
             (click)="processPayPal()"
           >
-            {{ loading() ? 'Procesando orden PayPal...' : 'Autorizar y completar pago con PayPal' }}
+            {{ loading() ? 'Redirigiendo a PayPal...' : 'Continuar con PayPal' }}
           </button>
         }
       </div>
