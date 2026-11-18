@@ -19,6 +19,7 @@ import com.donation.app.model.Image;
 import com.donation.app.model.User;
 import com.donation.app.repository.CampaignRepository;
 import com.donation.app.repository.DonationRepository;
+import com.donation.app.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +30,7 @@ public class CampaignService {
 
     private final CampaignRepository campaignRepository;
     private final DonationRepository donationRepository;
+    private final UserRepository userRepository;
 
     public List<CampaignResponse> getAll() {
         return campaignRepository.findAll(Sort.by(Sort.Direction.DESC, "createDate")).stream()
@@ -57,15 +59,20 @@ public class CampaignService {
 
     @Transactional
     public CampaignResponse create(CampaignRequest request, User creator) {
+        User managedCreator = null;
+        if (creator != null) {
+            managedCreator = userRepository.findById(creator.getId())
+                    .orElseThrow(() -> new BusinessException(
+                            HttpStatus.NOT_FOUND,
+                            "Usuario creador no encontrado"));
+        }
         String imageUrl = request.imageUrl() != null && !request.imageUrl().isBlank()
                 ? request.imageUrl().trim()
                 : "https://images.unsplash.com/photo-1641736047654-48c2546fcf19?w=800&h=450&fit=crop&auto=format";
-
         Image image = Image.builder()
                 .nombre(request.title() != null ? request.title().trim() : "campaign")
                 .imageUrl(imageUrl)
                 .build();
-
         Campaign campaign = Campaign.builder()
                 .title(request.title().trim())
                 .description(request.description() != null ? request.description().trim() : "")
@@ -78,16 +85,13 @@ public class CampaignService {
                 .status(request.status() != null ? request.status() : CampaignStatus.ACTIVE)
                 .startDate(request.startDate() != null ? request.startDate() : LocalDateTime.now())
                 .endDate(request.endDate())
-                .creator(creator)
+                .creator(managedCreator)
                 .build();
-
         return mapToResponse(campaignRepository.save(campaign));
     }
-
     @Transactional
     public CampaignResponse update(Long id, CampaignRequest request) {
         Campaign campaign = getEntity(id);
-
         if (request.title() != null && !request.title().isBlank()) {
             campaign.setTitle(request.title().trim());
         }
@@ -112,10 +116,8 @@ public class CampaignService {
         if (request.endDate() != null) {
             campaign.setEndDate(request.endDate());
         }
-
         return mapToResponse(campaignRepository.save(campaign));
     }
-
     @Transactional
     public CampaignResponse updateStatus(Long id, CampaignStatus status) {
         if (status == null) {
@@ -157,8 +159,9 @@ public class CampaignService {
                 c.getEndDate(),
                 c.getCreateDate(),
                 c.getUpdateDate(),
-                c.getCreator() != null ? (c.getCreator().getImage() != null ? c.getCreator().getImage().getImageUrl() : null) : null,
-                c.getCreator() != null ? c.getCreator().getName() : null
-        );
+                c.getCreator() != null
+                        ? (c.getCreator().getImage() != null ? c.getCreator().getImage().getImageUrl() : null)
+                        : null,
+                c.getCreator() != null ? c.getCreator().getName() : null);
     }
 }
