@@ -10,17 +10,14 @@ import { AuthService } from '../../../core/services/auth';
   styleUrl: './user-avatar.component.scss'
 })
 export class UserAvatarComponent {
-  // Inputs
   imageUrl = input<string | null | undefined>(null);
   name = input<string>('Usuario');
   size = input<'xs' | 'sm' | 'md' | 'lg' | 'xl'>('md');
   editable = input<boolean>(false);
   alt = input<string>('Avatar de usuario');
 
-  // Outputs
   avatarChange = output<string | null>();
 
-  // Internal state
   private authService = inject(AuthService);
   protected isUploading = signal(false);
   protected uploadError = signal<string | null>(null);
@@ -73,7 +70,7 @@ export class UserAvatarComponent {
   }
 
   private validateFile(file: File): boolean {
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
     if (!allowedTypes.includes(file.type)) {

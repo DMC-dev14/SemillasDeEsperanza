@@ -198,7 +198,6 @@ export class DashboardComponent implements OnInit {
     } else {
       this.toast.success('Foto de perfil eliminada');
     }
-    // The auth service already updates the currentUser signal internally
   }
 
   onAvatarSelected(event: Event): void {

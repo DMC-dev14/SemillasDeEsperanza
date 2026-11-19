@@ -272,8 +272,8 @@ export class AdminComponent implements OnInit, OnDestroy {
     const id = this.editingCampaignId();
     const request$ =
       id !== null
-        ? this.campaignService.uploadCampaignImage(id, file) // ← USA NUEVO ENDPOINT
-        : this.campaignService.uploadImage(file); // ← Para creación, usa genérico temporal
+        ? this.campaignService.uploadCampaignImage(id, file)
+        : this.campaignService.uploadImage(file);
 
     request$.subscribe({
       next: (res) => {

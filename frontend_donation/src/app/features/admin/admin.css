@@ -269,7 +269,6 @@
   max-height: 220px;
   object-fit: cover;
 }
-/*acciones de admin*/
 .admin-user-actions {
   display: flex;
   align-items: center;

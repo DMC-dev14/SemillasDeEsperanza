@@ -1,6 +1,5 @@
 
 <main>
-  <!-- ENCABEZADO DEL PERFIL -->
   <div class="dash-header">
     <div class="container">
       <div class="flex justify-between items-center profile-top-bar">
@@ -24,16 +23,13 @@
     </div>
   </div>
 
-  <!-- CONTENIDO PRINCIPAL -->
   <div class="container profile-container">
     <div class="bg-white rounded-2xl border p-8">
 
-      <!-- AVATAR Y DATOS DEL USUARIO -->
       <div class="text-center mb-6">
 
         <div class="profile-avatar-editor">
 
-          <!-- FOTO DE PERFIL -->
           <div class="profile-avatar-display">
             @if (previewUrl) {
               <img
@@ -54,7 +50,6 @@
             }
           </div>
 
-          <!-- SELECTOR DE IMAGEN OCULTO -->
           <input
             #fileInput
             id="profile-image-input"
@@ -64,7 +59,6 @@
             class="profile-file-input"
           />
 
-          <!-- BOTÓN DE CÁMARA -->
           <button
             type="button"
             class="profile-camera-btn"
@@ -93,7 +87,6 @@
           </button>
         </div>
 
-        <!-- BOTÓN PARA GUARDAR FOTO -->
         @if (previewUrl) {
           <button
             type="button"
@@ -109,7 +102,6 @@
           </button>
         }
 
-        <!-- INFORMACIÓN DEL USUARIO -->
         <p class="profile-user-name">
           {{ auth.currentUser()?.name || 'Donante' }}
         </p>
@@ -126,14 +118,12 @@
 
       </div>
 
-      <!-- MENSAJE DE ERROR -->
       @if (errorMsg()) {
         <div class="auth-alert error mb-4">
           {{ errorMsg() }}
         </div>
       }
 
-      <!-- FORMULARIO DEL PERFIL -->
       <form
         [formGroup]="profileForm"
         (ngSubmit)="saveProfile()"
@@ -141,7 +131,6 @@
       >
         <div class="grid gap-4 mb-6">
 
-          <!-- NOMBRE COMPLETO -->
           <div>
             <label class="label" for="prof-name">
               Nombre completo *
@@ -168,7 +157,6 @@
             }
           </div>
 
-          <!-- CORREO ELECTRÓNICO -->
           <div>
             <label class="label" for="prof-email">
               Correo electrónico *
@@ -196,7 +184,6 @@
           </div>
         </div>
 
-        <!-- BOTÓN GUARDAR CAMBIOS -->
         <button
           type="submit"
           class="btn btn-primary w-full"
