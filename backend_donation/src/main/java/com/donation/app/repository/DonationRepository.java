@@ -5,8 +5,10 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.donation.app.enums.PaymentStatus;
 import com.donation.app.model.Donation;
@@ -35,4 +37,11 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT d FROM Donation d WHERE d.id = :id")
     Optional<Donation> findLockedById(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Donation d SET d.paymentAttemptKey = :attemptKey WHERE d.id = :donationId")
+    int updatePaymentAttemptKey(
+            @Param("donationId") Long donationId,
+            @Param("attemptKey") String attemptKey);
 }

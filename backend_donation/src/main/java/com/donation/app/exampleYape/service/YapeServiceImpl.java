@@ -1,6 +1,7 @@
 package com.donation.app.exampleYape.service;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -141,6 +142,13 @@ public class YapeServiceImpl implements YapeService {
                                                                 "La pasarela de pagos no está disponible"));
                                         }
 
+                                        ChargePaymentPhoneRequest phone = data.phoneNumber() == null || data.phoneNumber().isBlank()
+                                                        ? null
+                                                        : ChargePaymentPhoneRequest.builder()
+                                                                        .areaCode("51")
+                                                                        .number(data.phoneNumber())
+                                                                        .build();
+
                                         ChargePaymentRequest request = ChargePaymentRequest.builder()
                                                         .token(body.getToken())
                                                         .transactionAmount(data.amount())
@@ -150,13 +158,28 @@ public class YapeServiceImpl implements YapeService {
                                                         .externalReference(data.donationId().toString())
                                                         .payer(ChargePaymentPayerRequest.builder()
                                                                         .email(data.email())
+                                                                        .firstName(data.firstName())
+                                                                        .lastName(data.lastName())
+                                                                        .phone(phone)
                                                                         .build())
                                                         .build();
 
+                                        if (data.ipAddress() != null && !data.ipAddress().isBlank()) {
+                                                        request.setAdditionalInfo(ChargePaymentAdditionalInfo.builder()
+                                                                        .ipAddress(data.ipAddress())
+                                                                        .build());
+                                        }
+
                                         return mercadoPagoWebClient.post()
                                                         .uri("/v1/payments")
-                                                        .headers(headers -> headers.setBearerAuth(accessToken))
-                                                        .header("X-Idempotency-Key", data.idempotencyKey())
+                                                        .headers(headers -> {
+                                                                headers.setBearerAuth(accessToken);
+                                                                headers.set("X-Idempotency-Key", data.idempotencyKey());
+                                                                if (data.deviceSessionId() != null
+                                                                                && !data.deviceSessionId().isBlank()) {
+                                                                        headers.set("X-meli-session-id", data.deviceSessionId());
+                                                                }
+                                                        })
                                                         .contentType(MediaType.APPLICATION_JSON)
                                                         .bodyValue(request)
                                                         .retrieve()
@@ -232,11 +255,66 @@ public class YapeServiceImpl implements YapeService {
                                         "Falta el correo del donante");
                 }
 
+                String attemptKey = UUID.randomUUID().toString();
+                if (donationRepository.updatePaymentAttemptKey(donation.getId(), attemptKey) != 1) {
+                        throw new BusinessException(
+                                        HttpStatus.CONFLICT,
+                                        "No se pudo iniciar un nuevo intento de pago");
+                }
+
+                String[] names = donorNames(donation);
+
                 return new PaymentData(
                                 donation.getId(),
                                 donation.getAmount(),
                                 donation.getPayerEmail(),
-                                body.getToken());
+                                attemptKey,
+                                names[0],
+                                names[1],
+                                normalizePhone(body.getPhoneNumber()),
+                                body.getIpAddress(),
+                                body.getDeviceSessionId());
+        }
+
+        private String[] donorNames(Donation donation) {
+
+                String full = null;
+
+                if (donation.getMessage() != null) {
+                        String message = donation.getMessage().trim();
+                        int index = message.lastIndexOf(" de ");
+                        if (index >= 0 && index + 4 < message.length()) {
+                                full = message.substring(index + 4).trim();
+                        }
+                }
+
+                if ((full == null || full.isBlank()) && donation.getPayerEmail() != null) {
+                        String email = donation.getPayerEmail();
+                        int at = email.indexOf('@');
+                        full = (at > 0 ? email.substring(0, at) : email).trim();
+                }
+
+                if (full == null || full.isBlank()) {
+                        full = "Donante Solidario";
+                }
+
+                String[] parts = full.split("\\s+");
+                String lastName = parts.length > 1
+                                ? String.join(" ", Arrays.copyOfRange(parts, 1, parts.length))
+                                : "Solidario";
+
+                return new String[] { parts[0], lastName };
+        }
+
+        private String normalizePhone(String phone) {
+                if (phone == null || phone.isBlank()) {
+                        return null;
+                }
+                String digits = phone.replaceAll("\\D", "");
+                if (digits.length() == 11 && digits.startsWith("51")) {
+                        return digits.substring(2);
+                }
+                return digits.length() == 9 ? digits : null;
         }
 
         private Mono<ChargePaymentResponse> verificarPago(
@@ -299,6 +377,11 @@ public class YapeServiceImpl implements YapeService {
                         Long donationId,
                         BigDecimal amount,
                         String email,
-                        String idempotencyKey) {
+                        String idempotencyKey,
+                        String firstName,
+                        String lastName,
+                        String phoneNumber,
+                        String ipAddress,
+                        String deviceSessionId) {
         }
 }

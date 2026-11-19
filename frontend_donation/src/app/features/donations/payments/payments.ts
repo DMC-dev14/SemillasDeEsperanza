@@ -113,6 +113,7 @@ export class PaymentsComponent implements OnInit {
     const { phoneNumber, otp } = this.yapeForm.getRawValue();
     const donationId = this.effectiveDonationId();
     const checkoutToken = this.effectiveCheckoutToken();
+    const deviceSessionId = this.deviceSessionId();
 
     this.loading.set(true);
 
@@ -130,10 +131,16 @@ export class PaymentsComponent implements OnInit {
               donationId,
               checkoutToken,
               token: tokenRes.token,
+              phoneNumber,
+              deviceSessionId,
             })
             .subscribe({
-              next: () => {
+              next: (res) => {
                 this.loading.set(false);
+                if (res.status !== 'approved') {
+                  this.errorMsg.set(this.describeMpStatus(res.status_detail, res.status));
+                  return;
+                }
                 this.completed.set(true);
                 this.toast.success('¡Pago con Yape procesado exitosamente!');
                 this.paymentCompleted.emit();
@@ -199,6 +206,30 @@ export class PaymentsComponent implements OnInit {
           );
         },
       });
+  }
+
+  private deviceSessionId(): string | undefined {
+    const global = window as unknown as {
+      deviceId?: string;
+      MP_DEVICE_SESSION_ID?: string;
+    };
+    return global.deviceId || global.MP_DEVICE_SESSION_ID || undefined;
+  }
+
+  private describeMpStatus(detail?: string, status?: string): string {
+    const messages: Record<string, string> = {
+      cc_rejected_high_risk:
+        'Mercado Pago rechazó el pago por sus controles de seguridad. Prueba con otro medio de pago o con otro Yape.',
+      cc_rejected_call_for_authorize:
+        'Mercado Pago requiere una autorización adicional desde la app.',
+      cc_rejected_insufficient_amount: 'El monto no cumple el mínimo exigido por Mercado Pago.',
+      pending: 'Mercado Pago aún no confirma el pago. Vuelve a intentarlo en unos minutos.',
+    };
+
+    return (
+      messages[detail ?? ''] ??
+      `Mercado Pago devolvió el estado "${detail || status || 'desconocido'}". El pago no fue confirmado.`
+    );
   }
 
   private redirectAfterCompletion(): void {
