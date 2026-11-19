@@ -13,13 +13,7 @@ public record CreateOrderPayPalRequest(
 
         @NotBlank(message = "El token de checkout es obligatorio")
         @Schema(description = "Token devuelto por POST /api/donations")
-        String checkoutToken,
-
-        @Schema(description = "URL de retorno tras aprobar la orden en PayPal")
-        String returnUrl,
-
-        @Schema(description = "URL de retorno tras cancelar la orden en PayPal")
-        String cancelUrl
+        String checkoutToken
 
 ) {
 }

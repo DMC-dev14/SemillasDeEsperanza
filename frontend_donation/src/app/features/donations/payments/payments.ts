@@ -36,7 +36,6 @@ export class PaymentsComponent implements OnInit {
 
   readonly loading = signal(false);
   readonly errorMsg = signal('');
-  private paypalCaptureStarted = false;
 
   readonly effectiveDonationId = computed(() => this.donationId() || this.routeDonationId());
   readonly effectiveCheckoutToken = computed(
@@ -102,20 +101,6 @@ export class PaymentsComponent implements OnInit {
       if (campaignParam) {
         this.campaignTitle.set(campaignParam);
       }
-
-      if (params.get('paypalCancel') === 'true') {
-        this.errorMsg.set('El pago con PayPal fue cancelado. Puedes intentarlo de nuevo.');
-        return;
-      }
-
-      if (params.get('paypalReturn') === 'true') {
-        const orderId = params.get('token') || sessionStorage.getItem('paypalOrderId');
-        if (orderId) {
-          this.capturePayPalOrder(orderId);
-        } else {
-          this.errorMsg.set('No se pudo identificar la orden de PayPal. Intenta nuevamente.');
-        }
-      }
     });
   }
   processYape(): void {
@@ -145,7 +130,6 @@ export class PaymentsComponent implements OnInit {
               donationId,
               checkoutToken,
               token: tokenRes.token,
-              phoneNumber,
             })
             .subscribe({
               next: () => {
@@ -179,58 +163,39 @@ export class PaymentsComponent implements OnInit {
 
     this.loading.set(true);
 
-    const baseUrl = `${window.location.origin}/pagos`;
-
     this.donationService
       .createPayPalOrder({
         donationId,
         checkoutToken,
-        returnUrl: baseUrl,
-        cancelUrl: baseUrl,
       })
       .subscribe({
         next: (orderRes) => {
-          sessionStorage.setItem('paypalOrderId', orderRes.orderId);
           this.paypalOrderId.set(orderRes.orderId);
-          window.location.href = orderRes.approvalUrl;
+          this.donationService
+            .capturePayPalOrder(orderRes.orderId, {
+              donationId,
+              checkoutToken,
+            })
+            .subscribe({
+              next: () => {
+                this.loading.set(false);
+                this.completed.set(true);
+                this.toast.success('¡Pago con PayPal capturado exitosamente!');
+                this.paymentCompleted.emit();
+                this.redirectAfterCompletion();
+              },
+              error: (err) => {
+                this.loading.set(false);
+                this.errorMsg.set(
+                  extractApiErrorMessage(err, 'Error al capturar la orden de PayPal.')
+                );
+              },
+            });
         },
         error: (err) => {
           this.loading.set(false);
           this.errorMsg.set(
             extractApiErrorMessage(err, 'No se pudo iniciar la orden en PayPal.')
-          );
-        },
-      });
-  }
-
-  private capturePayPalOrder(orderId: string): void {
-    if (this.paypalCaptureStarted || this.completed()) {
-      return;
-    }
-    this.paypalCaptureStarted = true;
-
-    this.loading.set(true);
-
-    this.donationService
-      .capturePayPalOrder(orderId, {
-        donationId: this.effectiveDonationId(),
-        checkoutToken: this.effectiveCheckoutToken(),
-      })
-      .subscribe({
-        next: () => {
-          this.loading.set(false);
-          this.completed.set(true);
-          sessionStorage.removeItem('paypalOrderId');
-          window.history.replaceState({}, '', window.location.pathname);
-          this.toast.success('¡Pago con PayPal capturado exitosamente!');
-          this.paymentCompleted.emit();
-          this.redirectAfterCompletion();
-        },
-        error: (err) => {
-          this.loading.set(false);
-          this.paypalCaptureStarted = false;
-          this.errorMsg.set(
-            extractApiErrorMessage(err, 'Error al capturar la orden de PayPal.')
           );
         },
       });

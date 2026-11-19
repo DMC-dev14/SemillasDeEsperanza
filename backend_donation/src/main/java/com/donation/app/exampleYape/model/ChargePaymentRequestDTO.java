@@ -16,8 +16,4 @@ public class ChargePaymentRequestDTO {
 
     @NotBlank
     private String checkoutToken;
-
-    private String phoneNumber;
-
-    private String ipAddress;
 }

@@ -32,18 +32,7 @@ public class PaymentGatewayController {
 
     @PostMapping("/charge-payment")
     public Mono<ResponseEntity<ChargePaymentResponse>> chargePayment(
-            @Valid @RequestBody ChargePaymentRequestDTO body,
-            @RequestHeader(value = "X-Forwarded-For", required = false) String forwardedFor,
-            @RequestHeader(value = "X-Real-IP", required = false) String realIp) {
-
-        if (body.getIpAddress() == null || body.getIpAddress().isBlank()) {
-            String candidate = forwardedFor != null && !forwardedFor.isBlank()
-                    ? forwardedFor.split(",")[0].trim()
-                    : realIp;
-            if (candidate != null && candidate.matches("\\d{1,3}(\\.\\d{1,3}){3}")) {
-                body.setIpAddress(candidate);
-            }
-        }
+            @Valid @RequestBody ChargePaymentRequestDTO body) {
 
         return yapeService
                 .chargePayment(body)

@@ -85,7 +85,6 @@ export interface ChargePaymentRequestDTO {
   donationId: number;
   token: string;
   checkoutToken: string;
-  phoneNumber?: string;
 }
 
 export interface ChargePaymentResponse {
@@ -98,8 +97,6 @@ export interface ChargePaymentResponse {
 export interface CreateOrderPayPalRequest {
   donationId: number;
   checkoutToken: string;
-  returnUrl?: string;
-  cancelUrl?: string;
 }
 
 export interface CreateOrderPayPalResponse {
