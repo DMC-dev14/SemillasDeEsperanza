@@ -11,6 +11,7 @@ import {
   DonationRequest,
   DonationResponse,
   MyDonationsResponse,
+  PagedResponse,
   PaymentStatus,
   PublicFeedResponse,
   YapeTokenRequestDTO,
@@ -48,6 +49,22 @@ export class DonationService {
   getAllDonations(): Observable<DonationResponse[]> {
     return this.http
       .get<DonationResponse[]>(this.apiUrl)
+      .pipe(catchError((err) => throwError(() => err)));
+  }
+
+  getDonationsPage(page: number, size: number): Observable<PagedResponse<DonationResponse>> {
+    return this.http
+      .get<PagedResponse<DonationResponse>>(`${this.apiUrl}/page`, {
+        params: { page, size },
+      })
+      .pipe(catchError((err) => throwError(() => err)));
+  }
+
+  getMyDonationsPage(page: number, size: number): Observable<PagedResponse<DonationResponse>> {
+    return this.http
+      .get<PagedResponse<DonationResponse>>(`${this.apiUrl}/me/page`, {
+        params: { page, size },
+      })
       .pipe(catchError((err) => throwError(() => err)));
   }
 

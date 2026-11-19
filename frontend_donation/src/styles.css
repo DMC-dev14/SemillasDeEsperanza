@@ -454,3 +454,22 @@ textarea.input{resize:vertical;min-height:120px}
   cursor: not-allowed !important;
   transform: none !important;
 }
+
+/* ── Paginación ── */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--sand);
+}
+.pagination-info {
+  font-size: .8rem;
+  color: var(--clay);
+}
+.pagination-btn {
+  min-width: 6.5rem;
+}

@@ -9,7 +9,7 @@ import {
   CampaignStatus,
   CampaignCategory,
 } from '../../core/models/campaign.model';
-import { DonationResponse, PaymentStatus } from '../../core/models/donation.model';
+import { DonationResponse, PagedResponse, PaymentStatus } from '../../core/models/donation.model';
 import { AuthService } from '../../core/services/auth';
 import { CampaignService } from '../../core/services/campaign.service';
 import { DonationService } from '../../core/services/donation.service';
@@ -64,6 +64,9 @@ export class AdminComponent implements OnInit, OnDestroy {
   readonly activeTab = signal<AdminTab>('resumen');
   readonly campanas = signal<CampaignResponse[]>([]);
   readonly donaciones = signal<DonationResponse[]>([]);
+  readonly donationsPage = signal<PagedResponse<DonationResponse> | null>(null);
+  readonly donationsPageIndex = signal(0);
+  readonly donationsPageSize = signal(10);
   readonly usuarios = signal<UserResponse[]>([]);
 
   readonly campaignModalOpen = signal(false);
@@ -81,9 +84,15 @@ export class AdminComponent implements OnInit, OnDestroy {
     () => this.campanas().filter((c) => c.status === 'ACTIVE').length,
   );
   readonly totalCampanas = computed(() => this.campanas().length);
-  readonly totalDonacionesGlobal = computed(() => this.donaciones().length);
+  readonly totalDonacionesGlobal = computed(() => this.donationsPage()?.totalElements ?? 0);
   readonly totalUsuariosGlobal = computed(() => this.usuarios().length);
   readonly recentDonationsPreview = computed(() => this.donaciones().slice(0, 6));
+  readonly donationsTotalPages = computed(() => this.donationsPage()?.totalPages ?? 0);
+  readonly donationsCurrentPage = computed(() => (this.donationsPage()?.page ?? 0) + 1);
+  readonly canGoToPreviousDonationsPage = computed(() => this.donationsPageIndex() > 0);
+  readonly canGoToNextDonationsPage = computed(
+    () => this.donationsPageIndex() + 1 < this.donationsTotalPages(),
+  );
   readonly campaignForm = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
     targetAmount: [1000, [Validators.required, Validators.min(100)]],
@@ -149,12 +158,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       },
     });
 
-    this.donationService.getAllDonations().subscribe({
-      next: (list) => {
-        this.donaciones.set(list || []);
-      },
-      error: () => this.donaciones.set([]),
-    });
+    this.loadDonationsPage();
 
     this.userService.getAll().subscribe({
       next: (list) => {
@@ -162,6 +166,30 @@ export class AdminComponent implements OnInit, OnDestroy {
       },
       error: () => this.usuarios.set([]),
     });
+  }
+
+  loadDonationsPage(page: number = this.donationsPageIndex()): void {
+    this.donationService.getDonationsPage(page, this.donationsPageSize()).subscribe({
+      next: (res) => {
+        this.donationsPage.set(res);
+        this.donaciones.set(res.content || []);
+        this.donationsPageIndex.set(res.page);
+        if (res.totalPages > 0 && res.page >= res.totalPages) {
+          this.loadDonationsPage(res.totalPages - 1);
+        }
+      },
+      error: () => {
+        this.donationsPage.set(null);
+        this.donaciones.set([]);
+      },
+    });
+  }
+
+  goToDonationsPage(page: number): void {
+    if (page < 0 || page >= this.donationsTotalPages()) {
+      return;
+    }
+    this.loadDonationsPage(page);
   }
 
   switchAdminTab(tab: AdminTab): void {

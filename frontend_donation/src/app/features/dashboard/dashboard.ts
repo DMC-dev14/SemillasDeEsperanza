@@ -1,10 +1,11 @@
-import { Component, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
   ClientDashboardSummary,
   DonationResponse,
+  PagedResponse,
   TopDonor,
 } from '../../core/models/donation.model';
 import { AuthService } from '../../core/services/auth';
@@ -42,6 +43,15 @@ export class DashboardComponent implements OnInit {
     proyectosApoyados: 0,
   });
   readonly myDonations = signal<DonationResponse[]>([]);
+  readonly myDonationsPage = signal<PagedResponse<DonationResponse> | null>(null);
+  readonly myDonationsPageIndex = signal(0);
+  readonly myDonationsPageSize = signal(10);
+  readonly myDonationsTotalPages = computed(() => this.myDonationsPage()?.totalPages ?? 0);
+  readonly myDonationsCurrentPage = computed(() => (this.myDonationsPage()?.page ?? 0) + 1);
+  readonly canGoToPreviousMyDonationsPage = computed(() => this.myDonationsPageIndex() > 0);
+  readonly canGoToNextMyDonationsPage = computed(
+    () => this.myDonationsPageIndex() + 1 < this.myDonationsTotalPages(),
+  );
   readonly topDonors = signal<TopDonor[]>([]);
   readonly recentFeed = signal<DonationResponse[]>([]);
 
@@ -103,10 +113,35 @@ export class DashboardComponent implements OnInit {
       if (res.summary) {
         this.summary.set(res.summary);
       }
-      this.myDonations.set(res.donations || []);
       this.topDonors.set(res.topDonors || []);
       this.recentFeed.set(res.recentFeed || []);
     });
+
+    this.loadMyDonationsPage();
+  }
+
+  loadMyDonationsPage(page: number = this.myDonationsPageIndex()): void {
+    this.donationService.getMyDonationsPage(page, this.myDonationsPageSize()).subscribe({
+      next: (res) => {
+        this.myDonationsPage.set(res);
+        this.myDonations.set(res.content || []);
+        this.myDonationsPageIndex.set(res.page);
+        if (res.totalPages > 0 && res.page >= res.totalPages) {
+          this.loadMyDonationsPage(res.totalPages - 1);
+        }
+      },
+      error: () => {
+        this.myDonationsPage.set(null);
+        this.myDonations.set([]);
+      },
+    });
+  }
+
+  goToMyDonationsPage(page: number): void {
+    if (page < 0 || page >= this.myDonationsTotalPages()) {
+      return;
+    }
+    this.loadMyDonationsPage(page);
   }
 
   get userInitial(): string {

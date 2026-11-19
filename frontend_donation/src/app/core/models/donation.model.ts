@@ -43,6 +43,14 @@ export interface DonationCreatedResponse {
   checkoutToken: string;
 }
 
+export interface PagedResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
 export interface ClientDashboardSummary {
   totalDonado: number;
   cantidadDonaciones: number;
