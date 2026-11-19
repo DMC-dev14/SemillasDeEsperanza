@@ -3,6 +3,8 @@ package com.donation.app.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -25,6 +27,8 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
     long countByCampaign_IdAndStatus(Long campaignId, PaymentStatus status);
 
     List<Donation> findByDonor_IdOrderByDonationDateDesc(Long donorId);
+
+    Page<Donation> findByDonor_Id(Long donorId, Pageable pageable);
 
     List<Donation> findAllByOrderByDonationDateDesc();
 

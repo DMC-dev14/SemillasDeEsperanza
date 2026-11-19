@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.donation.app.dto.response.DonationResponse;
+import com.donation.app.dto.response.PagedResponse;
 import com.donation.app.enums.PaymentStatus;
 import com.donation.app.model.Donation;
 import com.donation.app.repository.DonationRepository;
@@ -15,6 +16,10 @@ import com.donation.app.repository.TransactionRepository;
 import com.donation.app.repository.VoucherRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +43,34 @@ public class GetDonationsDBService {
         return donationRepository.findAllByOrderByDonationDateDesc().stream()
                 .map(mapper::mapToResponse)
                 .toList();
+    }
+
+    public PagedResponse<DonationResponse> getDonationsPage(int page, int size) {
+        Page<Donation> result = donationRepository.findAll(buildPageable(page, size));
+        return toPagedResponse(result);
+    }
+
+    public PagedResponse<DonationResponse> getMyDonationsPage(Long userId, int page, int size) {
+        Page<Donation> result = donationRepository.findByDonor_Id(userId, buildPageable(page, size));
+        return toPagedResponse(result);
+    }
+
+    private Pageable buildPageable(int page, int size) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        return PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.DESC, "donationDate"));
+    }
+
+    private PagedResponse<DonationResponse> toPagedResponse(Page<Donation> result) {
+        List<DonationResponse> content = result.getContent().stream()
+                .map(mapper::mapToResponse)
+                .toList();
+        return new PagedResponse<>(
+                content,
+                result.getNumber(),
+                result.getSize(),
+                result.getTotalElements(),
+                result.getTotalPages());
     }
 
     public List<DonationResponse> getRecentCompletedDonations() {

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import com.donation.app.dto.request.DonationRequest;
 import com.donation.app.dto.response.DonationCreatedResponse;
 import com.donation.app.dto.response.DonationResponse;
+import com.donation.app.dto.response.PagedResponse;
 import com.donation.app.enums.PaymentStatus;
 import com.donation.app.exception.BusinessException;
 import com.donation.app.security.CustomUserDetailsService.CustomUserDetails;
@@ -65,6 +66,23 @@ public class DonationController {
         ));
     }
 
+    @GetMapping("/me/page")
+    public ResponseEntity<PagedResponse<DonationResponse>> getMyDonationsPage(
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        if (principal == null) {
+            throw new BusinessException(
+                    HttpStatus.UNAUTHORIZED,
+                    "No autenticado"
+            );
+        }
+
+        return ResponseEntity.ok(
+                donationService.getMyDonationsPage(principal.getUser().getId(), page, size));
+    }
+
     @GetMapping("/public-feed")
     public ResponseEntity<Map<String, Object>> getPublicFeed() {
 
@@ -81,6 +99,15 @@ public class DonationController {
         return ResponseEntity.ok(
                 donationService.getAllDonations()
         );
+    }
+
+    @GetMapping("/page")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<PagedResponse<DonationResponse>> getAllPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(donationService.getDonationsPage(page, size));
     }
 
     @PatchMapping("/{id}/status")

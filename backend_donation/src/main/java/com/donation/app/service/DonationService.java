@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.donation.app.dto.request.DonationRequest;
 import com.donation.app.dto.response.DonationCreatedResponse;
 import com.donation.app.dto.response.DonationResponse;
+import com.donation.app.dto.response.PagedResponse;
 import com.donation.app.enums.PaymentStatus;
 import com.donation.app.exception.BusinessException;
 import com.donation.app.model.User;
@@ -46,6 +47,14 @@ public class DonationService {
 
     public List<DonationResponse> getAllDonations() {
         return getDonationsDBService.getAllDonations();
+    }
+
+    public PagedResponse<DonationResponse> getDonationsPage(int page, int size) {
+        return getDonationsDBService.getDonationsPage(page, size);
+    }
+
+    public PagedResponse<DonationResponse> getMyDonationsPage(Long userId, int page, int size) {
+        return getDonationsDBService.getMyDonationsPage(userId, page, size);
     }
 
     public List<DonationResponse> getRecentCompletedDonations() {
