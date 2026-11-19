@@ -62,3 +62,79 @@
 .receipt-modal-box { text-align: left; max-width: 26rem; }
 .receipt-modal-header { border-bottom: 1px solid var(--dune); padding-bottom: 0.75rem; }
 
+@media (max-width: 1024px) {
+  .dash-grid-top,
+  .dash-grid-bottom {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .dash-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dash-greeting {
+    font-size: 1.6rem;
+    overflow-wrap: anywhere;
+  }
+
+  .dash-body-container {
+    padding-top: 1.5rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .dash-cta-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .dash-grid-top,
+  .dash-grid-bottom {
+    gap: 1rem;
+  }
+
+  .table-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .table-scroll .history-table {
+    min-width: 650px;
+  }
+
+  .feed-info-col {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .receipt-modal-box {
+    width: 100%;
+    max-width: 100%;
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dash-greeting {
+    font-size: 1.35rem;
+  }
+
+  .feed-item {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .feed-date {
+    white-space: normal;
+  }
+
+  .dash-card-title {
+    font-size: 0.9rem;
+  }
+
+  .dash-body-container .dash-stat-val {
+    font-size: 1.25rem;
+  }
+}

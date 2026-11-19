@@ -51,7 +51,7 @@
             <div class="top-donor-row">
               <span class="donor-badge-icon">{{ d.badge }}</span>
               <div class="flex-1">
-                <div class="flex items-center gap-2">
+                <div class="d-flex items-center gap-2">
                   <app-user-avatar
                     [imageUrl]="d.donorImageUrl || null"
                     [name]="d.name"
@@ -196,32 +196,6 @@
             </div>
           }
         </div>
-
-        @if (myDonationsTotalPages() > 1) {
-          <div class="pagination-bar">
-            <span class="pagination-info">
-              Página {{ myDonationsCurrentPage() }} de {{ myDonationsTotalPages() }}
-            </span>
-            <div class="flex gap-2">
-              <button
-                type="button"
-                class="btn btn-outline btn-sm pagination-btn"
-                [disabled]="!canGoToPreviousMyDonationsPage()"
-                (click)="goToMyDonationsPage(myDonationsPageIndex() - 1)"
-              >
-                ← Anterior
-              </button>
-              <button
-                type="button"
-                class="btn btn-outline btn-sm pagination-btn"
-                [disabled]="!canGoToNextMyDonationsPage()"
-                (click)="goToMyDonationsPage(myDonationsPageIndex() + 1)"
-              >
-                Siguiente →
-              </button>
-            </div>
-          </div>
-        }
       </div>
 
       <div class="bg-white rounded-2xl border p-6" id="mi-perfil">

@@ -1,8 +1,4 @@
 
-/* =========================================
-   ENCABEZADO DEL PERFIL
-========================================= */
-
 .profile-top-bar {
   flex-wrap: wrap;
   gap: 1rem;
@@ -24,19 +20,11 @@
   font-size: 0.875rem;
 }
 
-/* =========================================
-   CONTENEDOR PRINCIPAL
-========================================= */
-
 .profile-container {
   padding-top: 2.5rem;
   padding-bottom: 4rem;
   max-width: 42rem;
 }
-
-/* =========================================
-   AVATAR DEL USUARIO
-========================================= */
 
 .profile-avatar-editor {
   position: relative;
@@ -47,7 +35,6 @@
   overflow: visible;
 }
 
-/* Contenedor circular */
 .profile-avatar-display {
   width: 100%;
   height: 100%;
@@ -62,7 +49,6 @@
   align-items: center;
 }
 
-/* Fotografía */
 .profile-avatar-display .profile-avatar-img {
   display: block;
   width: 100%;
@@ -75,17 +61,12 @@
   border-radius: 50%;
 }
 
-/* Inicial cuando no hay fotografía */
 .profile-avatar-initial {
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
   font-size: 2.5rem;
   color: #fff;
 }
-
-/* =========================================
-   INPUT DE ARCHIVOS
-========================================= */
 
 .profile-file-input {
   position: absolute;
@@ -98,10 +79,6 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
-
-/* =========================================
-   BOTÓN DE CÁMARA
-========================================= */
 
 .profile-avatar-editor .profile-camera-btn {
   position: absolute;
@@ -143,10 +120,6 @@
   flex-shrink: 0;
 }
 
-/* =========================================
-   BOTÓN GUARDAR FOTO
-========================================= */
-
 .profile-upload-btn {
   display: inline-block;
 
@@ -178,14 +151,59 @@
   cursor: not-allowed;
 }
 
-/* =========================================
-   INFORMACIÓN DEL USUARIO
-========================================= */
-
 .profile-user-name {
   margin-top: 0.5rem;
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
   font-size: 1.05rem;
   color: var(--bark);
+}
+
+
+@media (max-width: 767px) {
+  .profile-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-title {
+    font-size: 1.6rem;
+  }
+
+  .profile-container {
+    padding-top: 1.5rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .profile-container > .bg-white {
+    padding: 1.25rem;
+  }
+
+  .profile-back-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .profile-user-name {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 420px) {
+  .profile-title {
+    font-size: 1.4rem;
+  }
+
+  .profile-container > .bg-white {
+    padding: 1rem;
+  }
+
+  .profile-avatar-editor {
+    width: 90px;
+    height: 90px;
+  }
+
+  .profile-avatar-initial {
+    font-size: 2rem;
+  }
 }

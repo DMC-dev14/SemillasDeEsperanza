@@ -129,3 +129,69 @@
     flex-basis: 32px;
   }
 }
+#header .header-inner {
+  width: 100%;
+}
+
+#header .logo {
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+#header .header-right {
+  flex-shrink: 0;
+}
+
+@media (max-width: 1100px) {
+  #header .header-inner {
+    justify-content: space-between;
+  }
+
+  #header .mobile-menu {
+    width: 100%;
+    max-height: calc(100dvh - 4rem);
+    overflow-y: auto;
+  }
+
+  #header .hamburger {
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    min-height: 40px;
+  }
+
+  #header .user-pill {
+    padding: 4px;
+    gap: 0;
+  }
+
+  #header .user-pill-info {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  #header .header-inner {
+    height: 3.75rem;
+  }
+
+  #header .logo-icon {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
+  #header .header-right {
+    gap: 0.4rem;
+  }
+
+  #header .mobile-menu {
+    padding: 0.75rem 1rem;
+  }
+
+  #header .mobile-menu a,
+  #header .mobile-menu button {
+    padding: 0.85rem;
+    font-size: 0.875rem;
+  }
+}
+
